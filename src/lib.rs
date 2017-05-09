@@ -44,7 +44,6 @@ extern crate libc;
 extern crate byteorder;
 extern crate errno;
 
-use libc::CTL_KERN;
 use libc::{c_int, c_uint, c_uchar, c_void};
 use libc::sysctl;
 use libc::BUFSIZ;

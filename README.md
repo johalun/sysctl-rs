@@ -1,4 +1,7 @@
-This crate provides a safe interface for reading and writing information to the kernel using the `sysctl` interface.
+This crate provides a safe interface for reading and writing information to the kernel using the sysctl interface.
+
+*Currently only developed and tested on FreeBSD.*
+*Contributions for improvements and other platforms are welcome.*
 
 ### Documentation
 
