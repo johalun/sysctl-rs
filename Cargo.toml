@@ -2,7 +2,7 @@
 name = "sysctl"
 version = "0.1.1"
 authors = ["Johannes Lundberg <johalun0@gmail.com>"]
-description = "Simplified Rust interface to libc::sysctl"
+description = "Simplified interface to libc::sysctl"
 keywords = ["sysctl", "freebsd"]
 license = "MIT"
 readme = "README.md"

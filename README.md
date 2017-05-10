@@ -13,7 +13,7 @@ Since the crate only builds on FreeBSD documentation is not available on https:/
 Available here: https://johalun.github.io/sysctl-rs/sysctl/index.html
 
 or, to generate documentation locally do:
-```shell
+```sh
 $ git clone https://github.com/johalun/sysctl-rs && cd sysctl-rs
 $ cargo doc
 $ firefox target/doc/sysctl/index.html
