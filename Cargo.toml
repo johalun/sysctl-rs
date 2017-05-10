@@ -1,13 +1,13 @@
 [package]
 name = "sysctl"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Johannes Lundberg <johalun0@gmail.com>"]
 description = "Simplified Rust interface to libc::sysctl"
 keywords = ["sysctl", "freebsd"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/johalun/sysctl-rs"
-documentation = "https://docs.rs/sysctl"
+documentation = "https://johalun.github.io/sysctl-rs/sysctl/index.html"
 
 [dependencies]
 libc = "0.2.22"
