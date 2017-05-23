@@ -1,4 +1,4 @@
-//! A simplified Rust interface to the `sysctl` system call.
+//! A simplified interface to the `sysctl` system call.
 //!
 //! Currently built for and only tested on FreeBSD.
 //!
@@ -136,7 +136,7 @@ impl convert::From<u32> for CtlType {
 impl<'a> convert::From<&'a CtlValue> for CtlType {
     fn from(t: &'a CtlValue) -> Self {
         match t {
-            &CtlValue::Node => CtlType::Node,
+            &CtlValue::Node(_) => CtlType::Node,
             &CtlValue::Int(_) => CtlType::Int,
             &CtlValue::String(_) => CtlType::String,
             &CtlValue::S64(_) => CtlType::S64,
@@ -170,7 +170,7 @@ impl<'a> convert::From<&'a CtlValue> for CtlType {
 /// ```
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum CtlValue {
-    Node,
+    Node(Vec<u8>),
     Int(i32),
     String(String),
     S64(u64),
@@ -352,7 +352,8 @@ fn temperature(info: &CtlInfo, val: &Vec<u8>) -> Result<CtlValue, String> {
     }
 }
 
-/// Returns a result containing the sysctl value if success,
+/// Takes the name of the OID as argument and returns
+/// a result containing the sysctl value if success,
 /// the errno caused by sysctl() as string if failure.
 ///
 /// # Example
@@ -364,8 +365,28 @@ fn temperature(info: &CtlInfo, val: &Vec<u8>) -> Result<CtlValue, String> {
 /// }
 /// ```
 pub fn value(name: &str) -> Result<CtlValue, String> {
+    match name2oid(name) {
+        Ok(v) => value_oid(&v),
+        Err(e) => Err(e),
+    }
+}
 
-    let oid: Vec<c_int> = try!(name2oid(name));
+/// Takes an OID as argument and returns a result
+/// containing the sysctl value if success, the errno
+/// caused by sysctl() as string if failure.
+///
+/// # Example
+/// ```
+/// extern crate sysctl;
+/// extern crate libc;
+///
+/// fn main() {
+///     let oid = vec![libc::CTL_KERN, libc::KERN_OSREV];
+///     println!("Value: {:?}", sysctl::value_oid(&oid));
+/// }
+/// ```
+pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, String> {
+
     let info: CtlInfo = try!(oidfmt(&oid));
 
     // First get size of value in bytes
@@ -407,7 +428,7 @@ pub fn value(name: &str) -> Result<CtlValue, String> {
 
     // Wrap in Enum and return
     match info.ctl_type {
-        CtlType::Node => Ok(CtlValue::Node),
+        CtlType::Node => Ok(CtlValue::Node(val)),
         CtlType::Int => Ok(CtlValue::Int(LittleEndian::read_i32(&val))),
         CtlType::String => {
             if let Ok(s) = str::from_utf8(&val[..val.len() - 1]) {
@@ -432,7 +453,8 @@ pub fn value(name: &str) -> Result<CtlValue, String> {
     }
 }
 
-/// Returns a result containing the sysctl value if success,
+/// A generic function that takes a string as argument and
+/// returns a result containing the sysctl value if success,
 /// the errno caused by sysctl() as string if failure.
 ///
 /// Can only be called for sysctls of type Opaque or Struct.
@@ -459,13 +481,63 @@ pub fn value(name: &str) -> Result<CtlValue, String> {
 /// }
 /// ```
 pub fn value_as<T>(name: &str) -> Result<Box<T>, String> {
+    match name2oid(name) {
+        Ok(v) => value_oid_as::<T>(&v),
+        Err(e) => Err(e),
+    }
+}
 
-    let val_enum = try!(value(name));
+/// A generic function that takes an OID as argument and
+/// returns a result containing the sysctl value if success,
+/// the errno caused by sysctl() as string if failure.
+///
+/// Can only be called for sysctls of type Opaque or Struct.
+///
+/// # Example
+/// ```
+/// extern crate sysctl;
+/// extern crate libc;
+///
+/// use libc::c_int;
+///
+/// #[derive(Debug)]
+/// #[repr(C)]
+/// struct ClockInfo {
+///     hz: c_int, /* clock frequency */
+///     tick: c_int, /* micro-seconds per hz tick */
+///     spare: c_int,
+///     stathz: c_int, /* statistics clock frequency */
+///     profhz: c_int, /* profiling clock frequency */
+/// }
+///
+/// fn main() {
+///     let oid = vec![libc::CTL_KERN, libc::KERN_CLOCKRATE];
+///     println!("{:?}", sysctl::value_oid_as::<ClockInfo>(&oid));
+/// }
+/// ```
+pub fn value_oid_as<T>(oid: &Vec<i32>) -> Result<Box<T>, String> {
 
-    let ctl_type = CtlType::from(&val_enum);
-    assert_eq!(CtlType::Struct, ctl_type, "Error type is not struct/opaque");
+    let val_enum = try!(value_oid(oid));
 
+    // Some structs are apparently reported as Node so this check is invalid..
+    // let ctl_type = CtlType::from(&val_enum);
+    // assert_eq!(CtlType::Struct, ctl_type, "Error type is not struct/opaque");
+
+    // TODO: refactor this when we have better clue to what's going on
     if let CtlValue::Struct(val) = val_enum {
+        // Make sure we got correct data size
+        assert_eq!(mem::size_of::<T>(),
+                   val.len(),
+                   "Error memory size mismatch. Size of struct {}, size of data retrieved {}.",
+                   mem::size_of::<T>(),
+                   val.len());
+
+        // val is Vec<u8>
+        let val_array: Box<[u8]> = val.into_boxed_slice();
+        let val_raw: *mut T = Box::into_raw(val_array) as *mut T;
+        let val_box: Box<T> = unsafe { Box::from_raw(val_raw) };
+        Ok(val_box)
+    } else if let CtlValue::Node(val) = val_enum {
         // Make sure we got correct data size
         assert_eq!(mem::size_of::<T>(),
                    val.len(),
@@ -627,6 +699,23 @@ mod tests {
         let rev_str = String::from_utf8_lossy(&output.stdout);
         let rev = rev_str.trim().parse::<i32>().unwrap();
         let n = match value("kern.osrevision") {
+            Ok(CtlValue::Int(n)) => n,
+            Ok(_) => 0,
+            Err(_) => 0,
+        };
+        assert_eq!(n, rev);
+    }
+
+    #[test]
+    fn ctl_value_oid_int() {
+        let output = Command::new("sysctl")
+            .arg("-n")
+            .arg("kern.osrevision")
+            .output()
+            .expect("failed to execute process");
+        let rev_str = String::from_utf8_lossy(&output.stdout);
+        let rev = rev_str.trim().parse::<i32>().unwrap();
+        let n = match value_oid(&vec![libc::CTL_KERN, libc::KERN_OSREV]) {
             Ok(CtlValue::Int(n)) => n,
             Ok(_) => 0,
             Err(_) => 0,

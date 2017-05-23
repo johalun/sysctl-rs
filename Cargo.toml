@@ -1,6 +1,6 @@
 [package]
 name = "sysctl"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Johannes Lundberg <johalun0@gmail.com>"]
 description = "Simplified interface to libc::sysctl"
 keywords = ["sysctl", "freebsd"]

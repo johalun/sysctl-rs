@@ -25,10 +25,21 @@ Add to `Cargo.toml`
 
 ```toml
 [dependencies]
-sysctl = "0.1.0"
+sysctl = "0.1.2"
 ```
 
 ### Example
+
+sysctl comes with several examples, see the examples folder.
+
+Run with:
+
+```sh
+$ cargo run --example value
+```
+
+Or in a separate crate:
+
 
 ```rust
 extern crate sysctl;

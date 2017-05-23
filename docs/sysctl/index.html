@@ -48,8 +48,8 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../src/sysctl/lib.rs.html#1-702' title='goto source code'>[src]</a></span></h1>
-<div class='docblock'><p>A simplified Rust interface to the <code>sysctl</code> system call.</p>
+               </span><a class='srclink' href='../src/sysctl/lib.rs.html#1-776' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>A simplified interface to the <code>sysctl</code> system call.</p>
 
 <p>Currently built for and only tested on FreeBSD.</p>
 
@@ -424,7 +424,8 @@ Fetches and returns the new value if successful, errno string if failure.</p>
                            <td><a class='fn' href='fn.value.html'
                                   title='sysctl::value'>value</a></td>
                            <td class='docblock-short'>
-                                <p>Returns a result containing the sysctl value if success,
+                                <p>Takes the name of the OID as argument and returns
+a result containing the sysctl value if success,
 the errno caused by sysctl() as string if failure.</p>
                            </td>
                        </tr>
@@ -432,7 +433,26 @@ the errno caused by sysctl() as string if failure.</p>
                            <td><a class='fn' href='fn.value_as.html'
                                   title='sysctl::value_as'>value_as</a></td>
                            <td class='docblock-short'>
-                                <p>Returns a result containing the sysctl value if success,
+                                <p>A generic function that takes a string as argument and
+returns a result containing the sysctl value if success,
+the errno caused by sysctl() as string if failure.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.value_oid.html'
+                                  title='sysctl::value_oid'>value_oid</a></td>
+                           <td class='docblock-short'>
+                                <p>Takes an OID as argument and returns a result
+containing the sysctl value if success, the errno
+caused by sysctl() as string if failure.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.value_oid_as.html'
+                                  title='sysctl::value_oid_as'>value_oid_as</a></td>
+                           <td class='docblock-short'>
+                                <p>A generic function that takes an OID as argument and
+returns a result containing the sysctl value if success,
 the errno caused by sysctl() as string if failure.</p>
                            </td>
                        </tr></table></section>
