@@ -1,5 +1,5 @@
 extern crate sysctl;
-
+#[cfg(not(target_os = "macos"))]
 fn main() {
 
     let ctl = "kern.osrevision";
@@ -14,4 +14,9 @@ fn main() {
     if let sysctl::CtlValue::Int(val) = val_enum {
         println!("Value: {}", val);
     }
+}
+
+#[cfg(target_os = "macos")]
+fn main() {
+    
 }

@@ -10,7 +10,7 @@ repository = "https://github.com/johalun/sysctl-rs"
 documentation = "https://johalun.github.io/sysctl-rs/sysctl/index.html"
 
 [dependencies]
-libc = "0.2.22"
-byteorder = "1.0.0"
-errno = "0.2.3"
+libc = "^0.2.34"
+byteorder = "^1.0.0"
+errno = "^0.2.3"
 

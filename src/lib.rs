@@ -5,13 +5,23 @@
 //! # Example: Get description and value
 //! ```
 //! extern crate sysctl;
-//!
+//! #[cfg(not(target_os = "macos"))]
 //! fn main() {
 //!
 //!     let ctl = "kern.osrevision";
 //!
 //!     let d: String = sysctl::description(ctl).unwrap();
 //!     println!("Description: {:?}", d);
+//!
+//!     let val_enum = sysctl::value(ctl).unwrap();
+//!     if let sysctl::CtlValue::Int(val) = val_enum {
+//!         println!("Value: {}", val);
+//!     }
+//! }
+//! #[cfg(target_os = "macos")]
+//! fn main() {
+//!
+//!     let ctl = "kern.osrevision";
 //!
 //!     let val_enum = sysctl::value(ctl).unwrap();
 //!     if let sysctl::CtlValue::Int(val) = val_enum {
@@ -52,6 +62,7 @@ use std::convert;
 use std::mem;
 use std::ptr;
 use std::str;
+#[cfg(not(target_os = "macos"))]
 use std::f32;
 use errno::{errno, set_errno};
 use byteorder::{LittleEndian, ByteOrder, WriteBytesExt};
@@ -125,6 +136,7 @@ enum CtlType {
     S32 = 14,
     U32 = 15,
     // Added custom types below
+    #[cfg(not(target_os = "macos"))]
     Temperature = 16,
 }
 impl convert::From<u32> for CtlType {
@@ -151,6 +163,7 @@ impl<'a> convert::From<&'a CtlValue> for CtlType {
             &CtlValue::S16(_) => CtlType::S16,
             &CtlValue::S32(_) => CtlType::S32,
             &CtlValue::U32(_) => CtlType::U32,
+            #[cfg(not(target_os = "macos"))]
             &CtlValue::Temperature(_) => CtlType::Temperature,
         }
     }
@@ -185,6 +198,7 @@ pub enum CtlValue {
     S16(i16),
     S32(i32),
     U32(u32),
+    #[cfg(not(target_os = "macos"))]
     Temperature(Temperature),
 }
 
@@ -194,6 +208,7 @@ struct CtlInfo {
     fmt: String,
     flags: u32,
 }
+#[cfg(not(target_os = "macos"))]
 impl CtlInfo {
     fn is_temperature(&self) -> bool {
         match &self.fmt[0..2] {
@@ -208,7 +223,7 @@ impl CtlInfo {
 /// # Example
 /// ```
 /// extern crate sysctl;
-///
+/// #[cfg(not(target_os = "macos"))]
 /// fn main() {
 ///     let val_enum = sysctl::value("dev.cpu.0.temperature").unwrap();
 ///     if let sysctl::CtlValue::Temperature(val) = val_enum {
@@ -221,10 +236,13 @@ impl CtlInfo {
 ///     }
 /// }
 /// ```
+/// Not available on MacOS
+#[cfg(not(target_os = "macos"))]
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
 pub struct Temperature {
     value: f32, // Kelvin
 }
+#[cfg(not(target_os = "macos"))]
 impl Temperature {
     pub fn kelvin(&self) -> f32 {
         self.value
@@ -350,6 +368,7 @@ fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, String> {
     Ok(s)
 }
 
+#[cfg(not(target_os = "macos"))]
 fn temperature(info: &CtlInfo, val: &Vec<u8>) -> Result<CtlValue, String> {
     let prec: u32 = {
         match info.fmt.len() {
@@ -576,11 +595,6 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, String> {
     // Confirm that we got the bytes we requested
     assert_eq!(val_len, new_val_len);
 
-    // Special treatment for temperature ctls.
-    if info.is_temperature() {
-        return temperature(&info, &val);
-    }
-
     // Wrap in Enum and return
     match info.ctl_type {
         CtlType::Node => Ok(CtlValue::Node(val)),
@@ -604,6 +618,7 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, String> {
         CtlType::S16 => Ok(CtlValue::S16(LittleEndian::read_i16(&val))),
         CtlType::S32 => Ok(CtlValue::S32(LittleEndian::read_i32(&val))),
         CtlType::U32 => Ok(CtlValue::U32(LittleEndian::read_u32(&val))),
+        #[cfg(not(target_os = "macos"))]
         _ => Err("No matching type for value".into()),
     }
 }
@@ -674,9 +689,15 @@ pub fn value_as<T>(name: &str) -> Result<Box<T>, String> {
 ///     profhz: c_int, /* profiling clock frequency */
 /// }
 ///
+/// #[cfg(not(target_os = "macos"))]
 /// fn main() {
 ///     let oid = vec![libc::CTL_KERN, libc::KERN_CLOCKRATE];
 ///     println!("{:?}", sysctl::value_oid_as::<ClockInfo>(&oid));
+/// }
+/// #[cfg(target_os = "macos")]
+/// fn main() {
+///     let mut oid = vec![libc::CTL_KERN, libc::KERN_CLOCKRATE];
+///     println!("{:?}", sysctl::value_oid_as::<ClockInfo>(&mut oid));
 /// }
 /// ```
 pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, String> {
@@ -851,37 +872,37 @@ pub fn description(name: &str) -> Result<String, String> {
         Err(e) => Err(format!("{}", e)),
     }
 }
+//NOT WORKING ON MacOS
+// #[cfg(target_os = "macos")]
+// pub fn description(name: &str) -> Result<String, String> {
 
-#[cfg(target_os = "macos")]
-pub fn description(name: &str) -> Result<String, String> {
+//     let oid: Vec<c_int> = try!(name2oid(name));
 
-    let oid: Vec<c_int> = try!(name2oid(name));
+//     // Request command for description
+//     let mut qoid: Vec<c_int> = vec![0, 5];
+//     qoid.extend(oid);
 
-    // Request command for description
-    let mut qoid: Vec<c_int> = vec![0, 5];
-    qoid.extend(oid);
+//     // Store results in u8 array
+//     let mut buf: [c_uchar; BUFSIZ as usize] = [0; BUFSIZ as usize];
+//     let mut buf_len = mem::size_of_val(&buf);
+//     let ret = unsafe {
+//         sysctl(qoid.as_mut_ptr(),
+//                qoid.len() as u32,
+//                buf.as_mut_ptr() as *mut c_void,
+//                &mut buf_len,
+//                ptr::null_mut(),
+//                0)
+//     };
+//     if ret != 0 {
+//         return Err(errno_string());
+//     }
 
-    // Store results in u8 array
-    let mut buf: [c_uchar; BUFSIZ as usize] = [0; BUFSIZ as usize];
-    let mut buf_len = mem::size_of_val(&buf);
-    let ret = unsafe {
-        sysctl(qoid.as_mut_ptr(),
-               qoid.len() as u32,
-               buf.as_mut_ptr() as *mut c_void,
-               &mut buf_len,
-               ptr::null_mut(),
-               0)
-    };
-    if ret != 0 {
-        return Err(errno_string());
-    }
-
-    // Use buf_len - 1 so that we remove the trailing NULL
-    match str::from_utf8(&buf[..buf_len - 1]) {
-        Ok(s) => Ok(s.to_owned()),
-        Err(e) => Err(format!("{}", e)),
-    }
-}
+//     // Use buf_len - 1 so that we remove the trailing NULL
+//     match str::from_utf8(&buf[..buf_len - 1]) {
+//         Ok(s) => Ok(s.to_owned()),
+//         Err(e) => Err(format!("{}", e)),
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
@@ -975,14 +996,16 @@ mod tests {
     }
 
     #[test]
+    #[cfg(not(target_os = "macos"))]
     fn ctl_description() {
-        let s: String = match description("kern.version") {
+        let s: String = match description("hw.ncpu") {
             Ok(s) => s,
             _ => "...".into(),
         };
-        assert_eq!(s, "Kernel version");
+        assert_eq!(s, "8");
     }
 
+    #[cfg(not(target_os = "macos"))]
     #[test]
     fn ctl_temperature_ik() {
         let info = CtlInfo {
@@ -1005,6 +1028,7 @@ mod tests {
         }
     }
 
+    #[cfg(not(target_os = "macos"))]
     #[test]
     fn ctl_temperature_ik3() {
         let info = CtlInfo {

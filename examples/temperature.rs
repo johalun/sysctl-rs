@@ -1,5 +1,5 @@
 extern crate sysctl;
-
+#[cfg(not(target_os = "macos"))]
 fn main() {
 
     let ctl = "dev.cpu.0.temperature";
@@ -18,4 +18,8 @@ fn main() {
     } else {
         panic!("Error, not a temperature ctl!")
     }
+}
+#[cfg(target_os = "macos")]
+fn main() {
+    
 }
