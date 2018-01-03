@@ -1,9 +1,9 @@
 [package]
 name = "sysctl"
-version = "0.1.2"
-authors = ["Johannes Lundberg <johalun0@gmail.com>"]
+version = "0.1.3"
+authors = ["Johannes Lundberg <johalun0@gmail.com>", "Ivan Temchenko <ivan.temchenko@yandex.ua>"]
 description = "Simplified interface to libc::sysctl"
-keywords = ["sysctl", "freebsd"]
+keywords = ["sysctl", "freebsd", "macos"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/johalun/sysctl-rs"
