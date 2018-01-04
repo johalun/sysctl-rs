@@ -7,7 +7,7 @@ keywords = ["sysctl", "freebsd", "macos"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/johalun/sysctl-rs"
-documentation = "https://johalun.github.io/sysctl-rs/"
+documentation = "https://johalun.github.io/sysctl-rs/index.html"
 
 [dependencies]
 libc = "^0.2.34"
