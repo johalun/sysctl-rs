@@ -10,9 +10,7 @@ This crate provides a safe interface for reading and writing information to the 
 
 Since the crate only builds on FreeBSD documentation is not available on https://docs.rs/sysctl
 
-Available here  
-FreeBSD: https://johalun.github.io/sysctl-rs/freebsd/sysctl/index.html  
-macOS: https://johalun.github.io/sysctl-rs/macos/sysctl/index.html  
+Available here: https://johalun.github.io/sysctl-rs/
 
 or, to generate documentation locally do:
 ```sh
@@ -27,7 +25,7 @@ Add to `Cargo.toml`
 
 ```toml
 [dependencies]
-sysctl = "0.1.3"
+sysctl = "0.1.4"
 ```
 
 ### Example

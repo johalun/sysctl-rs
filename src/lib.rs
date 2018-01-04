@@ -983,8 +983,6 @@ pub fn description(name: &str) -> Result<String, String> {
 #[cfg(test)]
 mod tests {
 
-    // use ::*;
-    // use libc::*;
     use super::*;
     use std::process::Command;
 
@@ -993,9 +991,9 @@ mod tests {
     fn ctl_mib() {
         let oid = name2oid("kern.proc.pid").unwrap();
         assert_eq!(oid.len(), 3);
-        assert_eq!(oid[0], CTL_KERN);
-        assert_eq!(oid[1], KERN_PROC);
-        assert_eq!(oid[2], KERN_PROC_PID);
+        assert_eq!(oid[0], libc::CTL_KERN);
+        assert_eq!(oid[1], libc::KERN_PROC);
+        assert_eq!(oid[2], libc::KERN_PROC_PID);
     }
 
     #[test]
@@ -1078,7 +1076,7 @@ mod tests {
             Ok(s) => s,
             _ => "...".into(),
         };
-        assert_eq!(s, "8");
+        assert_ne!(s, "0");
     }
 
     #[cfg(not(target_os = "macos"))]
