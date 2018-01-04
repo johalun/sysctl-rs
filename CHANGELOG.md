@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] - 2018-01-04
+### Added
+- Macos support.
+
 ## [0.1.2] - 2017-05-23
 ### Added
 - This changelog.

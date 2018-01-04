@@ -3,19 +3,21 @@ This crate provides a safe interface for reading and writing information to the 
 [![Current Version](https://img.shields.io/crates/v/sysctl.svg)](https://crates.io/crates/sysctl)
 
 
-*Currently only developed and tested on FreeBSD.*  
+*FreeBSD and macOS are supported.*  
 *Contributions for improvements and other platforms are welcome.*
 
 ### Documentation
 
 Since the crate only builds on FreeBSD documentation is not available on https://docs.rs/sysctl
 
-Available here: https://johalun.github.io/sysctl-rs/sysctl/index.html
+Available here  
+FreeBSD: https://johalun.github.io/sysctl-rs/freebsd/sysctl/index.html  
+macOS: https://johalun.github.io/sysctl-rs/macos/sysctl/index.html  
 
 or, to generate documentation locally do:
 ```sh
 $ git clone https://github.com/johalun/sysctl-rs && cd sysctl-rs
-$ cargo doc
+$ cargo doc --no-deps
 $ firefox target/doc/sysctl/index.html
 ```
 
@@ -25,7 +27,7 @@ Add to `Cargo.toml`
 
 ```toml
 [dependencies]
-sysctl = "0.1.2"
+sysctl = "0.1.3"
 ```
 
 ### Example
