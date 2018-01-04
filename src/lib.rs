@@ -274,12 +274,14 @@ fn name2oid(name: &str) -> Result<Vec<c_int>, String> {
     let mut res: Vec<c_int> = vec![0; CTL_MAXNAME as usize];
 
     let ret = unsafe {
-        sysctl(oid.as_ptr(),
-               2,
-               res.as_mut_ptr() as *mut c_void,
-               &mut len,
-               name.as_ptr() as *const c_void,
-               name.len())
+        sysctl(
+            oid.as_ptr(),
+            2,
+            res.as_mut_ptr() as *mut c_void,
+            &mut len,
+            name.as_ptr() as *const c_void,
+            name.len(),
+        )
     };
     if ret < 0 {
         return Err(errno_string());
@@ -306,12 +308,14 @@ fn name2oid(name: &str) -> Result<Vec<c_int>, String> {
     let mut res: Vec<c_int> = vec![0; CTL_MAXNAME as usize];
 
     let ret = unsafe {
-        sysctl(oid.as_mut_ptr(),
-               2,
-               res.as_mut_ptr() as *mut c_void,
-               &mut len,
-               name.as_ptr() as *mut c_void,
-               name.len())
+        sysctl(
+            oid.as_mut_ptr(),
+            2,
+            res.as_mut_ptr() as *mut c_void,
+            &mut len,
+            name.as_ptr() as *mut c_void,
+            name.len(),
+        )
     };
     if ret < 0 {
         return Err(errno_string());
@@ -337,12 +341,14 @@ fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, String> {
     let mut buf: [c_uchar; BUFSIZ as usize] = [0; BUFSIZ as usize];
     let mut buf_len = mem::size_of_val(&buf);
     let ret = unsafe {
-        sysctl(qoid.as_ptr(),
-               qoid.len() as u32,
-               buf.as_mut_ptr() as *mut c_void,
-               &mut buf_len,
-               ptr::null(),
-               0)
+        sysctl(
+            qoid.as_ptr(),
+            qoid.len() as u32,
+            buf.as_mut_ptr() as *mut c_void,
+            &mut buf_len,
+            ptr::null(),
+            0,
+        )
     };
     if ret != 0 {
         return Err(errno_string());
@@ -416,12 +422,14 @@ fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, String> {
     let mut buf: [c_uchar; BUFSIZ as usize] = [0; BUFSIZ as usize];
     let mut buf_len = mem::size_of_val(&buf);
     let ret = unsafe {
-        sysctl(qoid.as_mut_ptr(),
-               qoid.len() as u32,
-               buf.as_mut_ptr() as *mut c_void,
-               &mut buf_len,
-               ptr::null_mut(),
-               0)
+        sysctl(
+            qoid.as_mut_ptr(),
+            qoid.len() as u32,
+            buf.as_mut_ptr() as *mut c_void,
+            &mut buf_len,
+            ptr::null_mut(),
+            0,
+        )
     };
     if ret != 0 {
         return Err(errno_string());
@@ -490,19 +498,21 @@ pub fn value(name: &str) -> Result<CtlValue, String> {
 /// }
 /// ```
 #[cfg(not(target_os = "macos"))]
-pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, String> {
+pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, String> {
 
     let info: CtlInfo = try!(oidfmt(&oid));
 
     // First get size of value in bytes
     let mut val_len = 0;
     let ret = unsafe {
-        sysctl(oid.as_ptr(),
-               oid.len() as u32,
-               ptr::null_mut(),
-               &mut val_len,
-               ptr::null(),
-               0)
+        sysctl(
+            oid.as_ptr(),
+            oid.len() as u32,
+            ptr::null_mut(),
+            &mut val_len,
+            ptr::null(),
+            0,
+        )
     };
     if ret < 0 {
         return Err(errno_string());
@@ -512,12 +522,14 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, String> {
     let mut val: Vec<c_uchar> = vec![0; val_len];
     let mut new_val_len = val_len;
     let ret = unsafe {
-        sysctl(oid.as_ptr(),
-               oid.len() as u32,
-               val.as_mut_ptr() as *mut c_void,
-               &mut new_val_len,
-               ptr::null(),
-               0)
+        sysctl(
+            oid.as_ptr(),
+            oid.len() as u32,
+            val.as_mut_ptr() as *mut c_void,
+            &mut new_val_len,
+            ptr::null(),
+            0,
+        )
     };
     if ret < 0 {
         return Err(errno_string());
@@ -566,12 +578,14 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, String> {
     // First get size of value in bytes
     let mut val_len = 0;
     let ret = unsafe {
-        sysctl(oid.as_mut_ptr(),
-               oid.len() as u32,
-               ptr::null_mut(),
-               &mut val_len,
-               ptr::null_mut(),
-               0)
+        sysctl(
+            oid.as_mut_ptr(),
+            oid.len() as u32,
+            ptr::null_mut(),
+            &mut val_len,
+            ptr::null_mut(),
+            0,
+        )
     };
     if ret < 0 {
         return Err(errno_string());
@@ -581,12 +595,14 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, String> {
     let mut val: Vec<c_uchar> = vec![0; val_len];
     let mut new_val_len = val_len;
     let ret = unsafe {
-        sysctl(oid.as_mut_ptr(),
-               oid.len() as u32,
-               val.as_mut_ptr() as *mut c_void,
-               &mut new_val_len,
-               ptr::null_mut(),
-               0)
+        sysctl(
+            oid.as_mut_ptr(),
+            oid.len() as u32,
+            val.as_mut_ptr() as *mut c_void,
+            &mut new_val_len,
+            ptr::null_mut(),
+            0,
+        )
     };
     if ret < 0 {
         return Err(errno_string());
@@ -700,6 +716,52 @@ pub fn value_as<T>(name: &str) -> Result<Box<T>, String> {
 ///     println!("{:?}", sysctl::value_oid_as::<ClockInfo>(&mut oid));
 /// }
 /// ```
+#[cfg(not(target_os = "macos"))]
+pub fn value_oid_as<T>(oid: &Vec<i32>) -> Result<Box<T>, String> {
+
+    let val_enum = try!(value_oid(oid));
+
+    // Some structs are apparently reported as Node so this check is invalid..
+    // let ctl_type = CtlType::from(&val_enum);
+    // assert_eq!(CtlType::Struct, ctl_type, "Error type is not struct/opaque");
+
+    // TODO: refactor this when we have better clue to what's going on
+    if let CtlValue::Struct(val) = val_enum {
+        // Make sure we got correct data size
+        assert_eq!(
+            mem::size_of::<T>(),
+            val.len(),
+            "Error memory size mismatch. Size of struct {}, size of data retrieved {}.",
+            mem::size_of::<T>(),
+            val.len()
+        );
+
+        // val is Vec<u8>
+        let val_array: Box<[u8]> = val.into_boxed_slice();
+        let val_raw: *mut T = Box::into_raw(val_array) as *mut T;
+        let val_box: Box<T> = unsafe { Box::from_raw(val_raw) };
+        Ok(val_box)
+    } else if let CtlValue::Node(val) = val_enum {
+        // Make sure we got correct data size
+        assert_eq!(
+            mem::size_of::<T>(),
+            val.len(),
+            "Error memory size mismatch. Size of struct {}, size of data retrieved {}.",
+            mem::size_of::<T>(),
+            val.len()
+        );
+
+        // val is Vec<u8>
+        let val_array: Box<[u8]> = val.into_boxed_slice();
+        let val_raw: *mut T = Box::into_raw(val_array) as *mut T;
+        let val_box: Box<T> = unsafe { Box::from_raw(val_raw) };
+        Ok(val_box)
+    } else {
+        Err("Error extracting value".into())
+    }
+}
+
+#[cfg(target_os = "macos")]
 pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, String> {
 
     let val_enum = try!(value_oid(oid));
@@ -711,11 +773,13 @@ pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, String> {
     // TODO: refactor this when we have better clue to what's going on
     if let CtlValue::Struct(val) = val_enum {
         // Make sure we got correct data size
-        assert_eq!(mem::size_of::<T>(),
-                   val.len(),
-                   "Error memory size mismatch. Size of struct {}, size of data retrieved {}.",
-                   mem::size_of::<T>(),
-                   val.len());
+        assert_eq!(
+            mem::size_of::<T>(),
+            val.len(),
+            "Error memory size mismatch. Size of struct {}, size of data retrieved {}.",
+            mem::size_of::<T>(),
+            val.len()
+        );
 
         // val is Vec<u8>
         let val_array: Box<[u8]> = val.into_boxed_slice();
@@ -724,11 +788,13 @@ pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, String> {
         Ok(val_box)
     } else if let CtlValue::Node(val) = val_enum {
         // Make sure we got correct data size
-        assert_eq!(mem::size_of::<T>(),
-                   val.len(),
-                   "Error memory size mismatch. Size of struct {}, size of data retrieved {}.",
-                   mem::size_of::<T>(),
-                   val.len());
+        assert_eq!(
+            mem::size_of::<T>(),
+            val.len(),
+            "Error memory size mismatch. Size of struct {}, size of data retrieved {}.",
+            mem::size_of::<T>(),
+            val.len()
+        );
 
         // val is Vec<u8>
         let val_array: Box<[u8]> = val.into_boxed_slice();
@@ -758,29 +824,33 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, String> {
     let info: CtlInfo = try!(oidfmt(&oid));
 
     let ctl_type = CtlType::from(&value);
-    assert_eq!(info.ctl_type,
-               ctl_type,
-               "Error type mismatch. Type given {:?}, sysctl type: {:?}",
-               ctl_type,
-               info.ctl_type);
+    assert_eq!(
+        info.ctl_type,
+        ctl_type,
+        "Error type mismatch. Type given {:?}, sysctl type: {:?}",
+        ctl_type,
+        info.ctl_type
+    );
 
 
     // TODO rest of the types
 
     if let CtlValue::Int(v) = value {
         let mut bytes = vec![];
-        bytes
-            .write_i32::<LittleEndian>(v)
-            .expect("Error parsing value to byte array");
+        bytes.write_i32::<LittleEndian>(v).expect(
+            "Error parsing value to byte array",
+        );
 
         // Set value
         let ret = unsafe {
-            sysctl(oid.as_ptr(),
-                   oid.len() as u32,
-                   ptr::null_mut(),
-                   ptr::null_mut(),
-                   bytes.as_ptr() as *const c_void,
-                   bytes.len())
+            sysctl(
+                oid.as_ptr(),
+                oid.len() as u32,
+                ptr::null_mut(),
+                ptr::null_mut(),
+                bytes.as_ptr() as *const c_void,
+                bytes.len(),
+            )
         };
         if ret < 0 {
             return Err(errno_string());
@@ -798,29 +868,33 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, String> {
     let info: CtlInfo = try!(oidfmt(&oid));
 
     let ctl_type = CtlType::from(&value);
-    assert_eq!(info.ctl_type,
-               ctl_type,
-               "Error type mismatch. Type given {:?}, sysctl type: {:?}",
-               ctl_type,
-               info.ctl_type);
+    assert_eq!(
+        info.ctl_type,
+        ctl_type,
+        "Error type mismatch. Type given {:?}, sysctl type: {:?}",
+        ctl_type,
+        info.ctl_type
+    );
 
 
     // TODO rest of the types
 
     if let CtlValue::Int(v) = value {
         let mut bytes = vec![];
-        bytes
-            .write_i32::<LittleEndian>(v)
-            .expect("Error parsing value to byte array");
+        bytes.write_i32::<LittleEndian>(v).expect(
+            "Error parsing value to byte array",
+        );
 
         // Set value
         let ret = unsafe {
-            sysctl(oid.as_mut_ptr(),
-                   oid.len() as u32,
-                   ptr::null_mut(),
-                   ptr::null_mut(),
-                   bytes.as_ptr() as *mut c_void,
-                   bytes.len())
+            sysctl(
+                oid.as_mut_ptr(),
+                oid.len() as u32,
+                ptr::null_mut(),
+                ptr::null_mut(),
+                bytes.as_ptr() as *mut c_void,
+                bytes.len(),
+            )
         };
         if ret < 0 {
             return Err(errno_string());
@@ -855,12 +929,14 @@ pub fn description(name: &str) -> Result<String, String> {
     let mut buf: [c_uchar; BUFSIZ as usize] = [0; BUFSIZ as usize];
     let mut buf_len = mem::size_of_val(&buf);
     let ret = unsafe {
-        sysctl(qoid.as_ptr(),
-               qoid.len() as u32,
-               buf.as_mut_ptr() as *mut c_void,
-               &mut buf_len,
-               ptr::null(),
-               0)
+        sysctl(
+            qoid.as_ptr(),
+            qoid.len() as u32,
+            buf.as_mut_ptr() as *mut c_void,
+            &mut buf_len,
+            ptr::null(),
+            0,
+        )
     };
     if ret != 0 {
         return Err(errno_string());
@@ -1015,8 +1091,9 @@ mod tests {
         };
         let mut val = vec![];
         // Default value (IK) in deciKelvin integer
-        val.write_i32::<LittleEndian>(3330)
-            .expect("Error parsing value to byte array");
+        val.write_i32::<LittleEndian>(3330).expect(
+            "Error parsing value to byte array",
+        );
 
         let t = temperature(&info, &val).unwrap();
         if let CtlValue::Temperature(tt) = t {
@@ -1038,8 +1115,9 @@ mod tests {
         };
         let mut val = vec![];
         // Set value in milliKelvin
-        val.write_i32::<LittleEndian>(333000)
-            .expect("Error parsing value to byte array");
+        val.write_i32::<LittleEndian>(333000).expect(
+            "Error parsing value to byte array",
+        );
 
         let t = temperature(&info, &val).unwrap();
         if let CtlValue::Temperature(tt) = t {
