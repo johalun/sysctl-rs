@@ -870,6 +870,17 @@ pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
 pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
 
     let oid = try!(name2oid(name));
+    set_oid_value(&oid, value)
+}
+
+#[cfg(target_os = "macos")]
+pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
+    let mut oid = try!(name2oid(name));
+    set_oid_value(&mut oid, value)
+}
+
+#[cfg(not(target_os = "macos"))]
+pub fn set_oid_value(oid: &Vec<c_int>, value: CtlValue) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = try!(oidfmt(&oid));
 
     let ctl_type = CtlType::from(&value);
@@ -907,13 +918,11 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
     }
 
     // Get the new value and return for confirmation
-    self::value(name)
+    self::value_oid(oid)
 }
 
 #[cfg(target_os = "macos")]
-pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
-
-    let mut oid = try!(name2oid(name));
+pub fn set_oid_value(oid: &mut Vec<c_int>, value: CtlValue) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = try!(oidfmt(&oid));
 
     let ctl_type = CtlType::from(&value);
@@ -951,7 +960,7 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
     }
 
     // Get the new value and return for confirmation
-    self::value(name)
+    self::value_oid(oid)
 }
 
 /// Returns a result containing the sysctl description if success,
@@ -967,9 +976,12 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
 /// ```
 #[cfg(not(target_os = "macos"))]
 pub fn description(name: &str) -> Result<String, SysctlError> {
-
     let oid: Vec<c_int> = try!(name2oid(name));
+    oid2description(&oid)
+}
 
+#[cfg(not(target_os = "macos"))]
+fn oid2description(oid: &Vec<c_int>) -> Result<String, SysctlError> {
     // Request command for description
     let mut qoid: Vec<c_int> = vec![0, 5];
     qoid.extend(oid);
