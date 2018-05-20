@@ -267,6 +267,12 @@ pub enum SysctlError {
         #[cause]
         str::Utf8Error
     ),
+
+    #[fail(display = "Value is not readable")]
+    NoReadAccess,
+
+    #[fail(display = "Value is not writeable")]
+    NoWriteAccess,
 }
 
 /// A custom type for temperature sysctls.
@@ -546,6 +552,11 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
 
     let info: CtlInfo = try!(oidfmt(&oid));
 
+    // Check if the value is readable
+    if !(info.flags & CTLFLAG_RD == CTLFLAG_RD) {
+        return Err(SysctlError::NoReadAccess);
+    }
+
     // First get size of value in bytes
     let mut val_len = 0;
     let ret = unsafe {
@@ -623,6 +634,11 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
 pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
 
     let info: CtlInfo = try!(oidfmt(&oid));
+
+    // Check if the value is readable
+    if !(info.flags & CTLFLAG_RD == CTLFLAG_RD) {
+        return Err(SysctlError::NoReadAccess);
+    }
 
     // First get size of value in bytes
     let mut val_len = 0;
@@ -889,6 +905,11 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
 pub fn set_oid_value(oid: &Vec<c_int>, value: CtlValue) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = try!(oidfmt(&oid));
 
+    // Check if the value is writeable
+    if !(info.flags & CTLFLAG_WR == CTLFLAG_WR) {
+        return Err(SysctlError::NoWriteAccess);
+    }
+
     let ctl_type = CtlType::from(&value);
     assert_eq!(
         info.ctl_type,
@@ -930,6 +951,11 @@ pub fn set_oid_value(oid: &Vec<c_int>, value: CtlValue) -> Result<CtlValue, Sysc
 #[cfg(target_os = "macos")]
 pub fn set_oid_value(oid: &mut Vec<c_int>, value: CtlValue) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = try!(oidfmt(&oid));
+
+    // Check if the value is writeable
+    if !(info.flags & CTLFLAG_WR == CTLFLAG_WR) {
+        return Err(SysctlError::NoWriteAccess);
+    }
 
     let ctl_type = CtlType::from(&value);
     assert_eq!(
