@@ -139,18 +139,20 @@ enum CtlType {
     S32 = 14,
     U32 = 15,
     // Added custom types below
+    None = 0,
     #[cfg(not(target_os = "macos"))]
     Temperature = 16,
 }
 impl convert::From<u32> for CtlType {
     fn from(t: u32) -> Self {
-        assert!(t >= 1 && t <= 16);
+        assert!(t <= 16);
         unsafe { mem::transmute(t) }
     }
 }
 impl<'a> convert::From<&'a CtlValue> for CtlType {
     fn from(t: &'a CtlValue) -> Self {
         match t {
+            &CtlValue::None => CtlType::None,
             &CtlValue::Node(_) => CtlType::Node,
             &CtlValue::Int(_) => CtlType::Int,
             &CtlValue::String(_) => CtlType::String,
@@ -175,6 +177,7 @@ impl<'a> convert::From<&'a CtlValue> for CtlType {
 impl CtlType {
     fn min_type_size(self: &Self) -> usize {
         match self {
+            CtlType::None => 0,
             CtlType::Node => 0,
             CtlType::Int => mem::size_of::<libc::c_int>(),
             CtlType::String => 0,
@@ -211,6 +214,7 @@ impl CtlType {
 /// ```
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum CtlValue {
+    None,
     Node(Vec<u8>),
     Int(i32),
     String(String),
@@ -590,6 +594,7 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
 
     // Wrap in Enum and return
     match info.ctl_type {
+        CtlType::None => Ok(CtlValue::None),
         CtlType::Node => Ok(CtlValue::Node(val)),
         CtlType::Int => Ok(CtlValue::Int(LittleEndian::read_i32(&val))),
         CtlType::String => {
@@ -662,6 +667,7 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
 
     // Wrap in Enum and return
     match info.ctl_type {
+        CtlType::None => Ok(CtlValue::None),
         CtlType::Node => Ok(CtlValue::Node(val)),
         CtlType::Int => Ok(CtlValue::Int(LittleEndian::read_i32(&val))),
         CtlType::String => {
