@@ -1164,8 +1164,87 @@ fn oid2name(oid: &Vec<c_int>) -> Result<String, SysctlError> {
     }
 }
 
+/// Get the next OID.
+#[cfg(not(target_os = "macos"))]
+pub fn next_oid(oid: &Vec<c_int>) -> Result<Option<Vec<c_int>>, SysctlError> {
+    // Request command for next oid
+    let mut qoid: Vec<c_int> = vec![0, 2];
+    qoid.extend(oid);
+
+    let mut len: usize = CTL_MAXNAME as usize * mem::size_of::<c_int>();
+
+    // We get results in this vector
+    let mut res: Vec<c_int> = vec![0; CTL_MAXNAME as usize];
+
+    let ret = unsafe {
+        sysctl(
+            qoid.as_ptr(),
+            qoid.len() as u32,
+            res.as_mut_ptr() as *mut c_void,
+            &mut len,
+            ptr::null(),
+            0,
+        )
+    };
+    if ret != 0 {
+        let e = io::Error::last_os_error();
+
+        if e.raw_os_error() == Some(libc::ENOENT) {
+            return Ok(None);
+        }
+        return Err(SysctlError::IoError(e));
+    }
+
+    // len is in bytes, convert to number of c_ints
+    len /= mem::size_of::<c_int>();
+
+    // Trim result vector
+    res.truncate(len);
+
+    Ok(Some(res))
+}
+
+#[cfg(target_os = "macos")]
+pub fn next_oid(oid: &Vec<c_int>) -> Result<Option<Vec<c_int>>, SysctlError> {
+    // Request command for next oid
+    let mut qoid: Vec<c_int> = vec![0, 2];
+    qoid.extend(oid);
+
+    let mut len: usize = CTL_MAXNAME as usize * mem::size_of::<c_int>();
+
+    // We get results in this vector
+    let mut res: Vec<c_int> = vec![0; CTL_MAXNAME as usize];
+
+    let ret = unsafe {
+        sysctl(
+            qoid.as_mut_ptr(),
+            qoid.len() as u32,
+            res.as_mut_ptr() as *mut c_void,
+            &mut len,
+            ptr::null_mut(),
+            0,
+        )
+    };
+    if ret != 0 {
+        let e = io::Error::last_os_error();
+
+        if e.raw_os_error() == Some(libc::ENOENT) {
+            return Ok(None);
+        }
+        return Err(SysctlError::IoError(e));
+    }
+
+    // len is in bytes, convert to number of c_ints
+    len /= mem::size_of::<c_int>();
+
+    // Trim result vector
+    res.truncate(len);
+
+    Ok(Some(res))
+}
+
 /// This struct represents a system control.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Ctl {
     oid: Vec<c_int>,
 }
@@ -1342,6 +1421,79 @@ impl Ctl {
     pub fn set_value(self: &Self, value: CtlValue) -> Result<CtlValue, SysctlError> {
         let mut oid = self.oid.clone();
         set_oid_value(&mut oid, value)
+    }
+}
+
+/// An iterator over Sysctl entries.
+pub struct CtlIter {
+    // if we are iterating over a Node, only include OIDs
+    // starting with this base. Set to None if iterating over all
+    // OIDs.
+    base: Ctl,
+    current: Ctl,
+}
+
+impl CtlIter {
+    /// Return an iterator over the complete sysctl tree.
+    pub fn root() -> Self {
+        CtlIter{
+            base: Ctl { oid: vec![] },
+            current: Ctl { oid: vec![1] },
+        }
+    }
+
+    /// Return an iterator over all sysctl entries below the given node.
+    pub fn below(node: Ctl) -> Self {
+        CtlIter{
+            base: node.clone(),
+            current: node,
+        }
+    }
+}
+
+impl Iterator for CtlIter {
+    type Item = Result<Ctl,SysctlError>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let oid = match next_oid(&self.current.oid) {
+            Ok(Some(o)) => o,
+            Err(e) => return Some(Err(e)),
+            Ok(None) => return None,
+        };
+
+        // We continue iterating as long as the oid starts with the base
+        let cont = oid.starts_with(&self.base.oid);
+
+        self.current = Ctl { oid };
+
+        match cont {
+            true => Some(Ok(self.current.clone())),
+            false => None,
+        }
+    }
+}
+
+/// Ctl implements the IntoIterator trait to allow for easy iteration
+/// over nodes.
+///
+/// # Example
+///
+/// ```
+/// extern crate sysctl;
+/// use sysctl::Ctl;
+///
+/// let kern = Ctl::new("kern");
+/// for ctl in kern {
+///     let name = ctl.name().expect("could not get name");
+///     println!("{}", name);
+/// }
+/// ```
+impl IntoIterator for Ctl {
+    type Item = Result<Ctl,SysctlError>;
+    type IntoIter = CtlIter;
+
+    fn into_iter(self: Self) -> Self::IntoIter {
+        CtlIter::below(self)
     }
 }
 
@@ -1541,5 +1693,82 @@ mod tests {
         } else {
             assert!(false);
         }
+    }
+
+    #[test]
+    fn ctl_iterate_all() {
+        let root = CtlIter::root();
+
+        let all_ctls = root.into_iter()
+            .filter_map(Result::ok);
+
+        for ctl in all_ctls {
+            println!("{:?}", ctl.name());
+        }
+    }
+
+    #[test]
+    fn ctl_iterate() {
+        let output = Command::new("sysctl")
+            .arg("security")
+            .output()
+            .expect("failed to execute process");
+        let expected = String::from_utf8_lossy(&output.stdout);
+
+        let security = Ctl::new("security")
+            .expect("could not get security node");
+
+        let ctls = CtlIter::below(security);
+        let mut actual : Vec<String> = vec!["".to_string()];
+
+        for ctl in ctls {
+            let ctl = match ctl {
+                Err(_) => { continue; },
+                Ok(s) => s,
+            };
+
+            let name = match ctl.name() {
+                Ok(s) => s,
+                Err(_) => { continue; },
+            };
+
+            let value = match ctl.value() {
+                Ok(s) => s,
+                Err(_) => { continue; },
+            };
+
+            let formatted = match value {
+                CtlValue::None => "(none)".to_owned(),
+                CtlValue::Int(i) => format!("{}", i),
+                CtlValue::Uint(i) => format!("{}", i),
+                CtlValue::Long(i) => format!("{}", i),
+                CtlValue::Ulong(i) => format!("{}", i),
+                CtlValue::U8(i) => format!("{}", i),
+                CtlValue::U16(i) => format!("{}", i),
+                CtlValue::U32(i) => format!("{}", i),
+                CtlValue::U64(i) => format!("{}", i),
+                CtlValue::S8(i) => format!("{}", i),
+                CtlValue::S16(i) => format!("{}", i),
+                CtlValue::S32(i) => format!("{}", i),
+                CtlValue::S64(i) => format!("{}", i),
+                CtlValue::Struct(_) => "(opaque struct)".to_owned(),
+                CtlValue::Node(_) => "(node)".to_owned(),
+                CtlValue::String(s) => s.to_owned(),
+                #[cfg(not(target_os = "macos"))]
+                CtlValue::Temperature(t) => format!("{} °C", t.celsius()),
+            };
+
+            match ctl.value_type().expect("could not get value type") {
+                CtlType::None => { continue; },
+                CtlType::Struct => { continue; },
+                CtlType::Node => { continue; },
+                #[cfg(not(target_os = "macos"))]
+                CtlType::Temperature => { continue; },
+                _ => {},
+            };
+
+            actual.push(format!("{}: {}", name, formatted));
+        }
+        assert_eq!(actual.join("\n").trim(), expected.trim());
     }
 }
