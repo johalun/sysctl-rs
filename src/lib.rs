@@ -68,7 +68,6 @@ use std::str;
 #[cfg(not(target_os = "macos"))]
 use std::f32;
 use byteorder::{LittleEndian, ByteOrder, WriteBytesExt};
-use failure::Error;
 
 // CTL* constants belong to libc crate but have not been added there yet.
 // They will be removed from here once in the libc crate.
@@ -222,13 +221,19 @@ impl CtlInfo {
 }
 
 #[derive(Debug, Fail)]
-enum SysctlError {
-    #[fail(display="no matching type for value")]
+pub enum SysctlError {
+    #[fail(display = "no matching type for value")]
     #[cfg(not(target_os = "macos"))]
     UnknownType,
 
-    #[fail(display="Error extracting value")]
+    #[fail(display = "Error extracting value")]
     ExtractionError,
+
+    #[fail(display = "IO Error: {}", _0)]
+    IoError(#[cause] io::Error),
+
+    #[fail(display = "Error parsing UTF-8 data: {}", _0)]
+    Utf8Error(#[cause] str::Utf8Error),
 }
 
 /// A custom type for temperature sysctls.
@@ -269,7 +274,7 @@ impl Temperature {
 }
 
 #[cfg(not(target_os = "macos"))]
-fn name2oid(name: &str) -> Result<Vec<c_int>, Error> {
+fn name2oid(name: &str) -> Result<Vec<c_int>, SysctlError> {
 
     // Request command for OID
     let oid: [c_int; 2] = [0, 3];
@@ -303,7 +308,7 @@ fn name2oid(name: &str) -> Result<Vec<c_int>, Error> {
 }
 
 #[cfg(target_os = "macos")]
-fn name2oid(name: &str) -> Result<Vec<c_int>, Error> {
+fn name2oid(name: &str) -> Result<Vec<c_int>, SysctlError> {
 
     // Request command for OID
     let mut oid: [c_int; 2] = [0, 3];
@@ -324,7 +329,7 @@ fn name2oid(name: &str) -> Result<Vec<c_int>, Error> {
         )
     };
     if ret < 0 {
-        return Err(io::Error::last_os_error().into());
+        return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
     // len is in bytes, convert to number of c_ints
@@ -337,7 +342,7 @@ fn name2oid(name: &str) -> Result<Vec<c_int>, Error> {
 }
 
 #[cfg(not(target_os = "macos"))]
-fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, Error> {
+fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, SysctlError> {
 
     // Request command for type info
     let mut qoid: Vec<c_int> = vec![0, 4];
@@ -357,7 +362,9 @@ fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, Error> {
         )
     };
     if ret != 0 {
-        return Err(io::Error::last_os_error().into());
+        return Err(SysctlError::IoError {
+            e: io::Error::last_os_error(),
+        });
     }
 
     // 'Kind' is the first 32 bits of result buffer
@@ -369,7 +376,7 @@ fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, Error> {
     // 'fmt' is after 'Kind' in result buffer
     let fmt: String = match str::from_utf8(&buf[mem::size_of::<u32>()..buf_len]) {
         Ok(x) => x.to_owned(),
-        Err(e) => return Err(e.into()),
+        Err(e) => return Err(SysctlError::Utf8Error(e)),
     };
 
     let s = CtlInfo {
@@ -381,7 +388,7 @@ fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, Error> {
 }
 
 #[cfg(not(target_os = "macos"))]
-fn temperature(info: &CtlInfo, val: &Vec<u8>) -> Result<CtlValue, Error> {
+fn temperature(info: &CtlInfo, val: &Vec<u8>) -> Result<CtlValue, SysctlError> {
     let prec: u32 = {
         match info.fmt.len() {
             l if l > 2 => {
@@ -396,7 +403,7 @@ fn temperature(info: &CtlInfo, val: &Vec<u8>) -> Result<CtlValue, Error> {
 
     let base = 10u32.pow(prec) as f32;
 
-    let make_temp = move |f: f32| -> Result<CtlValue, Error> {
+    let make_temp = move |f: f32| -> Result<CtlValue, SysctlError> {
         Ok(CtlValue::Temperature(Temperature { value: f / base }))
     };
 
@@ -413,12 +420,12 @@ fn temperature(info: &CtlInfo, val: &Vec<u8>) -> Result<CtlValue, Error> {
         CtlType::S16 => make_temp(LittleEndian::read_i16(&val) as f32),
         CtlType::S32 => make_temp(LittleEndian::read_i32(&val) as f32),
         CtlType::U32 => make_temp(LittleEndian::read_u32(&val) as f32),
-        _ => Err(SysctlError::UnknownType.into()),
+        _ => Err(SysctlError::UnknownType),
     }
 }
 
 #[cfg(target_os = "macos")]
-fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, Error> {
+fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, SysctlError> {
 
     // Request command for type info
     let mut qoid: Vec<c_int> = vec![0, 4];
@@ -438,7 +445,7 @@ fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, Error> {
         )
     };
     if ret != 0 {
-        return Err(io::Error::last_os_error().into());
+        return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
     // 'Kind' is the first 32 bits of result buffer
@@ -450,7 +457,7 @@ fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, Error> {
     // 'fmt' is after 'Kind' in result buffer
     let fmt: String = match str::from_utf8(&buf[mem::size_of::<u32>()..buf_len]) {
         Ok(x) => x.to_owned(),
-        Err(e) => return Err(e.into()),
+        Err(e) => return Err(SysctlError::Utf8Error(e)),
     };
 
     let s = CtlInfo {
@@ -474,7 +481,7 @@ fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, Error> {
 /// }
 /// ```
 #[cfg(not(target_os = "macos"))]
-pub fn value(name: &str) -> Result<CtlValue, Error> {
+pub fn value(name: &str) -> Result<CtlValue, SysctlError> {
     match name2oid(name) {
         Ok(v) => value_oid(&v),
         Err(e) => Err(e),
@@ -482,7 +489,7 @@ pub fn value(name: &str) -> Result<CtlValue, Error> {
 }
 
 #[cfg(target_os = "macos")]
-pub fn value(name: &str) -> Result<CtlValue, Error> {
+pub fn value(name: &str) -> Result<CtlValue, SysctlError> {
     match name2oid(name) {
         Ok(mut v) => value_oid(&mut v),
         Err(e) => Err(e),
@@ -504,7 +511,7 @@ pub fn value(name: &str) -> Result<CtlValue, Error> {
 /// }
 /// ```
 #[cfg(not(target_os = "macos"))]
-pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, Error> {
+pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
 
     let info: CtlInfo = try!(oidfmt(&oid));
 
@@ -553,12 +560,10 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, Error> {
     match info.ctl_type {
         CtlType::Node => Ok(CtlValue::Node(val)),
         CtlType::Int => Ok(CtlValue::Int(LittleEndian::read_i32(&val))),
-        CtlType::String => {
-            match str::from_utf8(&val[..val.len() - 1]) {
-                Ok(s) => Ok(CtlValue::String(s.into())),
-                Err(e) => Err(e.into()),
-            }
-        }
+        CtlType::String => match str::from_utf8(&val[..val.len() - 1]) {
+            Ok(s) => Ok(CtlValue::String(s.into())),
+            Err(e) => Err(SysctlError::Utf8Error(e)),
+        },
         CtlType::S64 => Ok(CtlValue::S64(LittleEndian::read_u64(&val))),
         CtlType::Struct => Ok(CtlValue::Struct(val)),
         CtlType::Uint => Ok(CtlValue::Uint(LittleEndian::read_u32(&val))),
@@ -571,12 +576,12 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, Error> {
         CtlType::S16 => Ok(CtlValue::S16(LittleEndian::read_i16(&val))),
         CtlType::S32 => Ok(CtlValue::S32(LittleEndian::read_i32(&val))),
         CtlType::U32 => Ok(CtlValue::U32(LittleEndian::read_u32(&val))),
-        _ => Err(SysctlError::UnknownType.into()),
+        _ => Err(SysctlError::UnknownType),
     }
 }
 
 #[cfg(target_os = "macos")]
-pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, Error> {
+pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
 
     let info: CtlInfo = try!(oidfmt(&oid));
 
@@ -593,7 +598,7 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, Error> {
         )
     };
     if ret < 0 {
-        return Err(io::Error::last_os_error().into());
+        return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
     // Then get value
@@ -610,7 +615,7 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, Error> {
         )
     };
     if ret < 0 {
-        return Err(io::Error::last_os_error().into());
+        return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
     // Confirm that we got the bytes we requested
@@ -620,12 +625,10 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, Error> {
     match info.ctl_type {
         CtlType::Node => Ok(CtlValue::Node(val)),
         CtlType::Int => Ok(CtlValue::Int(LittleEndian::read_i32(&val))),
-        CtlType::String => {
-            match str::from_utf8(&val[..val.len() - 1]) {
-                Ok(s) => Ok(CtlValue::String(s.into())),
-                Err(e) => Err(e.into()),
-            }
-        }
+        CtlType::String => match str::from_utf8(&val[..val.len() - 1]) {
+            Ok(s) => Ok(CtlValue::String(s.into())),
+            Err(e) => Err(SysctlError::Utf8Error(e)),
+        },
         CtlType::S64 => Ok(CtlValue::S64(LittleEndian::read_u64(&val))),
         CtlType::Struct => Ok(CtlValue::Struct(val)),
         CtlType::Uint => Ok(CtlValue::Uint(LittleEndian::read_u32(&val))),
@@ -671,7 +674,7 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, Error> {
 /// }
 /// ```
 #[cfg(not(target_os = "macos"))]
-pub fn value_as<T>(name: &str) -> Result<Box<T>, Error> {
+pub fn value_as<T>(name: &str) -> Result<Box<T>, SysctlError> {
     match name2oid(name) {
         Ok(v) => value_oid_as::<T>(&v),
         Err(e) => Err(e),
@@ -679,7 +682,7 @@ pub fn value_as<T>(name: &str) -> Result<Box<T>, Error> {
 }
 
 #[cfg(target_os = "macos")]
-pub fn value_as<T>(name: &str) -> Result<Box<T>, Error> {
+pub fn value_as<T>(name: &str) -> Result<Box<T>, SysctlError> {
     match name2oid(name) {
         Ok(mut v) => value_oid_as::<T>(&mut v),
         Err(e) => Err(e),
@@ -721,7 +724,7 @@ pub fn value_as<T>(name: &str) -> Result<Box<T>, Error> {
 /// }
 /// ```
 #[cfg(not(target_os = "macos"))]
-pub fn value_oid_as<T>(oid: &Vec<i32>) -> Result<Box<T>, Error> {
+pub fn value_oid_as<T>(oid: &Vec<i32>) -> Result<Box<T>, SysctlError> {
 
     let val_enum = try!(value_oid(oid));
 
@@ -761,12 +764,12 @@ pub fn value_oid_as<T>(oid: &Vec<i32>) -> Result<Box<T>, Error> {
         let val_box: Box<T> = unsafe { Box::from_raw(val_raw) };
         Ok(val_box)
     } else {
-        Err("Error extracting value".into())
+        Err(SysctlError::ExtractionError)
     }
 }
 
 #[cfg(target_os = "macos")]
-pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, Error> {
+pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
 
     let val_enum = try!(value_oid(oid));
 
@@ -806,7 +809,7 @@ pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, Error> {
         let val_box: Box<T> = unsafe { Box::from_raw(val_raw) };
         Ok(val_box)
     } else {
-        Err(SysctlError::ExtractionError.into())
+        Err(SysctlError::ExtractionError)
     }
 }
 
@@ -822,7 +825,7 @@ pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, Error> {
 /// }
 /// ```
 #[cfg(not(target_os = "macos"))]
-pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, String> {
+pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
 
     let oid = try!(name2oid(name));
     let info: CtlInfo = try!(oidfmt(&oid));
@@ -857,7 +860,9 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, String> {
             )
         };
         if ret < 0 {
-            return Err(io::Error::last_os_error().into());
+            return Err(SysctlError::IoError {
+                e: io::Error::last_os_error(),
+            });
         }
     }
 
@@ -866,7 +871,7 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, String> {
 }
 
 #[cfg(target_os = "macos")]
-pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, Error> {
+pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
 
     let mut oid = try!(name2oid(name));
     let info: CtlInfo = try!(oidfmt(&oid));
@@ -901,7 +906,7 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, Error> {
             )
         };
         if ret < 0 {
-            return Err(io::Error::last_os_error().into());
+            return Err(SysctlError::IoError(io::Error::last_os_error()));
         }
     }
 
@@ -921,7 +926,7 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, Error> {
 /// }
 /// ```
 #[cfg(not(target_os = "macos"))]
-pub fn description(name: &str) -> Result<String, Error> {
+pub fn description(name: &str) -> Result<String, SysctlError> {
 
     let oid: Vec<c_int> = try!(name2oid(name));
 
@@ -943,13 +948,15 @@ pub fn description(name: &str) -> Result<String, Error> {
         )
     };
     if ret != 0 {
-        return Err(io::Error::last_os_error()).into();
+        return Err(SysctlError::IoError {
+            e: io::Error::last_os_error(),
+        });
     }
 
     // Use buf_len - 1 so that we remove the trailing NULL
     match str::from_utf8(&buf[..buf_len - 1]) {
         Ok(s) => Ok(s.to_owned()),
-        Err(e) => Err(e),
+        Err(e) => Err(SysctlError::Utf8Error(e)),
     }
 }
 //NOT WORKING ON MacOS
