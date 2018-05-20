@@ -1091,6 +1091,66 @@ fn oid2description(oid: &Vec<c_int>) -> Result<String, SysctlError> {
 //     }
 // }
 
+#[cfg(not(target_os = "macos"))]
+fn oid2name(oid: &Vec<c_int>) -> Result<String, SysctlError> {
+    // Request command for name
+    let mut qoid: Vec<c_int> = vec![0, 1];
+    qoid.extend(oid);
+
+    // Store results in u8 array
+    let mut buf: [c_uchar; BUFSIZ as usize] = [0; BUFSIZ as usize];
+    let mut buf_len = mem::size_of_val(&buf);
+    let ret = unsafe {
+        sysctl(
+            qoid.as_ptr(),
+            qoid.len() as u32,
+            buf.as_mut_ptr() as *mut c_void,
+            &mut buf_len,
+            ptr::null(),
+            0,
+        )
+    };
+    if ret != 0 {
+        return Err(SysctlError::IoError(io::Error::last_os_error()));
+    }
+
+    // Use buf_len - 1 so that we remove the trailing NULL
+    match str::from_utf8(&buf[..buf_len - 1]) {
+        Ok(s) => Ok(s.to_owned()),
+        Err(e) => Err(SysctlError::Utf8Error(e)),
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn oid2name(oid: &Vec<c_int>) -> Result<String, SysctlError> {
+    // Request command for name
+    let mut qoid: Vec<c_int> = vec![0, 1];
+    qoid.extend(oid);
+
+    // Store results in u8 array
+    let mut buf: [c_uchar; BUFSIZ as usize] = [0; BUFSIZ as usize];
+    let mut buf_len = mem::size_of_val(&buf);
+    let ret = unsafe {
+        sysctl(
+            qoid.as_mut_ptr(),
+            qoid.len() as u32,
+            buf.as_mut_ptr() as *mut c_void,
+            &mut buf_len,
+            ptr::null_mut(),
+            0,
+        )
+    };
+    if ret != 0 {
+        return Err(SysctlError::IoError(io::Error::last_os_error()));
+    }
+
+    // Use buf_len - 1 so that we remove the trailing NULL
+    match str::from_utf8(&buf[..buf_len - 1]) {
+        Ok(s) => Ok(s.to_owned()),
+        Err(e) => Err(SysctlError::Utf8Error(e)),
+    }
+}
+
 /// This struct represents a system control.
 #[derive(Debug, PartialEq)]
 pub struct Ctl {
@@ -1122,6 +1182,21 @@ impl Ctl {
     /// ```
     pub fn new(name: &str) -> Result<Self,SysctlError> {
         Ctl::from_str(name)
+    }
+
+    /// Returns a result containing the sysctl name on success, or a
+    /// SysctlError on failure.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// extern crate sysctl;
+    /// use sysctl::Ctl;
+    /// let ctl = Ctl::new("kern.osrelease").expect("could not get sysctl");
+    /// assert_eq!(ctl.name().expect("could not get name"), "kern.osrelease");
+    /// ```
+    pub fn name(self: &Self) -> Result<String, SysctlError> {
+        oid2name(&self.oid)
     }
 
     /// Returns a result containing the sysctl description if success, or an
@@ -1251,6 +1326,20 @@ mod tests {
         assert_eq!(oid[0], libc::CTL_KERN);
         assert_eq!(oid[1], libc::KERN_PROC);
         assert_eq!(oid[2], libc::KERN_PROC_PID);
+    }
+
+    #[test]
+    fn ctl_name() {
+        let oid = vec![libc::CTL_KERN, libc::KERN_OSREV];
+        let name = oid2name(&oid)
+            .expect("Could not get name of kern.osrevision sysctl.");
+
+        assert_eq!(name, "kern.osrevision");
+
+        let ctl = Ctl{ oid };
+        let name = ctl.name()
+            .expect("Could not get name of kern.osrevision sysctl.");
+        assert_eq!(name, "kern.osrevision");
     }
 
     #[test]
