@@ -301,7 +301,7 @@ fn name2oid(name: &str) -> Result<Vec<c_int>, SysctlError> {
         )
     };
     if ret < 0 {
-        return Err(io::Error::last_os_error());
+        return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
     // len is in bytes, convert to number of c_ints
@@ -368,7 +368,7 @@ fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, SysctlError> {
         )
     };
     if ret != 0 {
-        return Err(SysctlError::IoError { e: io::Error::last_os_error() });
+        return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
     // 'Kind' is the first 32 bits of result buffer
@@ -532,7 +532,7 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
         )
     };
     if ret < 0 {
-        return Err(io::Error::last_os_error());
+        return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
     // Then get value
@@ -549,7 +549,7 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
         )
     };
     if ret < 0 {
-        return Err(io::Error::last_os_error());
+        return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
     // Confirm that we got the bytes we requested
@@ -868,7 +868,7 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
             )
         };
         if ret < 0 {
-            return Err(SysctlError::IoError { e: io::Error::last_os_error() });
+            return Err(SysctlError::IoError(io::Error::last_os_error()));
         }
     }
 
@@ -954,7 +954,7 @@ pub fn description(name: &str) -> Result<String, SysctlError> {
         )
     };
     if ret != 0 {
-        return Err(SysctlError::IoError { e: io::Error::last_os_error() });
+        return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
     // Use buf_len - 1 so that we remove the trailing NULL
