@@ -12,5 +12,5 @@ documentation = "https://johalun.github.io/sysctl-rs/index.html"
 [dependencies]
 libc = "^0.2.34"
 byteorder = "^1.0.0"
-errno = "^0.2.3"
+failure = "^0.1.1"
 
