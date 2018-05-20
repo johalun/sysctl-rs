@@ -230,10 +230,16 @@ pub enum SysctlError {
     ExtractionError,
 
     #[fail(display = "IO Error: {}", _0)]
-    IoError(#[cause] io::Error),
+    IoError(
+        #[cause]
+        io::Error
+    ),
 
     #[fail(display = "Error parsing UTF-8 data: {}", _0)]
-    Utf8Error(#[cause] str::Utf8Error),
+    Utf8Error(
+        #[cause]
+        str::Utf8Error
+    ),
 }
 
 /// A custom type for temperature sysctls.
@@ -362,9 +368,7 @@ fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, SysctlError> {
         )
     };
     if ret != 0 {
-        return Err(SysctlError::IoError {
-            e: io::Error::last_os_error(),
-        });
+        return Err(SysctlError::IoError { e: io::Error::last_os_error() });
     }
 
     // 'Kind' is the first 32 bits of result buffer
@@ -560,10 +564,12 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
     match info.ctl_type {
         CtlType::Node => Ok(CtlValue::Node(val)),
         CtlType::Int => Ok(CtlValue::Int(LittleEndian::read_i32(&val))),
-        CtlType::String => match str::from_utf8(&val[..val.len() - 1]) {
-            Ok(s) => Ok(CtlValue::String(s.into())),
-            Err(e) => Err(SysctlError::Utf8Error(e)),
-        },
+        CtlType::String => {
+            match str::from_utf8(&val[..val.len() - 1]) {
+                Ok(s) => Ok(CtlValue::String(s.into())),
+                Err(e) => Err(SysctlError::Utf8Error(e)),
+            }
+        }
         CtlType::S64 => Ok(CtlValue::S64(LittleEndian::read_u64(&val))),
         CtlType::Struct => Ok(CtlValue::Struct(val)),
         CtlType::Uint => Ok(CtlValue::Uint(LittleEndian::read_u32(&val))),
@@ -625,10 +631,12 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
     match info.ctl_type {
         CtlType::Node => Ok(CtlValue::Node(val)),
         CtlType::Int => Ok(CtlValue::Int(LittleEndian::read_i32(&val))),
-        CtlType::String => match str::from_utf8(&val[..val.len() - 1]) {
-            Ok(s) => Ok(CtlValue::String(s.into())),
-            Err(e) => Err(SysctlError::Utf8Error(e)),
-        },
+        CtlType::String => {
+            match str::from_utf8(&val[..val.len() - 1]) {
+                Ok(s) => Ok(CtlValue::String(s.into())),
+                Err(e) => Err(SysctlError::Utf8Error(e)),
+            }
+        }
         CtlType::S64 => Ok(CtlValue::S64(LittleEndian::read_u64(&val))),
         CtlType::Struct => Ok(CtlValue::Struct(val)),
         CtlType::Uint => Ok(CtlValue::Uint(LittleEndian::read_u32(&val))),
@@ -860,9 +868,7 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
             )
         };
         if ret < 0 {
-            return Err(SysctlError::IoError {
-                e: io::Error::last_os_error(),
-            });
+            return Err(SysctlError::IoError { e: io::Error::last_os_error() });
         }
     }
 
@@ -948,9 +954,7 @@ pub fn description(name: &str) -> Result<String, SysctlError> {
         )
     };
     if ret != 0 {
-        return Err(SysctlError::IoError {
-            e: io::Error::last_os_error(),
-        });
+        return Err(SysctlError::IoError { e: io::Error::last_os_error() });
     }
 
     // Use buf_len - 1 so that we remove the trailing NULL

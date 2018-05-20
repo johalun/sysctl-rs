@@ -24,11 +24,13 @@ struct LoadAvg {
 impl fmt::Debug for LoadAvg {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let s = self.fscale as f32;
-        write!(f,
-               "LoadAvg {{ {:.2} {:.2} {:.2} }}",
-               self.ldavg[0] as f32 / s,
-               self.ldavg[1] as f32 / s,
-               self.ldavg[2] as f32 / s)
+        write!(
+            f,
+            "LoadAvg {{ {:.2} {:.2} {:.2} }}",
+            self.ldavg[0] as f32 / s,
+            self.ldavg[1] as f32 / s,
+            self.ldavg[2] as f32 / s
+        )
     }
 }
 

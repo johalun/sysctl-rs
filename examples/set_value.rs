@@ -3,9 +3,11 @@ extern crate libc;
 
 fn main() {
 
-    assert_eq!(unsafe { libc::geteuid() },
-               0,
-               "This example must be run as root");
+    assert_eq!(
+        unsafe { libc::geteuid() },
+        0,
+        "This example must be run as root"
+    );
 
     let ctl = "hw.usb.debug";
 

@@ -40,6 +40,4 @@ fn main() {
 }
 
 #[cfg(target_os = "macos")]
-fn main() {
-    
-}
+fn main() {}
