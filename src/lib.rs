@@ -273,6 +273,9 @@ pub enum SysctlError {
 
     #[fail(display = "Value is not writeable")]
     NoWriteAccess,
+
+    #[fail(display = "sysctl returned a short read: read {} bytes, while a size of {} was reported", read, reported)]
+    ShortRead { read: usize, reported: usize },
 }
 
 /// A custom type for temperature sysctls.
@@ -595,8 +598,15 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
         return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
+    // Confirm that we did not read out of bounds
+    assert!(new_val_len <= val_len);
     // Confirm that we got the bytes we requested
-    assert_eq!(val_len, new_val_len);
+    if new_val_len < val_len {
+        return Err(SysctlError::ShortRead {
+            read: new_val_len,
+            reported: val_len
+        });
+    }
 
     // Special treatment for temperature ctls.
     if info.is_temperature() {
@@ -678,8 +688,15 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
         return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
+    // Confirm that we did not read out of bounds
+    assert!(new_val_len <= val_len);
     // Confirm that we got the bytes we requested
-    assert_eq!(val_len, new_val_len);
+    if new_val_len < val_len {
+        return Err(SysctlError::ShortRead {
+            read: new_val_len,
+            reported: val_len
+        });
+    }
 
     // Wrap in Enum and return
     match info.ctl_type {
