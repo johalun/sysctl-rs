@@ -213,10 +213,7 @@ struct CtlInfo {
 #[cfg(not(target_os = "macos"))]
 impl CtlInfo {
     fn is_temperature(&self) -> bool {
-        match &self.fmt[0..2] {
-            "IK" => true,
-            _ => false,
-        }
+        self.fmt.starts_with("IK")
     }
 }
 
