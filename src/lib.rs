@@ -474,7 +474,7 @@ fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, SysctlError> {
 
 /// Takes the name of the OID as argument and returns
 /// a result containing the sysctl value if success,
-/// the errno caused by sysctl() as string if failure.
+/// or a SysctlError on failure
 ///
 /// # Example
 /// ```
@@ -501,8 +501,8 @@ pub fn value(name: &str) -> Result<CtlValue, SysctlError> {
 }
 
 /// Takes an OID as argument and returns a result
-/// containing the sysctl value if success, the errno
-/// caused by sysctl() as string if failure.
+/// containing the sysctl value if success, or a SysctlError
+/// on failure
 ///
 /// # Example
 /// ```
@@ -656,7 +656,7 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
 
 /// A generic function that takes a string as argument and
 /// returns a result containing the sysctl value if success,
-/// the errno caused by sysctl() as string if failure.
+/// or a SysctlError on failure.
 ///
 /// Can only be called for sysctls of type Opaque or Struct.
 ///
@@ -699,7 +699,7 @@ pub fn value_as<T>(name: &str) -> Result<Box<T>, SysctlError> {
 
 /// A generic function that takes an OID as argument and
 /// returns a result containing the sysctl value if success,
-/// the errno caused by sysctl() as string if failure.
+/// or a SysctlError on failure
 ///
 /// Can only be called for sysctls of type Opaque or Struct.
 ///
@@ -822,7 +822,8 @@ pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
 }
 
 /// Sets the value of a sysctl.
-/// Fetches and returns the new value if successful, errno string if failure.
+/// Fetches and returns the new value if successful, or a SysctlError
+/// on failure
 ///
 /// # Example
 /// ```
@@ -921,7 +922,7 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
 }
 
 /// Returns a result containing the sysctl description if success,
-/// the errno caused by sysctl() as string if failure.
+/// or a SysctlError on failure.
 ///
 /// # Example
 /// ```
