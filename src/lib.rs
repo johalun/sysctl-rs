@@ -120,10 +120,23 @@ pub const CTLFLAG_SECURE3: c_uint = 136314880;
 pub const CTLMASK_SECURE: c_uint = 15728640;
 pub const CTLSHIFT_SECURE: c_uint = 20;
 
-
+/// An Enum that represents a sysctl's type information.
+///
+/// # Example
+///
+/// ```
+/// extern crate sysctl;
+///
+/// let val_enum = &sysctl::value("kern.osrevision")
+///     .expect("could not get kern.osrevision sysctl");
+///
+/// let val_type: sysctl::CtlType = val_enum.into();
+///
+/// assert_eq!(val_type, sysctl::CtlType::Int);
+/// ```
 #[derive(Debug, Copy, Clone, PartialEq)]
 #[repr(u32)]
-enum CtlType {
+pub enum CtlType {
     Node = 1,
     Int = 2,
     String = 3,
@@ -1199,6 +1212,26 @@ impl Ctl {
         oid2name(&self.oid)
     }
 
+    /// Returns a result containing the sysctl value type on success,
+    /// or a Sysctl Error on failure.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// extern crate sysctl;
+    /// use sysctl::{Ctl, CtlType};
+    ///
+    /// let osrelease = Ctl::new("kern.osrelease")
+    ///     .expect("Could not get kern.osrelease sysctl");
+    /// let value_type = osrelease.value_type()
+    ///         .expect("Could notget kern.osrelease value type");
+    /// assert_eq!(value_type, CtlType::String);
+    /// ```
+    pub fn value_type(self: &Self) -> Result<CtlType, SysctlError> {
+        let info = oidfmt(&self.oid)?;
+        Ok(info.ctl_type)
+    }
+
     /// Returns a result containing the sysctl description if success, or an
     /// Error on failure.
     ///
@@ -1347,14 +1380,29 @@ mod tests {
         let oid = name2oid("kern").unwrap();
         let fmt = oidfmt(&oid).unwrap();
         assert_eq!(fmt.ctl_type, CtlType::Node);
+        let kern = Ctl::new("kern")
+            .expect("Could not get kern node");
+        let value_type = kern.value_type()
+            .expect("Could not get kern value type");
+        assert_eq!(value_type, CtlType::Node);
 
         let oid = name2oid("kern.osrelease").unwrap();
         let fmt = oidfmt(&oid).unwrap();
         assert_eq!(fmt.ctl_type, CtlType::String);
+        let osrelease = Ctl::new("kern.osrelease")
+            .expect("Could not get kern.osrelease sysctl");
+        let value_type = osrelease.value_type()
+                .expect("Could notget kern.osrelease value type");
+        assert_eq!(value_type, CtlType::String);
 
         let oid = name2oid("kern.osrevision").unwrap();
         let fmt = oidfmt(&oid).unwrap();
         assert_eq!(fmt.ctl_type, CtlType::Int);
+        let osrevision = Ctl::new("kern.osrevision")
+            .expect("Could not get kern.osrevision sysctl");
+        let value_type = osrevision.value_type()
+            .expect("Could notget kern.osrevision value type");
+        assert_eq!(value_type, CtlType::Int);
     }
 
     #[test]
