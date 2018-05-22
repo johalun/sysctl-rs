@@ -60,6 +60,7 @@ use libc::{c_int, c_uint, c_uchar, c_void};
 use libc::sysctl;
 use libc::BUFSIZ;
 
+use std::cmp;
 use std::convert;
 use std::io;
 use std::mem;
@@ -167,6 +168,31 @@ impl<'a> convert::From<&'a CtlValue> for CtlType {
             &CtlValue::U32(_) => CtlType::U32,
             #[cfg(not(target_os = "macos"))]
             &CtlValue::Temperature(_) => CtlType::Temperature,
+        }
+    }
+}
+
+impl CtlType {
+    fn min_type_size(self: &Self) -> usize {
+        match self {
+            CtlType::Node => 0,
+            CtlType::Int => mem::size_of::<libc::c_int>(),
+            CtlType::String => 0,
+            CtlType::S64 => mem::size_of::<i64>(),
+            CtlType::Struct => 0,
+            CtlType::Uint => mem::size_of::<libc::c_uint>(),
+            CtlType::Long => mem::size_of::<libc::c_long>(),
+            CtlType::Ulong => mem::size_of::<libc::c_ulong>(),
+            CtlType::U64 => mem::size_of::<u64>(),
+            CtlType::U8 => mem::size_of::<u8>(),
+            CtlType::U16 => mem::size_of::<u16>(),
+            CtlType::S8 => mem::size_of::<i8>(),
+            CtlType::S16 => mem::size_of::<i16>(),
+            CtlType::S32 => mem::size_of::<i32>(),
+            CtlType::U32 => mem::size_of::<u32>(),
+            // Added custom types below
+            #[cfg(not(target_os = "macos"))]
+            CtlType::Temperature => 0,
         }
     }
 }
@@ -532,8 +558,13 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
         return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
+    // If the length reported is shorter than the type we will convert it into,
+    // LittleEndian::read_* will panic. Therefore, expand the value length to at
+    // Least the size of the value.
+    let val_minsize = cmp::max(val_len, info.ctl_type.min_type_size());
+
     // Then get value
-    let mut val: Vec<c_uchar> = vec![0; val_len];
+    let mut val: Vec<c_uchar> = vec![0; val_minsize];
     let mut new_val_len = val_len;
     let ret = unsafe {
         sysctl(
@@ -604,8 +635,13 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
         return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
+    // If the length reported is shorter than the type we will convert it into,
+    // LittleEndian::read_* will panic. Therefore, expand the value length to at
+    // Least the size of the value.
+    let val_minsize = cmp::max(val_len, info.ctl_type.min_type_size());
+
     // Then get value
-    let mut val: Vec<c_uchar> = vec![0; val_len];
+    let mut val: Vec<c_uchar> = vec![0; val_minsize];
     let mut new_val_len = val_len;
     let ret = unsafe {
         sysctl(
