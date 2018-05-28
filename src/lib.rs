@@ -625,9 +625,11 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
         CtlType::None => Ok(CtlValue::None),
         CtlType::Node => Ok(CtlValue::Node(val)),
         CtlType::Int => Ok(CtlValue::Int(LittleEndian::read_i32(&val))),
-        CtlType::String => match str::from_utf8(&val[..val.len() - 1]) {
-            Ok(s) => Ok(CtlValue::String(s.into())),
-            Err(e) => Err(SysctlError::Utf8Error(e)),
+        CtlType::String => match val.len() {
+            0 => Ok(CtlValue::String("".to_string())),
+            l => str::from_utf8(&val[..l - 1])
+                .map_err(|e| SysctlError::Utf8Error(e))
+                .map(|s| CtlValue::String(s.into())),
         },
         CtlType::S64 => Ok(CtlValue::S64(LittleEndian::read_u64(&val))),
         CtlType::Struct => Ok(CtlValue::Struct(val)),
