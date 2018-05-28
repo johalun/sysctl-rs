@@ -8,9 +8,7 @@ This crate provides a safe interface for reading and writing information to the 
 
 ### Documentation
 
-Since the crate only builds on FreeBSD documentation is not available on https://docs.rs/sysctl
-
-Available here: https://johalun.github.io/sysctl-rs/
+Documentation is available here: https://johalun.github.io/sysctl-rs/
 
 or, to generate documentation locally do:
 ```sh
@@ -35,7 +33,7 @@ sysctl comes with several examples, see the examples folder.
 Run with:
 
 ```sh
-$ cargo run --example value
+$ cargo run --example iterate
 ```
 
 Or in a separate crate:
