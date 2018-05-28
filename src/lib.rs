@@ -1398,7 +1398,7 @@ pub fn next_oid(oid: &Vec<c_int>) -> Result<Option<Vec<c_int>>, SysctlError> {
 /// This struct represents a system control.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ctl {
-    oid: Vec<c_int>,
+    pub oid: Vec<c_int>,
 }
 
 impl FromStr for Ctl {
