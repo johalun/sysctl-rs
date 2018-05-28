@@ -66,6 +66,7 @@ use std::io;
 use std::mem;
 use std::ptr;
 use std::str;
+use std::str::FromStr;
 #[cfg(not(target_os = "macos"))]
 use std::f32;
 use byteorder::{LittleEndian, ByteOrder, WriteBytesExt};
@@ -119,10 +120,23 @@ pub const CTLFLAG_SECURE3: c_uint = 136314880;
 pub const CTLMASK_SECURE: c_uint = 15728640;
 pub const CTLSHIFT_SECURE: c_uint = 20;
 
-
+/// An Enum that represents a sysctl's type information.
+///
+/// # Example
+///
+/// ```
+/// extern crate sysctl;
+///
+/// let val_enum = &sysctl::value("kern.osrevision")
+///     .expect("could not get kern.osrevision sysctl");
+///
+/// let val_type: sysctl::CtlType = val_enum.into();
+///
+/// assert_eq!(val_type, sysctl::CtlType::Int);
+/// ```
 #[derive(Debug, Copy, Clone, PartialEq)]
 #[repr(u32)]
-enum CtlType {
+pub enum CtlType {
     Node = 1,
     Int = 2,
     String = 3,
@@ -139,18 +153,20 @@ enum CtlType {
     S32 = 14,
     U32 = 15,
     // Added custom types below
+    None = 0,
     #[cfg(not(target_os = "macos"))]
     Temperature = 16,
 }
 impl convert::From<u32> for CtlType {
     fn from(t: u32) -> Self {
-        assert!(t >= 1 && t <= 16);
+        assert!(t <= 16);
         unsafe { mem::transmute(t) }
     }
 }
 impl<'a> convert::From<&'a CtlValue> for CtlType {
     fn from(t: &'a CtlValue) -> Self {
         match t {
+            &CtlValue::None => CtlType::None,
             &CtlValue::Node(_) => CtlType::Node,
             &CtlValue::Int(_) => CtlType::Int,
             &CtlValue::String(_) => CtlType::String,
@@ -175,6 +191,7 @@ impl<'a> convert::From<&'a CtlValue> for CtlType {
 impl CtlType {
     fn min_type_size(self: &Self) -> usize {
         match self {
+            CtlType::None => 0,
             CtlType::Node => 0,
             CtlType::Int => mem::size_of::<libc::c_int>(),
             CtlType::String => 0,
@@ -211,6 +228,7 @@ impl CtlType {
 /// ```
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum CtlValue {
+    None,
     Node(Vec<u8>),
     Int(i32),
     String(String),
@@ -263,6 +281,15 @@ pub enum SysctlError {
         #[cause]
         str::Utf8Error
     ),
+
+    #[fail(display = "Value is not readable")]
+    NoReadAccess,
+
+    #[fail(display = "Value is not writeable")]
+    NoWriteAccess,
+
+    #[fail(display = "sysctl returned a short read: read {} bytes, while a size of {} was reported", read, reported)]
+    ShortRead { read: usize, reported: usize },
 }
 
 /// A custom type for temperature sysctls.
@@ -542,6 +569,11 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
 
     let info: CtlInfo = try!(oidfmt(&oid));
 
+    // Check if the value is readable
+    if !(info.flags & CTLFLAG_RD == CTLFLAG_RD) {
+        return Err(SysctlError::NoReadAccess);
+    }
+
     // First get size of value in bytes
     let mut val_len = 0;
     let ret = unsafe {
@@ -580,8 +612,15 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
         return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
+    // Confirm that we did not read out of bounds
+    assert!(new_val_len <= val_len);
     // Confirm that we got the bytes we requested
-    assert_eq!(val_len, new_val_len);
+    if new_val_len < val_len {
+        return Err(SysctlError::ShortRead {
+            read: new_val_len,
+            reported: val_len
+        });
+    }
 
     // Special treatment for temperature ctls.
     if info.is_temperature() {
@@ -590,6 +629,7 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
 
     // Wrap in Enum and return
     match info.ctl_type {
+        CtlType::None => Ok(CtlValue::None),
         CtlType::Node => Ok(CtlValue::Node(val)),
         CtlType::Int => Ok(CtlValue::Int(LittleEndian::read_i32(&val))),
         CtlType::String => {
@@ -619,6 +659,11 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
 
     let info: CtlInfo = try!(oidfmt(&oid));
 
+    // Check if the value is readable
+    if !(info.flags & CTLFLAG_RD == CTLFLAG_RD) {
+        return Err(SysctlError::NoReadAccess);
+    }
+
     // First get size of value in bytes
     let mut val_len = 0;
     let ret = unsafe {
@@ -657,11 +702,19 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
         return Err(SysctlError::IoError(io::Error::last_os_error()));
     }
 
+    // Confirm that we did not read out of bounds
+    assert!(new_val_len <= val_len);
     // Confirm that we got the bytes we requested
-    assert_eq!(val_len, new_val_len);
+    if new_val_len < val_len {
+        return Err(SysctlError::ShortRead {
+            read: new_val_len,
+            reported: val_len
+        });
+    }
 
     // Wrap in Enum and return
     match info.ctl_type {
+        CtlType::None => Ok(CtlValue::None),
         CtlType::Node => Ok(CtlValue::Node(val)),
         CtlType::Int => Ok(CtlValue::Int(LittleEndian::read_i32(&val))),
         CtlType::String => {
@@ -870,7 +923,23 @@ pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
 pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
 
     let oid = try!(name2oid(name));
+    set_oid_value(&oid, value)
+}
+
+#[cfg(target_os = "macos")]
+pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
+    let mut oid = try!(name2oid(name));
+    set_oid_value(&mut oid, value)
+}
+
+#[cfg(not(target_os = "macos"))]
+pub fn set_oid_value(oid: &Vec<c_int>, value: CtlValue) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = try!(oidfmt(&oid));
+
+    // Check if the value is writeable
+    if !(info.flags & CTLFLAG_WR == CTLFLAG_WR) {
+        return Err(SysctlError::NoWriteAccess);
+    }
 
     let ctl_type = CtlType::from(&value);
     assert_eq!(
@@ -907,14 +976,17 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
     }
 
     // Get the new value and return for confirmation
-    self::value(name)
+    self::value_oid(oid)
 }
 
 #[cfg(target_os = "macos")]
-pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
-
-    let mut oid = try!(name2oid(name));
+pub fn set_oid_value(oid: &mut Vec<c_int>, value: CtlValue) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = try!(oidfmt(&oid));
+
+    // Check if the value is writeable
+    if !(info.flags & CTLFLAG_WR == CTLFLAG_WR) {
+        return Err(SysctlError::NoWriteAccess);
+    }
 
     let ctl_type = CtlType::from(&value);
     assert_eq!(
@@ -951,7 +1023,7 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
     }
 
     // Get the new value and return for confirmation
-    self::value(name)
+    self::value_oid(oid)
 }
 
 /// Returns a result containing the sysctl description if success,
@@ -967,9 +1039,12 @@ pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
 /// ```
 #[cfg(not(target_os = "macos"))]
 pub fn description(name: &str) -> Result<String, SysctlError> {
-
     let oid: Vec<c_int> = try!(name2oid(name));
+    oid2description(&oid)
+}
 
+#[cfg(not(target_os = "macos"))]
+fn oid2description(oid: &Vec<c_int>) -> Result<String, SysctlError> {
     // Request command for description
     let mut qoid: Vec<c_int> = vec![0, 5];
     qoid.extend(oid);
@@ -1029,6 +1104,399 @@ pub fn description(name: &str) -> Result<String, SysctlError> {
 //     }
 // }
 
+#[cfg(not(target_os = "macos"))]
+fn oid2name(oid: &Vec<c_int>) -> Result<String, SysctlError> {
+    // Request command for name
+    let mut qoid: Vec<c_int> = vec![0, 1];
+    qoid.extend(oid);
+
+    // Store results in u8 array
+    let mut buf: [c_uchar; BUFSIZ as usize] = [0; BUFSIZ as usize];
+    let mut buf_len = mem::size_of_val(&buf);
+    let ret = unsafe {
+        sysctl(
+            qoid.as_ptr(),
+            qoid.len() as u32,
+            buf.as_mut_ptr() as *mut c_void,
+            &mut buf_len,
+            ptr::null(),
+            0,
+        )
+    };
+    if ret != 0 {
+        return Err(SysctlError::IoError(io::Error::last_os_error()));
+    }
+
+    // Use buf_len - 1 so that we remove the trailing NULL
+    match str::from_utf8(&buf[..buf_len - 1]) {
+        Ok(s) => Ok(s.to_owned()),
+        Err(e) => Err(SysctlError::Utf8Error(e)),
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn oid2name(oid: &Vec<c_int>) -> Result<String, SysctlError> {
+    // Request command for name
+    let mut qoid: Vec<c_int> = vec![0, 1];
+    qoid.extend(oid);
+
+    // Store results in u8 array
+    let mut buf: [c_uchar; BUFSIZ as usize] = [0; BUFSIZ as usize];
+    let mut buf_len = mem::size_of_val(&buf);
+    let ret = unsafe {
+        sysctl(
+            qoid.as_mut_ptr(),
+            qoid.len() as u32,
+            buf.as_mut_ptr() as *mut c_void,
+            &mut buf_len,
+            ptr::null_mut(),
+            0,
+        )
+    };
+    if ret != 0 {
+        return Err(SysctlError::IoError(io::Error::last_os_error()));
+    }
+
+    // Use buf_len - 1 so that we remove the trailing NULL
+    match str::from_utf8(&buf[..buf_len - 1]) {
+        Ok(s) => Ok(s.to_owned()),
+        Err(e) => Err(SysctlError::Utf8Error(e)),
+    }
+}
+
+/// Get the next OID.
+#[cfg(not(target_os = "macos"))]
+pub fn next_oid(oid: &Vec<c_int>) -> Result<Option<Vec<c_int>>, SysctlError> {
+    // Request command for next oid
+    let mut qoid: Vec<c_int> = vec![0, 2];
+    qoid.extend(oid);
+
+    let mut len: usize = CTL_MAXNAME as usize * mem::size_of::<c_int>();
+
+    // We get results in this vector
+    let mut res: Vec<c_int> = vec![0; CTL_MAXNAME as usize];
+
+    let ret = unsafe {
+        sysctl(
+            qoid.as_ptr(),
+            qoid.len() as u32,
+            res.as_mut_ptr() as *mut c_void,
+            &mut len,
+            ptr::null(),
+            0,
+        )
+    };
+    if ret != 0 {
+        let e = io::Error::last_os_error();
+
+        if e.raw_os_error() == Some(libc::ENOENT) {
+            return Ok(None);
+        }
+        return Err(SysctlError::IoError(e));
+    }
+
+    // len is in bytes, convert to number of c_ints
+    len /= mem::size_of::<c_int>();
+
+    // Trim result vector
+    res.truncate(len);
+
+    Ok(Some(res))
+}
+
+#[cfg(target_os = "macos")]
+pub fn next_oid(oid: &Vec<c_int>) -> Result<Option<Vec<c_int>>, SysctlError> {
+    // Request command for next oid
+    let mut qoid: Vec<c_int> = vec![0, 2];
+    qoid.extend(oid);
+
+    let mut len: usize = CTL_MAXNAME as usize * mem::size_of::<c_int>();
+
+    // We get results in this vector
+    let mut res: Vec<c_int> = vec![0; CTL_MAXNAME as usize];
+
+    let ret = unsafe {
+        sysctl(
+            qoid.as_mut_ptr(),
+            qoid.len() as u32,
+            res.as_mut_ptr() as *mut c_void,
+            &mut len,
+            ptr::null_mut(),
+            0,
+        )
+    };
+    if ret != 0 {
+        let e = io::Error::last_os_error();
+
+        if e.raw_os_error() == Some(libc::ENOENT) {
+            return Ok(None);
+        }
+        return Err(SysctlError::IoError(e));
+    }
+
+    // len is in bytes, convert to number of c_ints
+    len /= mem::size_of::<c_int>();
+
+    // Trim result vector
+    res.truncate(len);
+
+    Ok(Some(res))
+}
+
+/// This struct represents a system control.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Ctl {
+    oid: Vec<c_int>,
+}
+
+impl FromStr for Ctl {
+    type Err = SysctlError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let oid = name2oid(s)?;
+
+        Ok(Ctl { oid })
+    }
+}
+
+impl Ctl {
+    /// Construct a Ctl from the name.
+    ///
+    /// This is just a wrapper around `Ctl::from_str`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// extern crate sysctl;
+    /// use sysctl::Ctl;
+    ///
+    /// let ctl = Ctl::new("kern.osrelease");
+    /// ```
+    pub fn new(name: &str) -> Result<Self,SysctlError> {
+        Ctl::from_str(name)
+    }
+
+    /// Returns a result containing the sysctl name on success, or a
+    /// SysctlError on failure.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// extern crate sysctl;
+    /// use sysctl::Ctl;
+    /// let ctl = Ctl::new("kern.osrelease").expect("could not get sysctl");
+    /// assert_eq!(ctl.name().expect("could not get name"), "kern.osrelease");
+    /// ```
+    pub fn name(self: &Self) -> Result<String, SysctlError> {
+        oid2name(&self.oid)
+    }
+
+    /// Returns a result containing the sysctl value type on success,
+    /// or a Sysctl Error on failure.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// extern crate sysctl;
+    /// use sysctl::{Ctl, CtlType};
+    ///
+    /// let osrelease = Ctl::new("kern.osrelease")
+    ///     .expect("Could not get kern.osrelease sysctl");
+    /// let value_type = osrelease.value_type()
+    ///         .expect("Could notget kern.osrelease value type");
+    /// assert_eq!(value_type, CtlType::String);
+    /// ```
+    pub fn value_type(self: &Self) -> Result<CtlType, SysctlError> {
+        let info = oidfmt(&self.oid)?;
+        Ok(info.ctl_type)
+    }
+
+    /// Returns a result containing the sysctl description if success, or an
+    /// Error on failure.
+    ///
+    /// # Example
+    /// ```
+    /// extern crate sysctl;
+    /// use sysctl::Ctl;
+    ///
+    /// fn main() {
+    ///     let osrevision = sysctl::Ctl::new("kern.osrevision")
+    ///         .expect("could not get kern.osrevision sysctl");
+    ///     println!("Description: {:?}", osrevision.description())
+    /// }
+    /// ```
+    #[cfg(not(target_os = "macos"))]
+    pub fn description(self: &Self) -> Result<String, SysctlError> {
+        oid2description(&self.oid)
+    }
+
+    /// Returns a result containing the sysctl value on success, or a
+    /// SysctlError on failure.
+    ///
+    /// # Example
+    /// ```
+    /// extern crate sysctl;
+    /// extern crate libc;
+    ///
+    /// fn main() {
+    ///     let osrevision = sysctl::Ctl::new("kern.osrevision")
+    ///         .expect("could not get kern.osrevisio sysctl");
+    ///     println!("Value: {:?}", osrevision.value());
+    /// }
+    /// ```
+    #[cfg(not(target_os = "macos"))]
+    pub fn value(self: &Self) -> Result<CtlValue, SysctlError> {
+        value_oid(&self.oid)
+    }
+
+    #[cfg(target_os = "macos")]
+    pub fn value(self: &Self) -> Result<CtlValue, SysctlError> {
+        let mut oid = self.oid.clone();
+        value_oid(&mut oid)
+    }
+
+    /// A generic method that takes returns a result containing the sysctl
+    /// value if success, or a SysctlError on failure.
+    ///
+    /// May only be called for sysctls of type Opaque or Struct.
+    /// # Example
+    /// ```
+    /// extern crate sysctl;
+    /// extern crate libc;
+    ///
+    /// use libc::c_int;
+    ///
+    /// #[derive(Debug)]
+    /// #[repr(C)]
+    /// struct ClockInfo {
+    ///     hz: c_int, /* clock frequency */
+    ///     tick: c_int, /* micro-seconds per hz tick */
+    ///     spare: c_int,
+    ///     stathz: c_int, /* statistics clock frequency */
+    ///     profhz: c_int, /* profiling clock frequency */
+    /// }
+    ///
+    /// fn main() {
+    ///     let clockrate = sysctl::Ctl::new("kern.clockrate")
+    ///         .expect("could not get clockrate sysctl");
+    ///     println!("{:?}", clockrate.value_as::<ClockInfo>());
+    /// }
+    /// ```
+    #[cfg(not(target_os = "macos"))]
+    pub fn value_as<T>(self: &Self) -> Result<Box<T>, SysctlError> {
+        value_oid_as::<T>(&self.oid)
+    }
+
+    #[cfg(target_os = "macos")]
+    pub fn value_as<T>(self: &Self) -> Result<Box<T>, SysctlError> {
+        let mut oid = self.oid.clone();
+        value_oid_as::<T>(&mut oid)
+    }
+
+    /// Sets the value of a sysctl.
+    /// Fetches and returns the new value if successful, or returns a
+    /// SysctlError on failure.
+    /// # Example
+    /// ```
+    /// extern crate sysctl;
+    /// use sysctl::Ctl;
+    ///
+    /// fn main() {
+    ///     let usbdebug = Ctl::new("hw.usb.debug")
+    ///         .expect("could not get hw.usb.debug control");
+    ///     let original = usbdebug.value()
+    ///         .expect("could not get value");
+    ///     let set = usbdebug.set_value(sysctl::CtlValue::Int(0));
+    ///     println!("hw.usb.debug: {:?} -> {:?}", original, set);
+    ///     let set = usbdebug.set_value(sysctl::CtlValue::Int(1));
+    ///     println!("hw.usb.debug: 0 -> {:?}", set);
+    ///     let reset = usbdebug.set_value(original);
+    ///     println!("hw.usb.debug: 1 -> {:?}", reset);
+    /// }
+    #[cfg(not(target_os = "macos"))]
+    pub fn set_value(self: &Self, value: CtlValue) -> Result<CtlValue, SysctlError> {
+        set_oid_value(&self.oid, value)
+    }
+    #[cfg(target_os = "macos")]
+    pub fn set_value(self: &Self, value: CtlValue) -> Result<CtlValue, SysctlError> {
+        let mut oid = self.oid.clone();
+        set_oid_value(&mut oid, value)
+    }
+}
+
+/// An iterator over Sysctl entries.
+pub struct CtlIter {
+    // if we are iterating over a Node, only include OIDs
+    // starting with this base. Set to None if iterating over all
+    // OIDs.
+    base: Ctl,
+    current: Ctl,
+}
+
+impl CtlIter {
+    /// Return an iterator over the complete sysctl tree.
+    pub fn root() -> Self {
+        CtlIter{
+            base: Ctl { oid: vec![] },
+            current: Ctl { oid: vec![1] },
+        }
+    }
+
+    /// Return an iterator over all sysctl entries below the given node.
+    pub fn below(node: Ctl) -> Self {
+        CtlIter{
+            base: node.clone(),
+            current: node,
+        }
+    }
+}
+
+impl Iterator for CtlIter {
+    type Item = Result<Ctl,SysctlError>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let oid = match next_oid(&self.current.oid) {
+            Ok(Some(o)) => o,
+            Err(e) => return Some(Err(e)),
+            Ok(None) => return None,
+        };
+
+        // We continue iterating as long as the oid starts with the base
+        let cont = oid.starts_with(&self.base.oid);
+
+        self.current = Ctl { oid };
+
+        match cont {
+            true => Some(Ok(self.current.clone())),
+            false => None,
+        }
+    }
+}
+
+/// Ctl implements the IntoIterator trait to allow for easy iteration
+/// over nodes.
+///
+/// # Example
+///
+/// ```
+/// extern crate sysctl;
+/// use sysctl::Ctl;
+///
+/// let kern = Ctl::new("kern");
+/// for ctl in kern {
+///     let name = ctl.name().expect("could not get name");
+///     println!("{}", name);
+/// }
+/// ```
+impl IntoIterator for Ctl {
+    type Item = Result<Ctl,SysctlError>;
+    type IntoIter = CtlIter;
+
+    fn into_iter(self: Self) -> Self::IntoIter {
+        CtlIter::below(self)
+    }
+}
+
 #[cfg(test)]
 mod tests {
 
@@ -1046,18 +1514,47 @@ mod tests {
     }
 
     #[test]
+    fn ctl_name() {
+        let oid = vec![libc::CTL_KERN, libc::KERN_OSREV];
+        let name = oid2name(&oid)
+            .expect("Could not get name of kern.osrevision sysctl.");
+
+        assert_eq!(name, "kern.osrevision");
+
+        let ctl = Ctl{ oid };
+        let name = ctl.name()
+            .expect("Could not get name of kern.osrevision sysctl.");
+        assert_eq!(name, "kern.osrevision");
+    }
+
+    #[test]
     fn ctl_type() {
         let oid = name2oid("kern").unwrap();
         let fmt = oidfmt(&oid).unwrap();
         assert_eq!(fmt.ctl_type, CtlType::Node);
+        let kern = Ctl::new("kern")
+            .expect("Could not get kern node");
+        let value_type = kern.value_type()
+            .expect("Could not get kern value type");
+        assert_eq!(value_type, CtlType::Node);
 
         let oid = name2oid("kern.osrelease").unwrap();
         let fmt = oidfmt(&oid).unwrap();
         assert_eq!(fmt.ctl_type, CtlType::String);
+        let osrelease = Ctl::new("kern.osrelease")
+            .expect("Could not get kern.osrelease sysctl");
+        let value_type = osrelease.value_type()
+                .expect("Could notget kern.osrelease value type");
+        assert_eq!(value_type, CtlType::String);
 
         let oid = name2oid("kern.osrevision").unwrap();
         let fmt = oidfmt(&oid).unwrap();
         assert_eq!(fmt.ctl_type, CtlType::Int);
+        let osrevision = Ctl::new("kern.osrevision")
+            .expect("Could not get kern.osrevision sysctl");
+        let value_type = osrevision.value_type()
+            .expect("Could notget kern.osrevision value type");
+        assert_eq!(value_type, CtlType::Int);
     }
 
     #[test]
@@ -1079,6 +1576,15 @@ mod tests {
         let rev_str = String::from_utf8_lossy(&output.stdout);
         let rev = rev_str.trim().parse::<i32>().unwrap();
         let n = match value("kern.osrevision") {
+            Ok(CtlValue::Int(n)) => n,
+            Ok(_) => 0,
+            Err(_) => 0,
+        };
+        assert_eq!(n, rev);
+
+        let ctl = Ctl::new("kern.osrevision")
+            .expect("Could not get kern.osrevision sysctl.");
+        let n = match ctl.value() {
             Ok(CtlValue::Int(n)) => n,
             Ok(_) => 0,
             Err(_) => 0,
@@ -1116,12 +1622,27 @@ mod tests {
             _ => "...".into(),
         };
         assert_eq!(s.trim(), ver.trim());
+
+        let kernversion = Ctl::new("kern.version").unwrap();
+        let s = match kernversion.value() {
+            Ok(CtlValue::String(s)) => s,
+            _ => "...".into(),
+        };
+        assert_eq!(s.trim(), ver.trim());
     }
 
     #[test]
     #[cfg(not(target_os = "macos"))]
     fn ctl_description() {
         let s: String = match description("hw.ncpu") {
+            Ok(s) => s,
+            _ => "...".into(),
+        };
+        assert_ne!(s, "0");
+
+        let ncpu = Ctl::new("hw.ncpu")
+            .expect("could not get hw.ncpu sysctl.");
+        let s: String = match ncpu.description() {
             Ok(s) => s,
             _ => "...".into(),
         };
@@ -1172,5 +1693,82 @@ mod tests {
         } else {
             assert!(false);
         }
+    }
+
+    #[test]
+    fn ctl_iterate_all() {
+        let root = CtlIter::root();
+
+        let all_ctls = root.into_iter()
+            .filter_map(Result::ok);
+
+        for ctl in all_ctls {
+            println!("{:?}", ctl.name());
+        }
+    }
+
+    #[test]
+    fn ctl_iterate() {
+        let output = Command::new("sysctl")
+            .arg("security")
+            .output()
+            .expect("failed to execute process");
+        let expected = String::from_utf8_lossy(&output.stdout);
+
+        let security = Ctl::new("security")
+            .expect("could not get security node");
+
+        let ctls = CtlIter::below(security);
+        let mut actual : Vec<String> = vec!["".to_string()];
+
+        for ctl in ctls {
+            let ctl = match ctl {
+                Err(_) => { continue; },
+                Ok(s) => s,
+            };
+
+            let name = match ctl.name() {
+                Ok(s) => s,
+                Err(_) => { continue; },
+            };
+
+            let value = match ctl.value() {
+                Ok(s) => s,
+                Err(_) => { continue; },
+            };
+
+            let formatted = match value {
+                CtlValue::None => "(none)".to_owned(),
+                CtlValue::Int(i) => format!("{}", i),
+                CtlValue::Uint(i) => format!("{}", i),
+                CtlValue::Long(i) => format!("{}", i),
+                CtlValue::Ulong(i) => format!("{}", i),
+                CtlValue::U8(i) => format!("{}", i),
+                CtlValue::U16(i) => format!("{}", i),
+                CtlValue::U32(i) => format!("{}", i),
+                CtlValue::U64(i) => format!("{}", i),
+                CtlValue::S8(i) => format!("{}", i),
+                CtlValue::S16(i) => format!("{}", i),
+                CtlValue::S32(i) => format!("{}", i),
+                CtlValue::S64(i) => format!("{}", i),
+                CtlValue::Struct(_) => "(opaque struct)".to_owned(),
+                CtlValue::Node(_) => "(node)".to_owned(),
+                CtlValue::String(s) => s.to_owned(),
+                #[cfg(not(target_os = "macos"))]
+                CtlValue::Temperature(t) => format!("{} °C", t.celsius()),
+            };
+
+            match ctl.value_type().expect("could not get value type") {
+                CtlType::None => { continue; },
+                CtlType::Struct => { continue; },
+                CtlType::Node => { continue; },
+                #[cfg(not(target_os = "macos"))]
+                CtlType::Temperature => { continue; },
+                _ => {},
+            };
+
+            actual.push(format!("{}: {}", name, formatted));
+        }
+        assert_eq!(actual.join("\n").trim(), expected.trim());
     }
 }
