@@ -50,6 +50,9 @@
 //!     println!("{:?}", sysctl::value_as::<ClockInfo>("kern.clockrate"));
 //! }
 //! ```
+
+#[macro_use]
+extern crate bitflags;
 extern crate byteorder;
 extern crate libc;
 
@@ -97,28 +100,96 @@ pub const CTLTYPE_U32: c_uint = 15;
 pub const CTLFLAG_RD: c_uint = 0x80000000;
 pub const CTLFLAG_WR: c_uint = 0x40000000;
 pub const CTLFLAG_RW: c_uint = 0x80000000 | 0x40000000;
-pub const CTLFLAG_ANYBODY: c_uint = 268435456;
-pub const CTLFLAG_SECURE: c_uint = 134217728;
-pub const CTLFLAG_PRISON: c_uint = 67108864;
-pub const CTLFLAG_DYN: c_uint = 33554432;
-pub const CTLFLAG_SKIP: c_uint = 16777216;
+pub const CTLFLAG_DORMANT: c_uint = 0x20000000;
+pub const CTLFLAG_ANYBODY: c_uint = 0x10000000;
+pub const CTLFLAG_SECURE: c_uint = 0x08000000;
+pub const CTLFLAG_PRISON: c_uint = 0x04000000;
+pub const CTLFLAG_DYN: c_uint = 0x02000000;
+pub const CTLFLAG_SKIP: c_uint = 0x01000000;
 pub const CTLFLAG_TUN: c_uint = 0x00080000;
-pub const CTLFLAG_RDTUN: c_uint = 2148007936;
-pub const CTLFLAG_RWTUN: c_uint = 3221749760;
-pub const CTLFLAG_MPSAFE: c_uint = 262144;
-pub const CTLFLAG_VNET: c_uint = 131072;
-pub const CTLFLAG_DYING: c_uint = 65536;
-pub const CTLFLAG_CAPRD: c_uint = 32768;
-pub const CTLFLAG_CAPWR: c_uint = 16384;
-pub const CTLFLAG_STATS: c_uint = 8192;
-pub const CTLFLAG_NOFETCH: c_uint = 4096;
-pub const CTLFLAG_CAPRW: c_uint = 49152;
+pub const CTLFLAG_RDTUN: c_uint = CTLFLAG_RD | CTLFLAG_TUN;
+pub const CTLFLAG_RWTUN: c_uint = CTLFLAG_RW | CTLFLAG_TUN;
+pub const CTLFLAG_MPSAFE: c_uint = 0x00040000;
+pub const CTLFLAG_VNET: c_uint = 0x00020000;
+pub const CTLFLAG_DYING: c_uint = 0x00010000;
+pub const CTLFLAG_CAPRD: c_uint = 0x00008000;
+pub const CTLFLAG_CAPWR: c_uint = 0x00004000;
+pub const CTLFLAG_STATS: c_uint = 0x00002000;
+pub const CTLFLAG_NOFETCH: c_uint = 0x00001000;
+pub const CTLFLAG_CAPRW: c_uint = CTLFLAG_CAPRD | CTLFLAG_CAPWR;
 pub const CTLFLAG_SECURE1: c_uint = 134217728;
 pub const CTLFLAG_SECURE2: c_uint = 135266304;
 pub const CTLFLAG_SECURE3: c_uint = 136314880;
 
 pub const CTLMASK_SECURE: c_uint = 15728640;
 pub const CTLSHIFT_SECURE: c_uint = 20;
+
+/// Represents control flags of a sysctl
+bitflags! {
+    pub struct CtlFlags : c_uint {
+        /// Allow reads of variable
+        const RD = CTLFLAG_RD;
+
+        /// Allow writes to the variable
+        const WR = CTLFLAG_WR;
+
+        const RW = Self::RD.bits | Self::WR.bits;
+
+        /// This sysctl is not active yet
+        const DORMANT = CTLFLAG_DORMANT;
+
+        /// All users can set this var
+        const ANYBODY = CTLFLAG_ANYBODY;
+
+        /// Permit set only if securelevel<=0
+        const SECURE = CTLFLAG_SECURE;
+
+        /// Prisoned roots can fiddle
+        const PRISON = CTLFLAG_PRISON;
+
+        /// Dynamic oid - can be freed
+        const DYN = CTLFLAG_DYN;
+
+        /// Skip this sysctl when listing
+        const SKIP = CTLFLAG_DORMANT;
+
+        /// Secure level
+        const SECURE_MASK = 0x00F00000;
+
+        /// Default value is loaded from getenv()
+        const TUN = CTLFLAG_TUN;
+
+        /// Readable tunable
+        const RDTUN = Self::RD.bits | Self::TUN.bits;
+
+        /// Readable and writeable tunable
+        const RWTUN = Self::RW.bits | Self::TUN.bits;
+
+        /// Handler is MP safe
+        const MPSAFE = CTLFLAG_MPSAFE;
+
+        /// Prisons with vnet can fiddle
+        const VNET = CTLFLAG_VNET;
+
+        /// Oid is being removed
+        const DYING = CTLFLAG_DYING;
+
+        /// Can be read in capability mode
+        const CAPRD = CTLFLAG_CAPRD;
+
+        /// Can be written in capability mode
+        const CAPWR = CTLFLAG_CAPWR;
+
+        /// Statistics; not a tuneable
+        const STATS = CTLFLAG_STATS;
+
+        /// Don't fetch tunable from getenv()
+        const NOFETCH = CTLFLAG_NOFETCH;
+
+        /// Can be read and written in capability mode
+        const CAPRW = Self::CAPRD.bits | Self::CAPWR.bits;
+    }
+}
 
 /// An Enum that represents a sysctl's type information.
 ///
@@ -1402,6 +1473,32 @@ impl Ctl {
     pub fn set_value(self: &Self, value: CtlValue) -> Result<CtlValue, SysctlError> {
         let mut oid = self.oid.clone();
         set_oid_value(&mut oid, value)
+    }
+
+    /// Get the flags for a sysctl.
+    ///
+    /// Returns a Result containing the flags on success,
+    /// or a SysctlError on failure.
+    ///
+    /// # Example
+    /// ```
+    /// extern crate sysctl;
+    /// use sysctl::{Ctl, CtlFlags};
+    ///
+    /// fn main() {
+    ///     let osrev = Ctl::new("kern.osrevision")
+    ///         .expect("could not get control");
+    ///
+    ///     let readable = osrev.flags()
+    ///         .expect("could not get flags")
+    ///         .contains(CtlFlags::RD);
+    ///
+    ///     assert!(readable);
+    /// }
+    /// ```
+    pub fn flags(self: &Self) -> Result<CtlFlags, SysctlError> {
+        let info: CtlInfo = oidfmt(&self.oid)?;
+        Ok(CtlFlags::from_bits_truncate(info.flags))
     }
 }
 

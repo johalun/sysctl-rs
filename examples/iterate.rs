@@ -40,7 +40,8 @@ fn main() {
         2 => {
             let root = sysctl::Ctl::new(&args[1]).expect("Could not get given root node.");
 
-            let value_type = root.value_type()
+            let value_type = root
+                .value_type()
                 .expect("could not get value type of given sysctl");
             if value_type != sysctl::CtlType::Node {
                 print_ctl(&root);
@@ -53,6 +54,13 @@ fn main() {
     };
 
     for ctl in ctls {
-        print_ctl(&ctl);
+        let flags = match ctl.flags() {
+            Ok(f) => f,
+            Err(_) => continue,
+        };
+
+        if !flags.contains(sysctl::CtlFlags::SKIP) {
+            print_ctl(&ctl);
+        }
     }
 }
