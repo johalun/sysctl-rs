@@ -1,5 +1,5 @@
-extern crate sysctl;
 extern crate libc;
+extern crate sysctl;
 
 use libc::c_int;
 
@@ -7,7 +7,7 @@ use libc::c_int;
 #[derive(Debug)]
 #[repr(C)]
 struct ClockInfo {
-    hz: c_int, /* clock frequency */
+    hz: c_int,   /* clock frequency */
     tick: c_int, /* micro-seconds per hz tick */
     spare: c_int,
     stathz: c_int, /* statistics clock frequency */

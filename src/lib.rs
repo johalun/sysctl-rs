@@ -50,13 +50,13 @@
 //!     println!("{:?}", sysctl::value_as::<ClockInfo>("kern.clockrate"));
 //! }
 //! ```
-extern crate libc;
 extern crate byteorder;
+extern crate libc;
 
 #[macro_use]
 extern crate failure;
 
-use libc::{c_int, c_uint, c_uchar, c_void};
+use libc::{c_int, c_uchar, c_uint, c_void};
 use libc::sysctl;
 use libc::BUFSIZ;
 
@@ -69,7 +69,7 @@ use std::str;
 use std::str::FromStr;
 #[cfg(not(target_os = "macos"))]
 use std::f32;
-use byteorder::{LittleEndian, ByteOrder, WriteBytesExt};
+use byteorder::{ByteOrder, LittleEndian, WriteBytesExt};
 
 // CTL* constants belong to libc crate but have not been added there yet.
 // They will be removed from here once in the libc crate.
@@ -191,25 +191,25 @@ impl<'a> convert::From<&'a CtlValue> for CtlType {
 impl CtlType {
     fn min_type_size(self: &Self) -> usize {
         match self {
-            CtlType::None => 0,
-            CtlType::Node => 0,
-            CtlType::Int => mem::size_of::<libc::c_int>(),
-            CtlType::String => 0,
-            CtlType::S64 => mem::size_of::<i64>(),
-            CtlType::Struct => 0,
-            CtlType::Uint => mem::size_of::<libc::c_uint>(),
-            CtlType::Long => mem::size_of::<libc::c_long>(),
-            CtlType::Ulong => mem::size_of::<libc::c_ulong>(),
-            CtlType::U64 => mem::size_of::<u64>(),
-            CtlType::U8 => mem::size_of::<u8>(),
-            CtlType::U16 => mem::size_of::<u16>(),
-            CtlType::S8 => mem::size_of::<i8>(),
-            CtlType::S16 => mem::size_of::<i16>(),
-            CtlType::S32 => mem::size_of::<i32>(),
-            CtlType::U32 => mem::size_of::<u32>(),
+            &CtlType::None => 0,
+            &CtlType::Node => 0,
+            &CtlType::Int => mem::size_of::<libc::c_int>(),
+            &CtlType::String => 0,
+            &CtlType::S64 => mem::size_of::<i64>(),
+            &CtlType::Struct => 0,
+            &CtlType::Uint => mem::size_of::<libc::c_uint>(),
+            &CtlType::Long => mem::size_of::<libc::c_long>(),
+            &CtlType::Ulong => mem::size_of::<libc::c_ulong>(),
+            &CtlType::U64 => mem::size_of::<u64>(),
+            &CtlType::U8 => mem::size_of::<u8>(),
+            &CtlType::U16 => mem::size_of::<u16>(),
+            &CtlType::S8 => mem::size_of::<i8>(),
+            &CtlType::S16 => mem::size_of::<i16>(),
+            &CtlType::S32 => mem::size_of::<i32>(),
+            &CtlType::U32 => mem::size_of::<u32>(),
             // Added custom types below
             #[cfg(not(target_os = "macos"))]
-            CtlType::Temperature => 0,
+            &CtlType::Temperature => 0,
         }
     }
 }
@@ -331,7 +331,6 @@ impl Temperature {
 
 #[cfg(not(target_os = "macos"))]
 fn name2oid(name: &str) -> Result<Vec<c_int>, SysctlError> {
-
     // Request command for OID
     let oid: [c_int; 2] = [0, 3];
 
@@ -365,7 +364,6 @@ fn name2oid(name: &str) -> Result<Vec<c_int>, SysctlError> {
 
 #[cfg(target_os = "macos")]
 fn name2oid(name: &str) -> Result<Vec<c_int>, SysctlError> {
-
     // Request command for OID
     let mut oid: [c_int; 2] = [0, 3];
 
@@ -399,7 +397,6 @@ fn name2oid(name: &str) -> Result<Vec<c_int>, SysctlError> {
 
 #[cfg(not(target_os = "macos"))]
 fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, SysctlError> {
-
     // Request command for type info
     let mut qoid: Vec<c_int> = vec![0, 4];
     qoid.extend(oid);
@@ -445,12 +442,10 @@ fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, SysctlError> {
 fn temperature(info: &CtlInfo, val: &Vec<u8>) -> Result<CtlValue, SysctlError> {
     let prec: u32 = {
         match info.fmt.len() {
-            l if l > 2 => {
-                match info.fmt[2..3].parse::<u32>() {
-                    Ok(x) if x <= 9 => x,
-                    _ => 1,
-                }
-            }
+            l if l > 2 => match info.fmt[2..3].parse::<u32>() {
+                Ok(x) if x <= 9 => x,
+                _ => 1,
+            },
             _ => 1,
         }
     };
@@ -480,7 +475,6 @@ fn temperature(info: &CtlInfo, val: &Vec<u8>) -> Result<CtlValue, SysctlError> {
 
 #[cfg(target_os = "macos")]
 fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, SysctlError> {
-
     // Request command for type info
     let mut qoid: Vec<c_int> = vec![0, 4];
     qoid.extend(oid);
@@ -566,7 +560,6 @@ pub fn value(name: &str) -> Result<CtlValue, SysctlError> {
 /// ```
 #[cfg(not(target_os = "macos"))]
 pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
-
     let info: CtlInfo = try!(oidfmt(&oid));
 
     // Check if the value is readable
@@ -618,7 +611,7 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
     if new_val_len < val_len {
         return Err(SysctlError::ShortRead {
             read: new_val_len,
-            reported: val_len
+            reported: val_len,
         });
     }
 
@@ -632,12 +625,10 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
         CtlType::None => Ok(CtlValue::None),
         CtlType::Node => Ok(CtlValue::Node(val)),
         CtlType::Int => Ok(CtlValue::Int(LittleEndian::read_i32(&val))),
-        CtlType::String => {
-            match str::from_utf8(&val[..val.len() - 1]) {
-                Ok(s) => Ok(CtlValue::String(s.into())),
-                Err(e) => Err(SysctlError::Utf8Error(e)),
-            }
-        }
+        CtlType::String => match str::from_utf8(&val[..val.len() - 1]) {
+            Ok(s) => Ok(CtlValue::String(s.into())),
+            Err(e) => Err(SysctlError::Utf8Error(e)),
+        },
         CtlType::S64 => Ok(CtlValue::S64(LittleEndian::read_u64(&val))),
         CtlType::Struct => Ok(CtlValue::Struct(val)),
         CtlType::Uint => Ok(CtlValue::Uint(LittleEndian::read_u32(&val))),
@@ -656,7 +647,6 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
 
 #[cfg(target_os = "macos")]
 pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
-
     let info: CtlInfo = try!(oidfmt(&oid));
 
     // Check if the value is readable
@@ -708,7 +698,7 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
     if new_val_len < val_len {
         return Err(SysctlError::ShortRead {
             read: new_val_len,
-            reported: val_len
+            reported: val_len,
         });
     }
 
@@ -717,12 +707,10 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
         CtlType::None => Ok(CtlValue::None),
         CtlType::Node => Ok(CtlValue::Node(val)),
         CtlType::Int => Ok(CtlValue::Int(LittleEndian::read_i32(&val))),
-        CtlType::String => {
-            match str::from_utf8(&val[..val.len() - 1]) {
-                Ok(s) => Ok(CtlValue::String(s.into())),
-                Err(e) => Err(SysctlError::Utf8Error(e)),
-            }
-        }
+        CtlType::String => match str::from_utf8(&val[..val.len() - 1]) {
+            Ok(s) => Ok(CtlValue::String(s.into())),
+            Err(e) => Err(SysctlError::Utf8Error(e)),
+        },
         CtlType::S64 => Ok(CtlValue::S64(LittleEndian::read_u64(&val))),
         CtlType::Struct => Ok(CtlValue::Struct(val)),
         CtlType::Uint => Ok(CtlValue::Uint(LittleEndian::read_u32(&val))),
@@ -819,7 +807,6 @@ pub fn value_as<T>(name: &str) -> Result<Box<T>, SysctlError> {
 /// ```
 #[cfg(not(target_os = "macos"))]
 pub fn value_oid_as<T>(oid: &Vec<i32>) -> Result<Box<T>, SysctlError> {
-
     let val_enum = try!(value_oid(oid));
 
     // Some structs are apparently reported as Node so this check is invalid..
@@ -864,7 +851,6 @@ pub fn value_oid_as<T>(oid: &Vec<i32>) -> Result<Box<T>, SysctlError> {
 
 #[cfg(target_os = "macos")]
 pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
-
     let val_enum = try!(value_oid(oid));
 
     // Some structs are apparently reported as Node so this check is invalid..
@@ -921,7 +907,6 @@ pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
 /// ```
 #[cfg(not(target_os = "macos"))]
 pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
-
     let oid = try!(name2oid(name));
     set_oid_value(&oid, value)
 }
@@ -943,21 +928,18 @@ pub fn set_oid_value(oid: &Vec<c_int>, value: CtlValue) -> Result<CtlValue, Sysc
 
     let ctl_type = CtlType::from(&value);
     assert_eq!(
-        info.ctl_type,
-        ctl_type,
+        info.ctl_type, ctl_type,
         "Error type mismatch. Type given {:?}, sysctl type: {:?}",
-        ctl_type,
-        info.ctl_type
+        ctl_type, info.ctl_type
     );
-
 
     // TODO rest of the types
 
     if let CtlValue::Int(v) = value {
         let mut bytes = vec![];
-        bytes.write_i32::<LittleEndian>(v).expect(
-            "Error parsing value to byte array",
-        );
+        bytes
+            .write_i32::<LittleEndian>(v)
+            .expect("Error parsing value to byte array");
 
         // Set value
         let ret = unsafe {
@@ -990,21 +972,18 @@ pub fn set_oid_value(oid: &mut Vec<c_int>, value: CtlValue) -> Result<CtlValue, 
 
     let ctl_type = CtlType::from(&value);
     assert_eq!(
-        info.ctl_type,
-        ctl_type,
+        info.ctl_type, ctl_type,
         "Error type mismatch. Type given {:?}, sysctl type: {:?}",
-        ctl_type,
-        info.ctl_type
+        ctl_type, info.ctl_type
     );
-
 
     // TODO rest of the types
 
     if let CtlValue::Int(v) = value {
         let mut bytes = vec![];
-        bytes.write_i32::<LittleEndian>(v).expect(
-            "Error parsing value to byte array",
-        );
+        bytes
+            .write_i32::<LittleEndian>(v)
+            .expect("Error parsing value to byte array");
 
         // Set value
         let ret = unsafe {
@@ -1272,7 +1251,7 @@ impl Ctl {
     ///
     /// let ctl = Ctl::new("kern.osrelease");
     /// ```
-    pub fn new(name: &str) -> Result<Self,SysctlError> {
+    pub fn new(name: &str) -> Result<Self, SysctlError> {
         Ctl::from_str(name)
     }
 
@@ -1436,7 +1415,7 @@ pub struct CtlIter {
 impl CtlIter {
     /// Return an iterator over the complete sysctl tree.
     pub fn root() -> Self {
-        CtlIter{
+        CtlIter {
             base: Ctl { oid: vec![] },
             current: Ctl { oid: vec![1] },
         }
@@ -1444,7 +1423,7 @@ impl CtlIter {
 
     /// Return an iterator over all sysctl entries below the given node.
     pub fn below(node: Ctl) -> Self {
-        CtlIter{
+        CtlIter {
             base: node.clone(),
             current: node,
         }
@@ -1452,7 +1431,7 @@ impl CtlIter {
 }
 
 impl Iterator for CtlIter {
-    type Item = Result<Ctl,SysctlError>;
+    type Item = Result<Ctl, SysctlError>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let oid = match next_oid(&self.current.oid) {
@@ -1489,7 +1468,7 @@ impl Iterator for CtlIter {
 /// }
 /// ```
 impl IntoIterator for Ctl {
-    type Item = Result<Ctl,SysctlError>;
+    type Item = Result<Ctl, SysctlError>;
     type IntoIter = CtlIter;
 
     fn into_iter(self: Self) -> Self::IntoIter {
@@ -1516,12 +1495,11 @@ mod tests {
     #[test]
     fn ctl_name() {
         let oid = vec![libc::CTL_KERN, libc::KERN_OSREV];
-        let name = oid2name(&oid)
-            .expect("Could not get name of kern.osrevision sysctl.");
+        let name = oid2name(&oid).expect("Could not get name of kern.osrevision sysctl.");
 
         assert_eq!(name, "kern.osrevision");
 
-        let ctl = Ctl{ oid };
+        let ctl = Ctl { oid };
         let name = ctl.name()
             .expect("Could not get name of kern.osrevision sysctl.");
         assert_eq!(name, "kern.osrevision");
@@ -1532,27 +1510,25 @@ mod tests {
         let oid = name2oid("kern").unwrap();
         let fmt = oidfmt(&oid).unwrap();
         assert_eq!(fmt.ctl_type, CtlType::Node);
-        let kern = Ctl::new("kern")
-            .expect("Could not get kern node");
-        let value_type = kern.value_type()
-            .expect("Could not get kern value type");
+        let kern = Ctl::new("kern").expect("Could not get kern node");
+        let value_type = kern.value_type().expect("Could not get kern value type");
         assert_eq!(value_type, CtlType::Node);
 
         let oid = name2oid("kern.osrelease").unwrap();
         let fmt = oidfmt(&oid).unwrap();
         assert_eq!(fmt.ctl_type, CtlType::String);
-        let osrelease = Ctl::new("kern.osrelease")
-            .expect("Could not get kern.osrelease sysctl");
-        let value_type = osrelease.value_type()
-                .expect("Could notget kern.osrelease value type");
+        let osrelease = Ctl::new("kern.osrelease").expect("Could not get kern.osrelease sysctl");
+        let value_type = osrelease
+            .value_type()
+            .expect("Could notget kern.osrelease value type");
         assert_eq!(value_type, CtlType::String);
 
         let oid = name2oid("kern.osrevision").unwrap();
         let fmt = oidfmt(&oid).unwrap();
         assert_eq!(fmt.ctl_type, CtlType::Int);
-        let osrevision = Ctl::new("kern.osrevision")
-            .expect("Could not get kern.osrevision sysctl");
-        let value_type = osrevision.value_type()
+        let osrevision = Ctl::new("kern.osrevision").expect("Could not get kern.osrevision sysctl");
+        let value_type = osrevision
+            .value_type()
             .expect("Could notget kern.osrevision value type");
         assert_eq!(value_type, CtlType::Int);
     }
@@ -1582,8 +1558,7 @@ mod tests {
         };
         assert_eq!(n, rev);
 
-        let ctl = Ctl::new("kern.osrevision")
-            .expect("Could not get kern.osrevision sysctl.");
+        let ctl = Ctl::new("kern.osrevision").expect("Could not get kern.osrevision sysctl.");
         let n = match ctl.value() {
             Ok(CtlValue::Int(n)) => n,
             Ok(_) => 0,
@@ -1640,8 +1615,7 @@ mod tests {
         };
         assert_ne!(s, "0");
 
-        let ncpu = Ctl::new("hw.ncpu")
-            .expect("could not get hw.ncpu sysctl.");
+        let ncpu = Ctl::new("hw.ncpu").expect("could not get hw.ncpu sysctl.");
         let s: String = match ncpu.description() {
             Ok(s) => s,
             _ => "...".into(),
@@ -1659,9 +1633,8 @@ mod tests {
         };
         let mut val = vec![];
         // Default value (IK) in deciKelvin integer
-        val.write_i32::<LittleEndian>(3330).expect(
-            "Error parsing value to byte array",
-        );
+        val.write_i32::<LittleEndian>(3330)
+            .expect("Error parsing value to byte array");
 
         let t = temperature(&info, &val).unwrap();
         if let CtlValue::Temperature(tt) = t {
@@ -1683,9 +1656,8 @@ mod tests {
         };
         let mut val = vec![];
         // Set value in milliKelvin
-        val.write_i32::<LittleEndian>(333000).expect(
-            "Error parsing value to byte array",
-        );
+        val.write_i32::<LittleEndian>(333000)
+            .expect("Error parsing value to byte array");
 
         let t = temperature(&info, &val).unwrap();
         if let CtlValue::Temperature(tt) = t {
@@ -1699,8 +1671,7 @@ mod tests {
     fn ctl_iterate_all() {
         let root = CtlIter::root();
 
-        let all_ctls = root.into_iter()
-            .filter_map(Result::ok);
+        let all_ctls = root.into_iter().filter_map(Result::ok);
 
         for ctl in all_ctls {
             println!("{:?}", ctl.name());
@@ -1715,26 +1686,31 @@ mod tests {
             .expect("failed to execute process");
         let expected = String::from_utf8_lossy(&output.stdout);
 
-        let security = Ctl::new("security")
-            .expect("could not get security node");
+        let security = Ctl::new("security").expect("could not get security node");
 
         let ctls = CtlIter::below(security);
-        let mut actual : Vec<String> = vec!["".to_string()];
+        let mut actual: Vec<String> = vec!["".to_string()];
 
         for ctl in ctls {
             let ctl = match ctl {
-                Err(_) => { continue; },
+                Err(_) => {
+                    continue;
+                }
                 Ok(s) => s,
             };
 
             let name = match ctl.name() {
                 Ok(s) => s,
-                Err(_) => { continue; },
+                Err(_) => {
+                    continue;
+                }
             };
 
             let value = match ctl.value() {
                 Ok(s) => s,
-                Err(_) => { continue; },
+                Err(_) => {
+                    continue;
+                }
             };
 
             let formatted = match value {
@@ -1759,12 +1735,20 @@ mod tests {
             };
 
             match ctl.value_type().expect("could not get value type") {
-                CtlType::None => { continue; },
-                CtlType::Struct => { continue; },
-                CtlType::Node => { continue; },
+                CtlType::None => {
+                    continue;
+                }
+                CtlType::Struct => {
+                    continue;
+                }
+                CtlType::Node => {
+                    continue;
+                }
                 #[cfg(not(target_os = "macos"))]
-                CtlType::Temperature => { continue; },
-                _ => {},
+                CtlType::Temperature => {
+                    continue;
+                }
+                _ => {}
             };
 
             actual.push(format!("{}: {}", name, formatted));

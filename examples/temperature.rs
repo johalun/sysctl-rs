@@ -1,7 +1,6 @@
 extern crate sysctl;
 #[cfg(not(target_os = "macos"))]
 fn main() {
-
     let ctl = "dev.cpu.0.temperature";
     println!("\nRead sysctl {}", ctl);
 

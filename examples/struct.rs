@@ -1,5 +1,5 @@
-extern crate sysctl;
 extern crate libc;
+extern crate sysctl;
 
 #[cfg(not(target_os = "macos"))]
 use libc::c_int;
@@ -11,7 +11,7 @@ use std::mem;
 #[repr(C)]
 #[cfg(not(target_os = "macos"))]
 struct ClockInfo {
-    hz: c_int, /* clock frequency */
+    hz: c_int,   /* clock frequency */
     tick: c_int, /* micro-seconds per hz tick */
     spare: c_int,
     stathz: c_int, /* statistics clock frequency */
@@ -19,7 +19,6 @@ struct ClockInfo {
 }
 #[cfg(not(target_os = "macos"))]
 fn main() {
-
     let ctl = "kern.clockrate";
     println!("\nRead sysctl {} and parse result to struct ClockInfo", ctl);
 

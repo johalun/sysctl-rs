@@ -1,7 +1,6 @@
 extern crate sysctl;
 #[cfg(not(target_os = "macos"))]
 fn main() {
-
     let ctl = "kern.osrevision";
 
     println!("\nRead sysctl {}", ctl);
