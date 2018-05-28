@@ -48,8 +48,19 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../src/sysctl/lib.rs.html#795-832' title='goto source code'>[src]</a></span></h1>
-<pre class='rust fn'>pub fn set_value(name: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, value: <a class="enum" href="../sysctl/enum.CtlValue.html" title="enum sysctl::CtlValue">CtlValue</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="enum" href="../sysctl/enum.CtlValue.html" title="enum sysctl::CtlValue">CtlValue</a>, <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;</pre></section>
+               </span><a class='srclink' href='../src/sysctl/lib.rs.html#1087-1090' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn set_value(name: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, value: <a class="enum" href="../sysctl/enum.CtlValue.html" title="enum sysctl::CtlValue">CtlValue</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="enum" href="../sysctl/enum.CtlValue.html" title="enum sysctl::CtlValue">CtlValue</a>, <a class="enum" href="../sysctl/enum.SysctlError.html" title="enum sysctl::SysctlError">SysctlError</a>&gt;</pre><div class='docblock'><p>Sets the value of a sysctl.
+Fetches and returns the new value if successful, or a SysctlError
+on failure</p>
+
+<h1 id='example' class='section-header'><a href='#example'>Example</a></h1>
+<div class='information'><div class='tooltip ignore'>⚠<span class='tooltiptext'>Be careful when using this code, it's not being tested!</span></div></div><pre class="rust rust-example-rendered ignore">
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">sysctl</span>;
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">sysctl</span>::<span class="ident">set_value</span>(<span class="string">&quot;hw.usb.debug&quot;</span>, <span class="ident">sysctl</span>::<span class="ident">CtlValue</span>::<span class="ident">Int</span>(<span class="number">1</span>)));
+}</pre>
+</div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>

@@ -29,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'>Crate sysctl</p><div class="block items"><ul><li><a href="#enums">Enums</a></li><li><a href="#constants">Constants</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'sysctl', ty: 'mod', relpath: '../'};</script>
+        <p class='location'>Crate sysctl</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#constants">Constants</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'sysctl', ty: 'mod', relpath: '../'};</script>
     </nav>
 
     <nav class="sub">
@@ -48,7 +48,7 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../src/sysctl/lib.rs.html#1-1051' title='goto source code'>[src]</a></span></h1>
+               </span><a class='srclink' href='../src/sysctl/lib.rs.html#1-2019' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>A simplified interface to the <code>sysctl</code> system call.</p>
 
 <p>Currently built for and only tested on FreeBSD.</p>
@@ -100,14 +100,50 @@
 <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">sysctl</span>::<span class="ident">value_as</span>::<span class="op">&lt;</span><span class="ident">ClockInfo</span><span class="op">&gt;</span>(<span class="string">&quot;kern.clockrate&quot;</span>));
 }</pre>
-</div><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Ctl.html"
+                                  title='struct sysctl::Ctl'>Ctl</a></td>
+                           <td class='docblock-short'>
+                                <p>This struct represents a system control.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.CtlFlags.html"
+                                  title='struct sysctl::CtlFlags'>CtlFlags</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.CtlIter.html"
+                                  title='struct sysctl::CtlIter'>CtlIter</a></td>
+                           <td class='docblock-short'>
+                                <p>An iterator over Sysctl entries.</p>
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.CtlType.html"
+                                  title='enum sysctl::CtlType'>CtlType</a></td>
+                           <td class='docblock-short'>
+                                <p>An Enum that represents a sysctl&#39;s type information.</p>
+                           </td>
+                       </tr>
                        <tr class=' module-item'>
                            <td><a class="enum" href="enum.CtlValue.html"
                                   title='enum sysctl::CtlValue'>CtlValue</a></td>
                            <td class='docblock-short'>
                                 <p>An Enum that holds all values returned by sysctl calls.
 Extract inner value with <code>if let</code> or <code>match</code>.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.SysctlError.html"
+                                  title='enum sysctl::SysctlError'>SysctlError</a></td>
+                           <td class='docblock-short'>
+                                
                            </td>
                        </tr></table><h2 id='constants' class='section-header'><a href="#constants">Constants</a></h2>
 <table>
@@ -135,6 +171,13 @@ Extract inner value with <code>if let</code> or <code>match</code>.</p>
                        <tr class=' module-item'>
                            <td><a class="constant" href="constant.CTLFLAG_CAPWR.html"
                                   title='constant sysctl::CTLFLAG_CAPWR'>CTLFLAG_CAPWR</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="constant" href="constant.CTLFLAG_DORMANT.html"
+                                  title='constant sysctl::CTLFLAG_DORMANT'>CTLFLAG_DORMANT</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
@@ -407,31 +450,53 @@ Extract inner value with <code>if let</code> or <code>match</code>.</p>
                        </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>
                        <tr class=' module-item'>
+                           <td><a class="fn" href="fn.next_oid.html"
+                                  title='fn sysctl::next_oid'>next_oid</a></td>
+                           <td class='docblock-short'>
+                                <p>Get the next OID.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.set_oid_value.html"
+                                  title='fn sysctl::set_oid_value'>set_oid_value</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
                            <td><a class="fn" href="fn.set_value.html"
                                   title='fn sysctl::set_value'>set_value</a></td>
                            <td class='docblock-short'>
-                                
+                                <p>Sets the value of a sysctl.
+Fetches and returns the new value if successful, or a SysctlError
+on failure</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
                            <td><a class="fn" href="fn.value.html"
                                   title='fn sysctl::value'>value</a></td>
                            <td class='docblock-short'>
-                                
+                                <p>Takes the name of the OID as argument and returns
+a result containing the sysctl value if success,
+or a SysctlError on failure</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
                            <td><a class="fn" href="fn.value_as.html"
                                   title='fn sysctl::value_as'>value_as</a></td>
                            <td class='docblock-short'>
-                                
+                                <p>A generic function that takes a string as argument and
+returns a result containing the sysctl value if success,
+or a SysctlError on failure.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
                            <td><a class="fn" href="fn.value_oid.html"
                                   title='fn sysctl::value_oid'>value_oid</a></td>
                            <td class='docblock-short'>
-                                
+                                <p>Takes an OID as argument and returns a result
+containing the sysctl value if success, or a SysctlError
+on failure</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -440,7 +505,7 @@ Extract inner value with <code>if let</code> or <code>match</code>.</p>
                            <td class='docblock-short'>
                                 <p>A generic function that takes an OID as argument and
 returns a result containing the sysctl value if success,
-the errno caused by sysctl() as string if failure.</p>
+or a SysctlError on failure</p>
                            </td>
                        </tr></table></section>
     <section id='search' class="content hidden"></section>
