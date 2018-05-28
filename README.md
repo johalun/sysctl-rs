@@ -23,12 +23,28 @@ Add to `Cargo.toml`
 
 ```toml
 [dependencies]
-sysctl = "0.1.4"
+sysctl = "0.2.0"
 ```
+
+### macos
+
+* Due to limitations in the sysctl(3) API, many of the methods of
+  the `Ctl` take a mutable reference to `self` on macos.
+* Sysctl descriptions are not available on macos.
+* Some tests failures are ignored, as the respective sysctls do not
+  exist on macos.
 
 ### Example
 
-sysctl comes with several examples, see the examples folder.
+sysctl comes with several examples, see the examples folder:
+
+* `value.rs`: shows how to get a sysctl value
+* `value_as.rs`: parsing values as structures
+* `value_oid_as.rs`: getting a sysctl from OID constants from the `libc` crate.
+* `set_value.rs`: shows how to set a sysctl value
+* `struct.rs`: reading data into a struct
+* `temperature.rs`: parsing temperatures
+* `iterate.rs`: showcases iteration over the sysctl tree
 
 Run with:
 
@@ -38,22 +54,18 @@ $ cargo run --example iterate
 
 Or in a separate crate:
 
-
 ```rust
 extern crate sysctl;
+use sysctl::{Ctl, CtlValue};
 
 fn main() {
-    let ctl = "kern.osrevision";
-    let d: String = sysctl::description(ctl).unwrap();
-    println!("Description: {:?}", d);
+    let ctl = Ctl::new("kern.osrevision");
+    println!("Description: {:?}", ctl.description().unwrap());
 
-    let val_enum = sysctl::value(ctl).unwrap();
-    if let sysctl::CtlValue::Int(val) = val_enum {
+    let val_enum = ctl.value().unwrap();
+    if let CtlValue::Int(val) = val_enum {
         println!("Value: {}", val);
     }
 }
 ```
-
-
-
 

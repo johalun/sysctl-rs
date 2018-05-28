@@ -37,11 +37,17 @@ impl fmt::Debug for LoadAvg {
 fn main() {
     // Generic type to pass to function will be inferred if not specified on RHS
     println!("\nRead sysctl kern.clockrate as struct directly");
-    let val: Box<ClockInfo> = sysctl::value_as("kern.clockrate").unwrap();
+    let val: Box<ClockInfo> = sysctl::Ctl::new("kern.clockrate")
+        .expect("could not get sysctl: kern.clockrate")
+        .value_as()
+        .expect("could not read sysctl as struct");
     println!("{:?}", val);
 
     // Pass type LoadAvg to generic function
     println!("\nRead sysctl vm.loadavg as struct directly");
-    let val = sysctl::value_as::<LoadAvg>("vm.loadavg").unwrap();
+    let val = sysctl::Ctl::new("vm.loadavg")
+        .expect("could not get sysctl: vm.loadavg")
+        .value_as::<LoadAvg>()
+        .expect("could not read sysctl as LoadAvg");
     println!("{:?}", val);
 }

@@ -8,33 +8,35 @@ fn main() {
         "This example must be run as root"
     );
 
-    let ctl = "hw.usb.debug";
+    let ctl = sysctl::Ctl::new("hw.usb.debug").expect("could not get sysctl: hw.usb.debug");
 
-    println!("\nFlipping value of sysctl {}", ctl);
+    let name = ctl.name().expect("could not get sysctl name");
+    println!("\nFlipping value of sysctl {}", name);
 
-    let old_val_enum = sysctl::value(ctl).unwrap();
+    let old_val_enum = ctl.value().expect("could not set sysctl value");
 
     if let sysctl::CtlValue::Int(old_val) = old_val_enum {
         println!("Old value: {}", old_val);
 
-        let l = {
-            if old_val == 0 {
-                1
-            } else {
-                0
-            }
+        let target_val = match old_val {
+            0 => 1,
+            _ => 0,
         };
-        let new_val_enum = sysctl::set_value(ctl, sysctl::CtlValue::Int(l)).unwrap();
+
+        let target_val_enum = sysctl::CtlValue::Int(target_val);
+
+        let new_val_enum = ctl.set_value(target_val_enum).expect("could not set value");
 
         if let sysctl::CtlValue::Int(new_val) = new_val_enum {
-            if new_val == l {
+            if new_val == target_val {
                 println!("New value succcesfully set to: {}", new_val);
             } else {
                 println!("Error: Could not set new value");
             }
             println!("Restore old value");
 
-            sysctl::set_value(ctl, old_val_enum).unwrap();
+            ctl.set_value(old_val_enum)
+                .expect("could not restore old value");
         }
     }
 }
