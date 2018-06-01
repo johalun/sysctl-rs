@@ -7,23 +7,32 @@
 //! extern crate sysctl;
 //! #[cfg(not(target_os = "macos"))]
 //! fn main() {
+//!     let ctl = sysctl::Ctl::new("kern.osrevision")
+//!         .expect("could not get sysctl");
 //!
-//!     let ctl = "kern.osrevision";
+//!     let d = ctl.description()
+//!         .expect("could not get description");
 //!
-//!     let d: String = sysctl::description(ctl).unwrap();
 //!     println!("Description: {:?}", d);
 //!
-//!     let val_enum = sysctl::value(ctl).unwrap();
+//!     let val_enum = ctl.value()
+//!         .expect("could not get value");
+//!
 //!     if let sysctl::CtlValue::Int(val) = val_enum {
 //!         println!("Value: {}", val);
 //!     }
 //! }
+//!
 //! #[cfg(target_os = "macos")]
 //! fn main() {
+//!     let mut ctl = sysctl::Ctl::new("kern.osrevision")
+//!         .expect("could not get sysctl");
 //!
-//!     let ctl = "kern.osrevision";
+//!     // description is not available on macos
 //!
-//!     let val_enum = sysctl::value(ctl).unwrap();
+//!     let val_enum = ctl.value()
+//!         .expect("could not get value");
+//!
 //!     if let sysctl::CtlValue::Int(val) = val_enum {
 //!         println!("Value: {}", val);
 //!     }
@@ -59,20 +68,20 @@ extern crate libc;
 #[macro_use]
 extern crate failure;
 
-use libc::{c_int, c_uchar, c_uint, c_void};
 use libc::sysctl;
 use libc::BUFSIZ;
+use libc::{c_int, c_uchar, c_uint, c_void};
 
+use byteorder::{ByteOrder, LittleEndian, WriteBytesExt};
 use std::cmp;
 use std::convert;
+#[cfg(not(target_os = "macos"))]
+use std::f32;
 use std::io;
 use std::mem;
 use std::ptr;
 use std::str;
 use std::str::FromStr;
-#[cfg(not(target_os = "macos"))]
-use std::f32;
-use byteorder::{ByteOrder, LittleEndian, WriteBytesExt};
 
 // CTL* constants belong to libc crate but have not been added there yet.
 // They will be removed from here once in the libc crate.
@@ -342,16 +351,10 @@ pub enum SysctlError {
     ExtractionError,
 
     #[fail(display = "IO Error: {}", _0)]
-    IoError(
-        #[cause]
-        io::Error
-    ),
+    IoError(#[cause] io::Error),
 
     #[fail(display = "Error parsing UTF-8 data: {}", _0)]
-    Utf8Error(
-        #[cause]
-        str::Utf8Error
-    ),
+    Utf8Error(#[cause] str::Utf8Error),
 
     #[fail(display = "Value is not readable")]
     NoReadAccess,
@@ -359,7 +362,11 @@ pub enum SysctlError {
     #[fail(display = "Value is not writeable")]
     NoWriteAccess,
 
-    #[fail(display = "sysctl returned a short read: read {} bytes, while a size of {} was reported", read, reported)]
+    #[fail(
+        display = "sysctl returned a short read: read {} bytes, while a size of {} was reported",
+        read,
+        reported
+    )]
     ShortRead { read: usize, reported: usize },
 }
 
@@ -370,8 +377,14 @@ pub enum SysctlError {
 /// extern crate sysctl;
 /// #[cfg(not(target_os = "macos"))]
 /// fn main() {
-///     let val_enum = sysctl::value("dev.cpu.0.temperature").unwrap();
-///     if let sysctl::CtlValue::Temperature(val) = val_enum {
+/// #   let ctl = match sysctl::Ctl::new("dev.cpu.0.temperature") {
+/// #       Ok(c) => c,
+/// #       Err(e) => {
+/// #           println!("Couldn't get dev.cpu.0.temperature: {}", e);
+/// #           return;
+/// #       }
+/// #   };
+///     if let Ok(sysctl::CtlValue::Temperature(val)) = ctl.value() {
 ///         println!("Temperature: {:.2}K, {:.2}F, {:.2}C",
 ///                  val.kelvin(),
 ///                  val.fahrenheit(),
@@ -1062,7 +1075,10 @@ pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
 /// extern crate sysctl;
 ///
 /// fn main() {
+/// #   let old_value = sysctl::value("hw.usb.debug").unwrap();
 ///     println!("{:?}", sysctl::set_value("hw.usb.debug", sysctl::CtlValue::Int(1)));
+/// #   // restore old value
+/// #   sysctl::set_value("hw.usb.debug", old_value);
 /// }
 /// ```
 #[cfg(not(target_os = "macos"))]
@@ -1398,7 +1414,7 @@ pub fn next_oid(oid: &Vec<c_int>) -> Result<Option<Vec<c_int>>, SysctlError> {
 /// This struct represents a system control.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ctl {
-    oid: Vec<c_int>,
+    pub oid: Vec<c_int>,
 }
 
 impl FromStr for Ctl {
@@ -1434,8 +1450,8 @@ impl Ctl {
     /// # Example
     ///
     /// ```
-    /// extern crate sysctl;
-    /// use sysctl::Ctl;
+    /// # extern crate sysctl;
+    /// # use sysctl::Ctl;
     /// let ctl = Ctl::new("kern.osrelease").expect("could not get sysctl");
     /// assert_eq!(ctl.name().expect("could not get name"), "kern.osrelease");
     /// ```
@@ -1449,13 +1465,12 @@ impl Ctl {
     /// # Example
     ///
     /// ```
-    /// extern crate sysctl;
-    /// use sysctl::{Ctl, CtlType};
-    ///
-    /// let osrelease = Ctl::new("kern.osrelease")
+    /// # extern crate sysctl;
+    /// # use sysctl::{Ctl, CtlType};
+    /// let ctl = Ctl::new("kern.osrelease")
     ///     .expect("Could not get kern.osrelease sysctl");
-    /// let value_type = osrelease.value_type()
-    ///         .expect("Could notget kern.osrelease value type");
+    /// let value_type = ctl.value_type()
+    ///         .expect("Could not get kern.osrelease value type");
     /// assert_eq!(value_type, CtlType::String);
     /// ```
     pub fn value_type(self: &Self) -> Result<CtlType, SysctlError> {
@@ -1597,14 +1612,11 @@ impl Ctl {
     /// fn main() {
     ///     let usbdebug = Ctl::new("hw.usb.debug")
     ///         .expect("could not get hw.usb.debug control");
-    ///     let original = usbdebug.value()
-    ///         .expect("could not get value");
-    ///     let set = usbdebug.set_value(sysctl::CtlValue::Int(0));
-    ///     println!("hw.usb.debug: {:?} -> {:?}", original, set);
+    /// #   let original = usbdebug.value()
+    /// #       .expect("could not get value");
     ///     let set = usbdebug.set_value(sysctl::CtlValue::Int(1));
-    ///     println!("hw.usb.debug: 0 -> {:?}", set);
-    ///     let reset = usbdebug.set_value(original);
-    ///     println!("hw.usb.debug: 1 -> {:?}", reset);
+    ///     println!("hw.usb.debug: -> {:?}", set);
+    /// #   usbdebug.set_value(original).unwrap();
     /// }
     #[cfg(not(target_os = "macos"))]
     pub fn set_value(self: &Self, value: CtlValue) -> Result<CtlValue, SysctlError> {
@@ -1622,14 +1634,11 @@ impl Ctl {
     /// fn main() {
     ///     let usbdebug = Ctl::new("hw.usb.debug")
     ///         .expect("could not get hw.usb.debug control");
-    ///     let original = usbdebug.value()
-    ///         .expect("could not get value");
-    ///     let set = usbdebug.set_value(sysctl::CtlValue::Int(0));
-    ///     println!("hw.usb.debug: {:?} -> {:?}", original, set);
+    /// #   let original = usbdebug.value()
+    /// #       .expect("could not get value");
     ///     let set = usbdebug.set_value(sysctl::CtlValue::Int(1));
-    ///     println!("hw.usb.debug: 0 -> {:?}", set);
-    ///     let reset = usbdebug.set_value(original);
-    ///     println!("hw.usb.debug: 1 -> {:?}", reset);
+    ///     println!("hw.usb.debug: -> {:?}", set);
+    /// #   usbdebug.set_value(original).unwrap();
     /// }
     #[cfg(target_os = "macos")]
     pub fn set_value(self: &Self, value: CtlValue) -> Result<CtlValue, SysctlError> {
@@ -1761,7 +1770,8 @@ mod tests {
         assert_eq!(name, "kern.osrevision");
 
         let ctl = Ctl { oid };
-        let name = ctl.name()
+        let name = ctl
+            .name()
             .expect("Could not get name of kern.osrevision sysctl.");
         assert_eq!(name, "kern.osrevision");
     }

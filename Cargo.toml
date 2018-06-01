@@ -1,7 +1,11 @@
 [package]
 name = "sysctl"
 version = "0.2.0"
-authors = ["Johannes Lundberg <johalun0@gmail.com>", "Ivan Temchenko <ivan.temchenko@yandex.ua>"]
+authors = [
+   "Johannes Lundberg <johalun0@gmail.com>",
+   "Ivan Temchenko <ivan.temchenko@yandex.ua>",
+   "Fabian Freyer <fabian.freyer@physik.tu-berlin.de>"
+   ]
 description = "Simplified interface to libc::sysctl"
 keywords = ["sysctl", "freebsd", "macos"]
 license = "MIT"

@@ -13,16 +13,9 @@ struct ClockInfo {
     stathz: c_int, /* statistics clock frequency */
     profhz: c_int, /* profiling clock frequency */
 }
-#[cfg(not(target_os = "macos"))]
+
 fn main() {
     let oid: Vec<i32> = vec![libc::CTL_KERN, libc::KERN_CLOCKRATE];
-    let val: Box<ClockInfo> = sysctl::value_oid_as(&oid).unwrap();
-    println!("{:?}", val);
-}
-
-#[cfg(target_os = "macos")]
-fn main() {
-    let mut oid: Vec<i32> = vec![libc::CTL_KERN, libc::KERN_CLOCKRATE];
-    let val: Box<ClockInfo> = sysctl::value_oid_as(&mut oid).unwrap();
+    let val: Box<ClockInfo> = sysctl::Ctl { oid }.value_as().expect("could not get value");
     println!("{:?}", val);
 }
