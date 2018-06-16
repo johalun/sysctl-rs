@@ -1073,12 +1073,17 @@ pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
 /// # Example
 /// ```
 /// extern crate sysctl;
+/// # extern crate libc;
 ///
 /// fn main() {
+/// #   if unsafe { libc::getuid() } == 0 {
 /// #   let old_value = sysctl::value("hw.usb.debug").unwrap();
-///     println!("{:?}", sysctl::set_value("hw.usb.debug", sysctl::CtlValue::Int(1)));
+///     let new_value = sysctl::set_value("hw.usb.debug", sysctl::CtlValue::Int(1))
+///         .expect("could not set sysctl value");
+///     assert_eq!(new_value, sysctl::CtlValue::Int(1));
 /// #   // restore old value
 /// #   sysctl::set_value("hw.usb.debug", old_value);
+/// #   } // getuid() == 0
 /// }
 /// ```
 #[cfg(not(target_os = "macos"))]
@@ -1608,15 +1613,20 @@ impl Ctl {
     /// ```
     /// extern crate sysctl;
     /// use sysctl::Ctl;
+    /// # extern crate libc;
     ///
     /// fn main() {
+    /// # if unsafe { libc::getuid() } == 0 {
     ///     let usbdebug = Ctl::new("hw.usb.debug")
     ///         .expect("could not get hw.usb.debug control");
     /// #   let original = usbdebug.value()
     /// #       .expect("could not get value");
-    ///     let set = usbdebug.set_value(sysctl::CtlValue::Int(1));
+    ///     let set = usbdebug.set_value(sysctl::CtlValue::Int(1))
+    ///         .expect("could not set value");
+    ///     assert_eq!(set, sysctl::CtlValue::Int(1));
     ///     println!("hw.usb.debug: -> {:?}", set);
     /// #   usbdebug.set_value(original).unwrap();
+    /// # } // getuid() == 0
     /// }
     #[cfg(not(target_os = "macos"))]
     pub fn set_value(self: &Self, value: CtlValue) -> Result<CtlValue, SysctlError> {
