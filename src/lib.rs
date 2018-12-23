@@ -329,15 +329,58 @@ pub enum CtlValue {
 }
 
 #[derive(Debug, PartialEq)]
-struct CtlInfo {
-    ctl_type: CtlType,
-    fmt: String,
+/// A structure representing control metadata
+pub struct CtlInfo {
+    /// The control type.
+    pub ctl_type: CtlType,
+
+    /// A string which specifies the format of the OID in
+    /// a symbolic way.
+    ///
+    /// This format is used as a hint by sysctl(8) to
+    /// apply proper data formatting for display purposes.
+    ///
+    /// Formats defined in sysctl(9):
+    /// * `N`       node
+    /// * `A`       char *
+    /// * `I`       int
+    /// * `IK[n]`   temperature in Kelvin, multiplied by an optional single
+    ///    digit power of ten scaling factor: 1 (default) gives deciKelvin,
+    ///    0 gives Kelvin, 3 gives milliKelvin
+    /// * `IU`      unsigned int
+    /// * `L`       long
+    /// * `LU`      unsigned long
+    /// * `Q`       quad_t
+    /// * `QU`      u_quad_t
+    /// * `S,TYPE`  struct TYPE structures
+    pub fmt: String,
+
     flags: u32,
 }
-#[cfg(not(target_os = "macos"))]
+
 impl CtlInfo {
-    fn is_temperature(&self) -> bool {
+    /// Return the flags for this sysctl.
+    pub fn flags(&self) -> CtlFlags {
+        CtlFlags::from_bits_truncate(self.flags)
+    }
+
+    /// Is this sysctl a temperature?
+    #[cfg(not(target_os = "macos"))]
+    pub fn is_temperature(&self) -> bool {
         self.fmt.starts_with("IK")
+    }
+
+    /// If the sysctl is a structure, return the structure type string.
+    ///
+    /// Checks whether the format string starts with `S,` and returns the rest
+    /// of the format string or None if the format String does not have a struct
+    /// hint.
+    pub fn struct_type(&self) -> Option<String> {
+        if !self.fmt.starts_with("S,") {
+            return None;
+        }
+
+        Some(self.fmt[2..].into())
     }
 }
 
@@ -1678,8 +1721,32 @@ impl Ctl {
     /// }
     /// ```
     pub fn flags(self: &Self) -> Result<CtlFlags, SysctlError> {
-        let info: CtlInfo = oidfmt(&self.oid)?;
-        Ok(CtlFlags::from_bits_truncate(info.flags))
+        Ok(self.info()?.flags())
+    }
+
+    /// Returns a Result containing the control metadata for a sysctl.
+    ///
+    /// Returns a Result containing the CtlInfo struct on success,
+    /// or a SysctlError on failure.
+    ///
+    /// # Example
+    /// ```
+    /// extern crate sysctl;
+    /// use sysctl::{Ctl, CtlInfo};
+    ///
+    /// fn main() {
+    ///     let osrev = Ctl::new("kern.osrevision")
+    ///         .expect("could not get control");
+    ///
+    ///     let info = osrev.info()
+    ///         .expect("could not get info");
+    ///
+    ///     // kern.osrevision is not a structure.
+    ///     assert_eq!(info.struct_type(), None);
+    /// }
+    /// ```
+    pub fn info(self: &Self) -> Result<CtlInfo, SysctlError> {
+        Ok(oidfmt(&self.oid)?)
     }
 }
 
@@ -1885,6 +1952,24 @@ mod tests {
             _ => "...".into(),
         };
         assert_eq!(s.trim(), ver.trim());
+    }
+
+    #[test]
+    fn ctl_struct_type() {
+        let info = CtlInfo {
+            ctl_type: CtlType::Int,
+            fmt: "S,TYPE".into(),
+            flags: 0,
+        };
+
+        assert_eq!(info.struct_type(), Some("TYPE".into()));
+
+        let info = CtlInfo {
+            ctl_type: CtlType::Int,
+            fmt: "I".into(),
+            flags: 0,
+        };
+        assert_eq!(info.struct_type(), None);
     }
 
     #[test]
