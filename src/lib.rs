@@ -411,6 +411,9 @@ pub enum SysctlError {
         reported
     )]
     ShortRead { read: usize, reported: usize },
+
+    #[fail(display = "Error reading C String: String was not NUL-terminated.")]
+    InvalidCStr(#[cause] std::ffi::FromBytesWithNulError),
 }
 
 /// A custom type for temperature sysctls.
@@ -552,10 +555,11 @@ fn oidfmt(oid: &[c_int]) -> Result<CtlInfo, SysctlError> {
     let ctltype_val = kind & CTLTYPE as u32;
 
     // 'fmt' is after 'Kind' in result buffer
-    let fmt: String = match str::from_utf8(&buf[mem::size_of::<u32>()..buf_len]) {
-        Ok(x) => x.to_owned(),
-        Err(e) => return Err(SysctlError::Utf8Error(e)),
-    };
+    let fmt: String =
+        match std::ffi::CStr::from_bytes_with_nul(&buf[mem::size_of::<u32>()..buf_len]) {
+            Ok(x) => x.to_string_lossy().into(),
+            Err(e) => return Err(SysctlError::InvalidCStr(e)),
+        };
 
     let s = CtlInfo {
         ctl_type: CtlType::from(ctltype_val),
