@@ -343,6 +343,9 @@ impl CtlInfo {
 
 #[derive(Debug, Fail)]
 pub enum SysctlError {
+    #[fail(display = "no such sysctl: {}", _0)]
+    NotFound(String),
+
     #[fail(display = "no matching type for value")]
     #[cfg(not(target_os = "macos"))]
     UnknownType,
@@ -434,7 +437,11 @@ fn name2oid(name: &str) -> Result<Vec<c_int>, SysctlError> {
         )
     };
     if ret < 0 {
-        return Err(SysctlError::IoError(io::Error::last_os_error()));
+        let e = io::Error::last_os_error();
+        return Err(match e.kind() {
+            std::io::ErrorKind::NotFound => SysctlError::NotFound(name.into()),
+            _ => SysctlError::IoError(e),
+        });
     }
 
     // len is in bytes, convert to number of c_ints
@@ -1437,6 +1444,9 @@ impl Ctl {
     ///
     /// This is just a wrapper around `Ctl::from_str`.
     ///
+    /// Returns a result containing the struct Ctl on success or a SysctlError
+    /// on failure.
+    ///
     /// # Example
     ///
     /// ```
@@ -1444,6 +1454,19 @@ impl Ctl {
     /// use sysctl::Ctl;
     ///
     /// let ctl = Ctl::new("kern.osrelease");
+    /// ```
+    ///
+    /// If the sysctl does not exist, `Err(SysctlError::NotFound)` is returned.
+    /// ```
+    /// extern crate sysctl;
+    /// use sysctl::{Ctl, SysctlError};
+    ///
+    /// let ctl = Ctl::new("this.sysctl.does.not.exist");
+    /// match ctl {
+    ///     Err(SysctlError::NotFound(_)) => (),
+    ///     Err(_) => panic!("Wrong error type returned"),
+    ///     Ok(_) => panic!("Nonexistent sysctl seems to exist"),
+    /// }
     /// ```
     pub fn new(name: &str) -> Result<Self, SysctlError> {
         Ctl::from_str(name)
