@@ -1,7 +1,5 @@
 //! A simplified interface to the `sysctl` system call.
 //!
-//! Currently built for and only tested on FreeBSD.
-//!
 //! # Example: Get description and value
 //! ```
 //! extern crate sysctl;
