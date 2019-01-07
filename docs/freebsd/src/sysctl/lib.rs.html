@@ -1,60 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/lib.rs`.">
-    <meta name="keywords" content="rust, rustlang, rust-lang">
-
-    <title>lib.rs.html -- source</title>
-
-    <link rel="stylesheet" type="text/css" href="../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle">
-    
-    <link rel="stylesheet" type="text/css" href="../../dark.css">
-    <link rel="stylesheet" type="text/css" href="../../main.css" id="themeStyle">
-    <script src="../../storage.js"></script>
-    
-
-    
-    
-</head>
-<body class="rustdoc source">
-    <!--[if lte IE 8]>
-    <div class="warning">
-        This old browser is unsupported and will most likely display funky
-        things.
-    </div>
-    <![endif]-->
-
-    
-
-    <nav class="sidebar">
-        <div class="sidebar-menu">&#9776;</div>
-        
-        
-    </nav>
-
-    <div class="theme-picker">
-        <button id="theme-picker" aria-label="Pick another theme!">
-            <img src="../../brush.svg" width="18" alt="Pick another theme!">
-        </button>
-        <div id="theme-choices"></div>
-    </div>
-    <script src="../../theme.js"></script>
-    <nav class="sub">
-        <form class="search-form js-only">
-            <div class="search-container">
-                <input class="search-input" name="search"
-                       autocomplete="off"
-                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
-                       type="search">
-            </div>
-        </form>
-    </nav>
-
-    <section id='main' class="content"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -2073,6 +2017,138 @@
 <span id="2017">2017</span>
 <span id="2018">2018</span>
 <span id="2019">2019</span>
+<span id="2020">2020</span>
+<span id="2021">2021</span>
+<span id="2022">2022</span>
+<span id="2023">2023</span>
+<span id="2024">2024</span>
+<span id="2025">2025</span>
+<span id="2026">2026</span>
+<span id="2027">2027</span>
+<span id="2028">2028</span>
+<span id="2029">2029</span>
+<span id="2030">2030</span>
+<span id="2031">2031</span>
+<span id="2032">2032</span>
+<span id="2033">2033</span>
+<span id="2034">2034</span>
+<span id="2035">2035</span>
+<span id="2036">2036</span>
+<span id="2037">2037</span>
+<span id="2038">2038</span>
+<span id="2039">2039</span>
+<span id="2040">2040</span>
+<span id="2041">2041</span>
+<span id="2042">2042</span>
+<span id="2043">2043</span>
+<span id="2044">2044</span>
+<span id="2045">2045</span>
+<span id="2046">2046</span>
+<span id="2047">2047</span>
+<span id="2048">2048</span>
+<span id="2049">2049</span>
+<span id="2050">2050</span>
+<span id="2051">2051</span>
+<span id="2052">2052</span>
+<span id="2053">2053</span>
+<span id="2054">2054</span>
+<span id="2055">2055</span>
+<span id="2056">2056</span>
+<span id="2057">2057</span>
+<span id="2058">2058</span>
+<span id="2059">2059</span>
+<span id="2060">2060</span>
+<span id="2061">2061</span>
+<span id="2062">2062</span>
+<span id="2063">2063</span>
+<span id="2064">2064</span>
+<span id="2065">2065</span>
+<span id="2066">2066</span>
+<span id="2067">2067</span>
+<span id="2068">2068</span>
+<span id="2069">2069</span>
+<span id="2070">2070</span>
+<span id="2071">2071</span>
+<span id="2072">2072</span>
+<span id="2073">2073</span>
+<span id="2074">2074</span>
+<span id="2075">2075</span>
+<span id="2076">2076</span>
+<span id="2077">2077</span>
+<span id="2078">2078</span>
+<span id="2079">2079</span>
+<span id="2080">2080</span>
+<span id="2081">2081</span>
+<span id="2082">2082</span>
+<span id="2083">2083</span>
+<span id="2084">2084</span>
+<span id="2085">2085</span>
+<span id="2086">2086</span>
+<span id="2087">2087</span>
+<span id="2088">2088</span>
+<span id="2089">2089</span>
+<span id="2090">2090</span>
+<span id="2091">2091</span>
+<span id="2092">2092</span>
+<span id="2093">2093</span>
+<span id="2094">2094</span>
+<span id="2095">2095</span>
+<span id="2096">2096</span>
+<span id="2097">2097</span>
+<span id="2098">2098</span>
+<span id="2099">2099</span>
+<span id="2100">2100</span>
+<span id="2101">2101</span>
+<span id="2102">2102</span>
+<span id="2103">2103</span>
+<span id="2104">2104</span>
+<span id="2105">2105</span>
+<span id="2106">2106</span>
+<span id="2107">2107</span>
+<span id="2108">2108</span>
+<span id="2109">2109</span>
+<span id="2110">2110</span>
+<span id="2111">2111</span>
+<span id="2112">2112</span>
+<span id="2113">2113</span>
+<span id="2114">2114</span>
+<span id="2115">2115</span>
+<span id="2116">2116</span>
+<span id="2117">2117</span>
+<span id="2118">2118</span>
+<span id="2119">2119</span>
+<span id="2120">2120</span>
+<span id="2121">2121</span>
+<span id="2122">2122</span>
+<span id="2123">2123</span>
+<span id="2124">2124</span>
+<span id="2125">2125</span>
+<span id="2126">2126</span>
+<span id="2127">2127</span>
+<span id="2128">2128</span>
+<span id="2129">2129</span>
+<span id="2130">2130</span>
+<span id="2131">2131</span>
+<span id="2132">2132</span>
+<span id="2133">2133</span>
+<span id="2134">2134</span>
+<span id="2135">2135</span>
+<span id="2136">2136</span>
+<span id="2137">2137</span>
+<span id="2138">2138</span>
+<span id="2139">2139</span>
+<span id="2140">2140</span>
+<span id="2141">2141</span>
+<span id="2142">2142</span>
+<span id="2143">2143</span>
+<span id="2144">2144</span>
+<span id="2145">2145</span>
+<span id="2146">2146</span>
+<span id="2147">2147</span>
+<span id="2148">2148</span>
+<span id="2149">2149</span>
+<span id="2150">2150</span>
+<span id="2151">2151</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! A simplified interface to the `sysctl` system call.</span>
 <span class="doccomment">//!</span>
@@ -2083,23 +2159,32 @@
 <span class="doccomment">//! extern crate sysctl;</span>
 <span class="doccomment">//! #[cfg(not(target_os = &quot;macos&quot;))]</span>
 <span class="doccomment">//! fn main() {</span>
+<span class="doccomment">//!     let ctl = sysctl::Ctl::new(&quot;kern.osrevision&quot;)</span>
+<span class="doccomment">//!         .expect(&quot;could not get sysctl&quot;);</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!     let ctl = &quot;kern.osrevision&quot;;</span>
+<span class="doccomment">//!     let d = ctl.description()</span>
+<span class="doccomment">//!         .expect(&quot;could not get description&quot;);</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!     let d: String = sysctl::description(ctl).unwrap();</span>
 <span class="doccomment">//!     println!(&quot;Description: {:?}&quot;, d);</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!     let val_enum = sysctl::value(ctl).unwrap();</span>
+<span class="doccomment">//!     let val_enum = ctl.value()</span>
+<span class="doccomment">//!         .expect(&quot;could not get value&quot;);</span>
+<span class="doccomment">//!</span>
 <span class="doccomment">//!     if let sysctl::CtlValue::Int(val) = val_enum {</span>
 <span class="doccomment">//!         println!(&quot;Value: {}&quot;, val);</span>
 <span class="doccomment">//!     }</span>
 <span class="doccomment">//! }</span>
+<span class="doccomment">//!</span>
 <span class="doccomment">//! #[cfg(target_os = &quot;macos&quot;)]</span>
 <span class="doccomment">//! fn main() {</span>
+<span class="doccomment">//!     let mut ctl = sysctl::Ctl::new(&quot;kern.osrevision&quot;)</span>
+<span class="doccomment">//!         .expect(&quot;could not get sysctl&quot;);</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!     let ctl = &quot;kern.osrevision&quot;;</span>
+<span class="doccomment">//!     // description is not available on macos</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!     let val_enum = sysctl::value(ctl).unwrap();</span>
+<span class="doccomment">//!     let val_enum = ctl.value()</span>
+<span class="doccomment">//!         .expect(&quot;could not get value&quot;);</span>
+<span class="doccomment">//!</span>
 <span class="doccomment">//!     if let sysctl::CtlValue::Int(val) = val_enum {</span>
 <span class="doccomment">//!         println!(&quot;Value: {}&quot;, val);</span>
 <span class="doccomment">//!     }</span>
@@ -2135,20 +2220,20 @@
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">failure</span>;
 
-<span class="kw">use</span> <span class="ident">libc</span>::{<span class="ident">c_int</span>, <span class="ident">c_uchar</span>, <span class="ident">c_uint</span>, <span class="ident">c_void</span>};
 <span class="kw">use</span> <span class="ident">libc</span>::<span class="ident">sysctl</span>;
 <span class="kw">use</span> <span class="ident">libc</span>::<span class="ident">BUFSIZ</span>;
+<span class="kw">use</span> <span class="ident">libc</span>::{<span class="ident">c_int</span>, <span class="ident">c_uchar</span>, <span class="ident">c_uint</span>, <span class="ident">c_void</span>};
 
+<span class="kw">use</span> <span class="ident">byteorder</span>::{<span class="ident">ByteOrder</span>, <span class="ident">LittleEndian</span>, <span class="ident">WriteBytesExt</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">f32</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">f32</span>;
-<span class="kw">use</span> <span class="ident">byteorder</span>::{<span class="ident">ByteOrder</span>, <span class="ident">LittleEndian</span>, <span class="ident">WriteBytesExt</span>};
 
 <span class="comment">// CTL* constants belong to libc crate but have not been added there yet.</span>
 <span class="comment">// They will be removed from here once in the libc crate.</span>
@@ -2314,23 +2399,23 @@
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">CtlValue</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">t</span> {
             <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="prelude-val">None</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">Node</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">Node</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">Int</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">Int</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">String</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">String</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">S64</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">S64</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">Struct</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">Struct</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">Uint</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">Uint</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">Long</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">Long</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">Ulong</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">Ulong</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">U64</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">U64</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">U8</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">U8</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">U16</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">U16</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">S8</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">S8</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">S16</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">S16</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">S32</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">S32</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">U32</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">U32</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">Node</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">Node</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">Int</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">Int</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">String</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">String</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">S64</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">S64</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">Struct</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">Struct</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">Uint</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">Uint</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">Long</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">Long</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">Ulong</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">Ulong</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">U64</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">U64</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">U8</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">U8</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">U16</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">U16</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">S8</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">S8</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">S16</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">S16</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">S32</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">S32</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">U32</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">U32</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
-            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">Temperature</span>(_) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">Temperature</span>,
+            <span class="kw-2">&amp;</span><span class="ident">CtlValue</span>::<span class="ident">Temperature</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">CtlType</span>::<span class="ident">Temperature</span>,
         }
     }
 }
@@ -2396,20 +2481,66 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">struct</span> <span class="ident">CtlInfo</span> {
-    <span class="ident">ctl_type</span>: <span class="ident">CtlType</span>,
-    <span class="ident">fmt</span>: <span class="ident">String</span>,
+<span class="doccomment">/// A structure representing control metadata</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CtlInfo</span> {
+    <span class="doccomment">/// The control type.</span>
+    <span class="kw">pub</span> <span class="ident">ctl_type</span>: <span class="ident">CtlType</span>,
+
+    <span class="doccomment">/// A string which specifies the format of the OID in</span>
+    <span class="doccomment">/// a symbolic way.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This format is used as a hint by sysctl(8) to</span>
+    <span class="doccomment">/// apply proper data formatting for display purposes.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Formats defined in sysctl(9):</span>
+    <span class="doccomment">/// * `N`       node</span>
+    <span class="doccomment">/// * `A`       char *</span>
+    <span class="doccomment">/// * `I`       int</span>
+    <span class="doccomment">/// * `IK[n]`   temperature in Kelvin, multiplied by an optional single</span>
+    <span class="doccomment">///    digit power of ten scaling factor: 1 (default) gives deciKelvin,</span>
+    <span class="doccomment">///    0 gives Kelvin, 3 gives milliKelvin</span>
+    <span class="doccomment">/// * `IU`      unsigned int</span>
+    <span class="doccomment">/// * `L`       long</span>
+    <span class="doccomment">/// * `LU`      unsigned long</span>
+    <span class="doccomment">/// * `Q`       quad_t</span>
+    <span class="doccomment">/// * `QU`      u_quad_t</span>
+    <span class="doccomment">/// * `S,TYPE`  struct TYPE structures</span>
+    <span class="kw">pub</span> <span class="ident">fmt</span>: <span class="ident">String</span>,
+
     <span class="ident">flags</span>: <span class="ident">u32</span>,
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
+
 <span class="kw">impl</span> <span class="ident">CtlInfo</span> {
-    <span class="kw">fn</span> <span class="ident">is_temperature</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="doccomment">/// Return the flags for this sysctl.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flags</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">CtlFlags</span> {
+        <span class="ident">CtlFlags</span>::<span class="ident">from_bits_truncate</span>(<span class="self">self</span>.<span class="ident">flags</span>)
+    }
+
+    <span class="doccomment">/// Is this sysctl a temperature?</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_temperature</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">fmt</span>.<span class="ident">starts_with</span>(<span class="string">&quot;IK&quot;</span>)
+    }
+
+    <span class="doccomment">/// If the sysctl is a structure, return the structure type string.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Checks whether the format string starts with `S,` and returns the rest</span>
+    <span class="doccomment">/// of the format string or None if the format String does not have a struct</span>
+    <span class="doccomment">/// hint.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">struct_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">fmt</span>.<span class="ident">starts_with</span>(<span class="string">&quot;S,&quot;</span>) {
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        }
+
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">fmt</span>[<span class="number">2</span>..].<span class="ident">into</span>())
     }
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Fail</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SysctlError</span> {
+    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;no such sysctl: {}&quot;</span>, <span class="ident">_0</span>)]</span>
+    <span class="ident">NotFound</span>(<span class="ident">String</span>),
+
     <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;no matching type for value&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
     <span class="ident">UnknownType</span>,
@@ -2418,16 +2549,10 @@
     <span class="ident">ExtractionError</span>,
 
     <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;IO Error: {}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">IoError</span>(
-        <span class="attribute">#[<span class="ident">cause</span>]</span>
-        <span class="ident">io</span>::<span class="ident">Error</span>
-    ),
+    <span class="ident">IoError</span>(<span class="attribute">#[<span class="ident">cause</span>]</span> <span class="ident">io</span>::<span class="ident">Error</span>),
 
     <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Error parsing UTF-8 data: {}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">Utf8Error</span>(
-        <span class="attribute">#[<span class="ident">cause</span>]</span>
-        <span class="ident">str</span>::<span class="ident">Utf8Error</span>
-    ),
+    <span class="ident">Utf8Error</span>(<span class="attribute">#[<span class="ident">cause</span>]</span> <span class="ident">str</span>::<span class="ident">Utf8Error</span>),
 
     <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Value is not readable&quot;</span>)]</span>
     <span class="ident">NoReadAccess</span>,
@@ -2435,8 +2560,15 @@
     <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Value is not writeable&quot;</span>)]</span>
     <span class="ident">NoWriteAccess</span>,
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;sysctl returned a short read: read {} bytes, while a size of {} was reported&quot;</span>, <span class="ident">read</span>, <span class="ident">reported</span>)]</span>
+    <span class="attribute">#[<span class="ident">fail</span>(
+        <span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;sysctl returned a short read: read {} bytes, while a size of {} was reported&quot;</span>,
+        <span class="ident">read</span>,
+        <span class="ident">reported</span>
+    )]</span>
     <span class="ident">ShortRead</span> { <span class="ident">read</span>: <span class="ident">usize</span>, <span class="ident">reported</span>: <span class="ident">usize</span> },
+
+    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Error reading C String: String was not NUL-terminated.&quot;</span>)]</span>
+    <span class="ident">InvalidCStr</span>(<span class="attribute">#[<span class="ident">cause</span>]</span> <span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">FromBytesWithNulError</span>),
 }
 
 <span class="doccomment">/// A custom type for temperature sysctls.</span>
@@ -2446,8 +2578,14 @@
 <span class="doccomment">/// extern crate sysctl;</span>
 <span class="doccomment">/// #[cfg(not(target_os = &quot;macos&quot;))]</span>
 <span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     let val_enum = sysctl::value(&quot;dev.cpu.0.temperature&quot;).unwrap();</span>
-<span class="doccomment">///     if let sysctl::CtlValue::Temperature(val) = val_enum {</span>
+<span class="doccomment">/// #   let ctl = match sysctl::Ctl::new(&quot;dev.cpu.0.temperature&quot;) {</span>
+<span class="doccomment">/// #       Ok(c) =&gt; c,</span>
+<span class="doccomment">/// #       Err(e) =&gt; {</span>
+<span class="doccomment">/// #           println!(&quot;Couldn&#39;t get dev.cpu.0.temperature: {}&quot;, e);</span>
+<span class="doccomment">/// #           return;</span>
+<span class="doccomment">/// #       }</span>
+<span class="doccomment">/// #   };</span>
+<span class="doccomment">///     if let Ok(sysctl::CtlValue::Temperature(val)) = ctl.value() {</span>
 <span class="doccomment">///         println!(&quot;Temperature: {:.2}K, {:.2}F, {:.2}C&quot;,</span>
 <span class="doccomment">///                  val.kelvin(),</span>
 <span class="doccomment">///                  val.fahrenheit(),</span>
@@ -2497,7 +2635,11 @@
         )
     };
     <span class="kw">if</span> <span class="ident">ret</span> <span class="op">&lt;</span> <span class="number">0</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">SysctlError</span>::<span class="ident">IoError</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">last_os_error</span>()));
+        <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">last_os_error</span>();
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="kw">match</span> <span class="ident">e</span>.<span class="ident">kind</span>() {
+            <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">NotFound</span> <span class="op">=&gt;</span> <span class="ident">SysctlError</span>::<span class="ident">NotFound</span>(<span class="ident">name</span>.<span class="ident">into</span>()),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="ident">SysctlError</span>::<span class="ident">IoError</span>(<span class="ident">e</span>),
+        });
     }
 
     <span class="comment">// len is in bytes, convert to number of c_ints</span>
@@ -2572,10 +2714,11 @@
     <span class="kw">let</span> <span class="ident">ctltype_val</span> <span class="op">=</span> <span class="ident">kind</span> <span class="op">&amp;</span> <span class="ident">CTLTYPE</span> <span class="kw">as</span> <span class="ident">u32</span>;
 
     <span class="comment">// &#39;fmt&#39; is after &#39;Kind&#39; in result buffer</span>
-    <span class="kw">let</span> <span class="ident">fmt</span>: <span class="ident">String</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">str</span>::<span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>()..<span class="ident">buf_len</span>]) {
-        <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">to_owned</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">SysctlError</span>::<span class="ident">Utf8Error</span>(<span class="ident">e</span>)),
-    };
+    <span class="kw">let</span> <span class="ident">fmt</span>: <span class="ident">String</span> <span class="op">=</span>
+        <span class="kw">match</span> <span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CStr</span>::<span class="ident">from_bytes_with_nul</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>()..<span class="ident">buf_len</span>]) {
+            <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">to_string_lossy</span>().<span class="ident">into</span>(),
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">SysctlError</span>::<span class="ident">InvalidCStr</span>(<span class="ident">e</span>)),
+        };
 
     <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">CtlInfo</span> {
         <span class="ident">ctl_type</span>: <span class="ident">CtlType</span>::<span class="ident">from</span>(<span class="ident">ctltype_val</span>),
@@ -2591,9 +2734,9 @@
         <span class="kw">match</span> <span class="ident">info</span>.<span class="ident">fmt</span>.<span class="ident">len</span>() {
             <span class="ident">l</span> <span class="kw">if</span> <span class="ident">l</span> <span class="op">&gt;</span> <span class="number">2</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">info</span>.<span class="ident">fmt</span>[<span class="number">2</span>..<span class="number">3</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>() {
                 <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;=</span> <span class="number">9</span> <span class="op">=&gt;</span> <span class="ident">x</span>,
-                _ <span class="op">=&gt;</span> <span class="number">1</span>,
+                <span class="kw">_</span> <span class="op">=&gt;</span> <span class="number">1</span>,
             },
-            _ <span class="op">=&gt;</span> <span class="number">1</span>,
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="number">1</span>,
         }
     };
 
@@ -2616,7 +2759,7 @@
         <span class="ident">CtlType</span>::<span class="ident">S16</span> <span class="op">=&gt;</span> <span class="ident">make_temp</span>(<span class="ident">LittleEndian</span>::<span class="ident">read_i16</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>) <span class="kw">as</span> <span class="ident">f32</span>),
         <span class="ident">CtlType</span>::<span class="ident">S32</span> <span class="op">=&gt;</span> <span class="ident">make_temp</span>(<span class="ident">LittleEndian</span>::<span class="ident">read_i32</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>) <span class="kw">as</span> <span class="ident">f32</span>),
         <span class="ident">CtlType</span>::<span class="ident">U32</span> <span class="op">=&gt;</span> <span class="ident">make_temp</span>(<span class="ident">LittleEndian</span>::<span class="ident">read_u32</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>) <span class="kw">as</span> <span class="ident">f32</span>),
-        _ <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">SysctlError</span>::<span class="ident">UnknownType</span>),
+        <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">SysctlError</span>::<span class="ident">UnknownType</span>),
     }
 }
 
@@ -2802,7 +2945,7 @@
         <span class="ident">CtlType</span>::<span class="ident">S16</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">CtlValue</span>::<span class="ident">S16</span>(<span class="ident">LittleEndian</span>::<span class="ident">read_i16</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>))),
         <span class="ident">CtlType</span>::<span class="ident">S32</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">CtlValue</span>::<span class="ident">S32</span>(<span class="ident">LittleEndian</span>::<span class="ident">read_i32</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>))),
         <span class="ident">CtlType</span>::<span class="ident">U32</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">CtlValue</span>::<span class="ident">U32</span>(<span class="ident">LittleEndian</span>::<span class="ident">read_u32</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>))),
-        _ <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">SysctlError</span>::<span class="ident">UnknownType</span>),
+        <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">SysctlError</span>::<span class="ident">UnknownType</span>),
     }
 }
 
@@ -2899,7 +3042,7 @@
         <span class="ident">CtlType</span>::<span class="ident">S32</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">CtlValue</span>::<span class="ident">S32</span>(<span class="ident">LittleEndian</span>::<span class="ident">read_i32</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>))),
         <span class="ident">CtlType</span>::<span class="ident">U32</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">CtlValue</span>::<span class="ident">U32</span>(<span class="ident">LittleEndian</span>::<span class="ident">read_u32</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>))),
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
-        _ <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">SysctlError</span>::<span class="ident">UnknownType</span>),
+        <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">SysctlError</span>::<span class="ident">UnknownType</span>),
     }
 }
 
@@ -3136,9 +3279,17 @@
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// extern crate sysctl;</span>
+<span class="doccomment">/// # extern crate libc;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     println!(&quot;{:?}&quot;, sysctl::set_value(&quot;hw.usb.debug&quot;, sysctl::CtlValue::Int(1)));</span>
+<span class="doccomment">/// #   if unsafe { libc::getuid() } == 0 {</span>
+<span class="doccomment">/// #   let old_value = sysctl::value(&quot;hw.usb.debug&quot;).unwrap();</span>
+<span class="doccomment">///     let new_value = sysctl::set_value(&quot;hw.usb.debug&quot;, sysctl::CtlValue::Int(1))</span>
+<span class="doccomment">///         .expect(&quot;could not set sysctl value&quot;);</span>
+<span class="doccomment">///     assert_eq!(new_value, sysctl::CtlValue::Int(1));</span>
+<span class="doccomment">/// #   // restore old value</span>
+<span class="doccomment">/// #   sysctl::set_value(&quot;hw.usb.debug&quot;, old_value);</span>
+<span class="doccomment">/// #   } // getuid() == 0</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
@@ -3474,7 +3625,7 @@
 <span class="doccomment">/// This struct represents a system control.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Ctl</span> {
-    <span class="ident">oid</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">oid</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">Ctl</span> {
@@ -3492,6 +3643,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is just a wrapper around `Ctl::from_str`.</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns a result containing the struct Ctl on success or a SysctlError</span>
+    <span class="doccomment">/// on failure.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Example</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
@@ -3499,6 +3653,19 @@
     <span class="doccomment">/// use sysctl::Ctl;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let ctl = Ctl::new(&quot;kern.osrelease&quot;);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the sysctl does not exist, `Err(SysctlError::NotFound)` is returned.</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// extern crate sysctl;</span>
+    <span class="doccomment">/// use sysctl::{Ctl, SysctlError};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let ctl = Ctl::new(&quot;this.sysctl.does.not.exist&quot;);</span>
+    <span class="doccomment">/// match ctl {</span>
+    <span class="doccomment">///     Err(SysctlError::NotFound(_)) =&gt; (),</span>
+    <span class="doccomment">///     Err(_) =&gt; panic!(&quot;Wrong error type returned&quot;),</span>
+    <span class="doccomment">///     Ok(_) =&gt; panic!(&quot;Nonexistent sysctl seems to exist&quot;),</span>
+    <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SysctlError</span><span class="op">&gt;</span> {
         <span class="ident">Ctl</span>::<span class="ident">from_str</span>(<span class="ident">name</span>)
@@ -3510,8 +3677,8 @@
     <span class="doccomment">/// # Example</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// extern crate sysctl;</span>
-    <span class="doccomment">/// use sysctl::Ctl;</span>
+    <span class="doccomment">/// # extern crate sysctl;</span>
+    <span class="doccomment">/// # use sysctl::Ctl;</span>
     <span class="doccomment">/// let ctl = Ctl::new(&quot;kern.osrelease&quot;).expect(&quot;could not get sysctl&quot;);</span>
     <span class="doccomment">/// assert_eq!(ctl.name().expect(&quot;could not get name&quot;), &quot;kern.osrelease&quot;);</span>
     <span class="doccomment">/// ```</span>
@@ -3525,13 +3692,12 @@
     <span class="doccomment">/// # Example</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// extern crate sysctl;</span>
-    <span class="doccomment">/// use sysctl::{Ctl, CtlType};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let osrelease = Ctl::new(&quot;kern.osrelease&quot;)</span>
+    <span class="doccomment">/// # extern crate sysctl;</span>
+    <span class="doccomment">/// # use sysctl::{Ctl, CtlType};</span>
+    <span class="doccomment">/// let ctl = Ctl::new(&quot;kern.osrelease&quot;)</span>
     <span class="doccomment">///     .expect(&quot;Could not get kern.osrelease sysctl&quot;);</span>
-    <span class="doccomment">/// let value_type = osrelease.value_type()</span>
-    <span class="doccomment">///         .expect(&quot;Could notget kern.osrelease value type&quot;);</span>
+    <span class="doccomment">/// let value_type = ctl.value_type()</span>
+    <span class="doccomment">///         .expect(&quot;Could not get kern.osrelease value type&quot;);</span>
     <span class="doccomment">/// assert_eq!(value_type, CtlType::String);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">value_type</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CtlType</span>, <span class="ident">SysctlError</span><span class="op">&gt;</span> {
@@ -3669,18 +3835,20 @@
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// extern crate sysctl;</span>
     <span class="doccomment">/// use sysctl::Ctl;</span>
+    <span class="doccomment">/// # extern crate libc;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// fn main() {</span>
+    <span class="doccomment">/// # if unsafe { libc::getuid() } == 0 {</span>
     <span class="doccomment">///     let usbdebug = Ctl::new(&quot;hw.usb.debug&quot;)</span>
     <span class="doccomment">///         .expect(&quot;could not get hw.usb.debug control&quot;);</span>
-    <span class="doccomment">///     let original = usbdebug.value()</span>
-    <span class="doccomment">///         .expect(&quot;could not get value&quot;);</span>
-    <span class="doccomment">///     let set = usbdebug.set_value(sysctl::CtlValue::Int(0));</span>
-    <span class="doccomment">///     println!(&quot;hw.usb.debug: {:?} -&gt; {:?}&quot;, original, set);</span>
-    <span class="doccomment">///     let set = usbdebug.set_value(sysctl::CtlValue::Int(1));</span>
-    <span class="doccomment">///     println!(&quot;hw.usb.debug: 0 -&gt; {:?}&quot;, set);</span>
-    <span class="doccomment">///     let reset = usbdebug.set_value(original);</span>
-    <span class="doccomment">///     println!(&quot;hw.usb.debug: 1 -&gt; {:?}&quot;, reset);</span>
+    <span class="doccomment">/// #   let original = usbdebug.value()</span>
+    <span class="doccomment">/// #       .expect(&quot;could not get value&quot;);</span>
+    <span class="doccomment">///     let set = usbdebug.set_value(sysctl::CtlValue::Int(1))</span>
+    <span class="doccomment">///         .expect(&quot;could not set value&quot;);</span>
+    <span class="doccomment">///     assert_eq!(set, sysctl::CtlValue::Int(1));</span>
+    <span class="doccomment">///     println!(&quot;hw.usb.debug: -&gt; {:?}&quot;, set);</span>
+    <span class="doccomment">/// #   usbdebug.set_value(original).unwrap();</span>
+    <span class="doccomment">/// # } // getuid() == 0</span>
     <span class="doccomment">/// }</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_value</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="ident">value</span>: <span class="ident">CtlValue</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CtlValue</span>, <span class="ident">SysctlError</span><span class="op">&gt;</span> {
@@ -3698,14 +3866,11 @@
     <span class="doccomment">/// fn main() {</span>
     <span class="doccomment">///     let usbdebug = Ctl::new(&quot;hw.usb.debug&quot;)</span>
     <span class="doccomment">///         .expect(&quot;could not get hw.usb.debug control&quot;);</span>
-    <span class="doccomment">///     let original = usbdebug.value()</span>
-    <span class="doccomment">///         .expect(&quot;could not get value&quot;);</span>
-    <span class="doccomment">///     let set = usbdebug.set_value(sysctl::CtlValue::Int(0));</span>
-    <span class="doccomment">///     println!(&quot;hw.usb.debug: {:?} -&gt; {:?}&quot;, original, set);</span>
+    <span class="doccomment">/// #   let original = usbdebug.value()</span>
+    <span class="doccomment">/// #       .expect(&quot;could not get value&quot;);</span>
     <span class="doccomment">///     let set = usbdebug.set_value(sysctl::CtlValue::Int(1));</span>
-    <span class="doccomment">///     println!(&quot;hw.usb.debug: 0 -&gt; {:?}&quot;, set);</span>
-    <span class="doccomment">///     let reset = usbdebug.set_value(original);</span>
-    <span class="doccomment">///     println!(&quot;hw.usb.debug: 1 -&gt; {:?}&quot;, reset);</span>
+    <span class="doccomment">///     println!(&quot;hw.usb.debug: -&gt; {:?}&quot;, set);</span>
+    <span class="doccomment">/// #   usbdebug.set_value(original).unwrap();</span>
     <span class="doccomment">/// }</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_value</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="ident">value</span>: <span class="ident">CtlValue</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CtlValue</span>, <span class="ident">SysctlError</span><span class="op">&gt;</span> {
@@ -3735,8 +3900,32 @@
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flags</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CtlFlags</span>, <span class="ident">SysctlError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">info</span>: <span class="ident">CtlInfo</span> <span class="op">=</span> <span class="ident">oidfmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">oid</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">CtlFlags</span>::<span class="ident">from_bits_truncate</span>(<span class="ident">info</span>.<span class="ident">flags</span>))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">info</span>()<span class="question-mark">?</span>.<span class="ident">flags</span>())
+    }
+
+    <span class="doccomment">/// Returns a Result containing the control metadata for a sysctl.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns a Result containing the CtlInfo struct on success,</span>
+    <span class="doccomment">/// or a SysctlError on failure.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// extern crate sysctl;</span>
+    <span class="doccomment">/// use sysctl::{Ctl, CtlInfo};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// fn main() {</span>
+    <span class="doccomment">///     let osrev = Ctl::new(&quot;kern.osrevision&quot;)</span>
+    <span class="doccomment">///         .expect(&quot;could not get control&quot;);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     let info = osrev.info()</span>
+    <span class="doccomment">///         .expect(&quot;could not get info&quot;);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     // kern.osrevision is not a structure.</span>
+    <span class="doccomment">///     assert_eq!(info.struct_type(), None);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">info</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CtlInfo</span>, <span class="ident">SysctlError</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">oidfmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">oid</span>)<span class="question-mark">?</span>)
     }
 }
 
@@ -3837,7 +4026,8 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">name</span>, <span class="string">&quot;kern.osrevision&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">ctl</span> <span class="op">=</span> <span class="ident">Ctl</span> { <span class="ident">oid</span> };
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">ctl</span>.<span class="ident">name</span>()
+        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">ctl</span>
+            .<span class="ident">name</span>()
             .<span class="ident">expect</span>(<span class="string">&quot;Could not get name of kern.osrevision sysctl.&quot;</span>);
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">name</span>, <span class="string">&quot;kern.osrevision&quot;</span>);
     }
@@ -3890,16 +4080,16 @@
         <span class="kw">let</span> <span class="ident">rev</span> <span class="op">=</span> <span class="ident">rev_str</span>.<span class="ident">trim</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">value</span>(<span class="string">&quot;kern.osrevision&quot;</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">CtlValue</span>::<span class="ident">Int</span>(<span class="ident">n</span>)) <span class="op">=&gt;</span> <span class="ident">n</span>,
-            <span class="prelude-val">Ok</span>(_) <span class="op">=&gt;</span> <span class="number">0</span>,
-            <span class="prelude-val">Err</span>(_) <span class="op">=&gt;</span> <span class="number">0</span>,
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="number">0</span>,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="number">0</span>,
         };
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">n</span>, <span class="ident">rev</span>);
 
         <span class="kw">let</span> <span class="ident">ctl</span> <span class="op">=</span> <span class="ident">Ctl</span>::<span class="ident">new</span>(<span class="string">&quot;kern.osrevision&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;Could not get kern.osrevision sysctl.&quot;</span>);
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ctl</span>.<span class="ident">value</span>() {
             <span class="prelude-val">Ok</span>(<span class="ident">CtlValue</span>::<span class="ident">Int</span>(<span class="ident">n</span>)) <span class="op">=&gt;</span> <span class="ident">n</span>,
-            <span class="prelude-val">Ok</span>(_) <span class="op">=&gt;</span> <span class="number">0</span>,
-            <span class="prelude-val">Err</span>(_) <span class="op">=&gt;</span> <span class="number">0</span>,
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="number">0</span>,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="number">0</span>,
         };
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">n</span>, <span class="ident">rev</span>);
     }
@@ -3915,8 +4105,8 @@
         <span class="kw">let</span> <span class="ident">rev</span> <span class="op">=</span> <span class="ident">rev_str</span>.<span class="ident">trim</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">value_oid</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">libc</span>::<span class="ident">CTL_KERN</span>, <span class="ident">libc</span>::<span class="ident">KERN_OSREV</span>]) {
             <span class="prelude-val">Ok</span>(<span class="ident">CtlValue</span>::<span class="ident">Int</span>(<span class="ident">n</span>)) <span class="op">=&gt;</span> <span class="ident">n</span>,
-            <span class="prelude-val">Ok</span>(_) <span class="op">=&gt;</span> <span class="number">0</span>,
-            <span class="prelude-val">Err</span>(_) <span class="op">=&gt;</span> <span class="number">0</span>,
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="number">0</span>,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="number">0</span>,
         };
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">n</span>, <span class="ident">rev</span>);
     }
@@ -3931,16 +4121,34 @@
         <span class="kw">let</span> <span class="ident">ver</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8_lossy</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>.<span class="ident">stdout</span>);
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">value</span>(<span class="string">&quot;kern.version&quot;</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">CtlValue</span>::<span class="ident">String</span>(<span class="ident">s</span>)) <span class="op">=&gt;</span> <span class="ident">s</span>,
-            _ <span class="op">=&gt;</span> <span class="string">&quot;...&quot;</span>.<span class="ident">into</span>(),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="string">&quot;...&quot;</span>.<span class="ident">into</span>(),
         };
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">s</span>.<span class="ident">trim</span>(), <span class="ident">ver</span>.<span class="ident">trim</span>());
 
         <span class="kw">let</span> <span class="ident">kernversion</span> <span class="op">=</span> <span class="ident">Ctl</span>::<span class="ident">new</span>(<span class="string">&quot;kern.version&quot;</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">kernversion</span>.<span class="ident">value</span>() {
             <span class="prelude-val">Ok</span>(<span class="ident">CtlValue</span>::<span class="ident">String</span>(<span class="ident">s</span>)) <span class="op">=&gt;</span> <span class="ident">s</span>,
-            _ <span class="op">=&gt;</span> <span class="string">&quot;...&quot;</span>.<span class="ident">into</span>(),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="string">&quot;...&quot;</span>.<span class="ident">into</span>(),
         };
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">s</span>.<span class="ident">trim</span>(), <span class="ident">ver</span>.<span class="ident">trim</span>());
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">ctl_struct_type</span>() {
+        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">CtlInfo</span> {
+            <span class="ident">ctl_type</span>: <span class="ident">CtlType</span>::<span class="ident">Int</span>,
+            <span class="ident">fmt</span>: <span class="string">&quot;S,TYPE&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">flags</span>: <span class="number">0</span>,
+        };
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">info</span>.<span class="ident">struct_type</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;TYPE&quot;</span>.<span class="ident">into</span>()));
+
+        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">CtlInfo</span> {
+            <span class="ident">ctl_type</span>: <span class="ident">CtlType</span>::<span class="ident">Int</span>,
+            <span class="ident">fmt</span>: <span class="string">&quot;I&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">flags</span>: <span class="number">0</span>,
+        };
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">info</span>.<span class="ident">struct_type</span>(), <span class="prelude-val">None</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -3948,14 +4156,14 @@
     <span class="kw">fn</span> <span class="ident">ctl_description</span>() {
         <span class="kw">let</span> <span class="ident">s</span>: <span class="ident">String</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">description</span>(<span class="string">&quot;hw.ncpu&quot;</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="ident">s</span>,
-            _ <span class="op">=&gt;</span> <span class="string">&quot;...&quot;</span>.<span class="ident">into</span>(),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="string">&quot;...&quot;</span>.<span class="ident">into</span>(),
         };
         <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="ident">s</span>, <span class="string">&quot;0&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">ncpu</span> <span class="op">=</span> <span class="ident">Ctl</span>::<span class="ident">new</span>(<span class="string">&quot;hw.ncpu&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;could not get hw.ncpu sysctl.&quot;</span>);
         <span class="kw">let</span> <span class="ident">s</span>: <span class="ident">String</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ncpu</span>.<span class="ident">description</span>() {
             <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="ident">s</span>,
-            _ <span class="op">=&gt;</span> <span class="string">&quot;...&quot;</span>.<span class="ident">into</span>(),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="string">&quot;...&quot;</span>.<span class="ident">into</span>(),
         };
         <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="ident">s</span>, <span class="string">&quot;0&quot;</span>);
     }
@@ -4030,7 +4238,7 @@
 
         <span class="kw">for</span> <span class="ident">ctl</span> <span class="kw">in</span> <span class="ident">ctls</span> {
             <span class="kw">let</span> <span class="ident">ctl</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ctl</span> {
-                <span class="prelude-val">Err</span>(_) <span class="op">=&gt;</span> {
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> {
                     <span class="kw">continue</span>;
                 }
                 <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="ident">s</span>,
@@ -4038,14 +4246,14 @@
 
             <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ctl</span>.<span class="ident">name</span>() {
                 <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="ident">s</span>,
-                <span class="prelude-val">Err</span>(_) <span class="op">=&gt;</span> {
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> {
                     <span class="kw">continue</span>;
                 }
             };
 
             <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ctl</span>.<span class="ident">value</span>() {
                 <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="ident">s</span>,
-                <span class="prelude-val">Err</span>(_) <span class="op">=&gt;</span> {
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> {
                     <span class="kw">continue</span>;
                 }
             };
@@ -4064,8 +4272,8 @@
                 <span class="ident">CtlValue</span>::<span class="ident">S16</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">i</span>),
                 <span class="ident">CtlValue</span>::<span class="ident">S32</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">i</span>),
                 <span class="ident">CtlValue</span>::<span class="ident">S64</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">i</span>),
-                <span class="ident">CtlValue</span>::<span class="ident">Struct</span>(_) <span class="op">=&gt;</span> <span class="string">&quot;(opaque struct)&quot;</span>.<span class="ident">to_owned</span>(),
-                <span class="ident">CtlValue</span>::<span class="ident">Node</span>(_) <span class="op">=&gt;</span> <span class="string">&quot;(node)&quot;</span>.<span class="ident">to_owned</span>(),
+                <span class="ident">CtlValue</span>::<span class="ident">Struct</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="string">&quot;(opaque struct)&quot;</span>.<span class="ident">to_owned</span>(),
+                <span class="ident">CtlValue</span>::<span class="ident">Node</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="string">&quot;(node)&quot;</span>.<span class="ident">to_owned</span>(),
                 <span class="ident">CtlValue</span>::<span class="ident">String</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="ident">s</span>.<span class="ident">to_owned</span>(),
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
                 <span class="ident">CtlValue</span>::<span class="ident">Temperature</span>(<span class="ident">t</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} °C&quot;</span>, <span class="ident">t</span>.<span class="ident">celsius</span>()),
@@ -4085,7 +4293,7 @@
                 <span class="ident">CtlType</span>::<span class="ident">Temperature</span> <span class="op">=&gt;</span> {
                     <span class="kw">continue</span>;
                 }
-                _ <span class="op">=&gt;</span> {}
+                <span class="kw">_</span> <span class="op">=&gt;</span> {}
             };
 
             <span class="ident">actual</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">name</span>, <span class="ident">formatted</span>));
@@ -4094,68 +4302,4 @@
     }
 }
 </pre>
-</section>
-    <section id='search' class="content hidden"></section>
-
-    <section class="footer"></section>
-
-    <aside id="help" class="hidden">
-        <div>
-            <h1 class="hidden">Help</h1>
-
-            <div class="shortcuts">
-                <h2>Keyboard Shortcuts</h2>
-
-                <dl>
-                    <dt><kbd>?</kbd></dt>
-                    <dd>Show this help dialog</dd>
-                    <dt><kbd>S</kbd></dt>
-                    <dd>Focus the search field</dd>
-                    <dt><kbd>↑</kbd></dt>
-                    <dd>Move up in search results</dd>
-                    <dt><kbd>↓</kbd></dt>
-                    <dd>Move down in search results</dd>
-                    <dt><kbd>↹</kbd></dt>
-                    <dd>Switch tab</dd>
-                    <dt><kbd>&#9166;</kbd></dt>
-                    <dd>Go to active search result</dd>
-                    <dt><kbd>+</kbd></dt>
-                    <dd>Expand all sections</dd>
-                    <dt><kbd>-</kbd></dt>
-                    <dd>Collapse all sections</dd>
-                </dl>
-            </div>
-
-            <div class="infos">
-                <h2>Search Tricks</h2>
-
-                <p>
-                    Prefix searches with a type followed by a colon (e.g.
-                    <code>fn:</code>) to restrict the search to a given type.
-                </p>
-
-                <p>
-                    Accepted types are: <code>fn</code>, <code>mod</code>,
-                    <code>struct</code>, <code>enum</code>,
-                    <code>trait</code>, <code>type</code>, <code>macro</code>,
-                    and <code>const</code>.
-                </p>
-
-                <p>
-                    Search functions by type signature (e.g.
-                    <code>vec -> usize</code> or <code>* -> vec</code>)
-                </p>
-            </div>
-        </div>
-    </aside>
-
-    
-
-    <script>
-        window.rootPath = "../../";
-        window.currentCrate = "sysctl";
-    </script>
-    <script src="../../main.js"></script>
-    <script defer src="../../search-index.js"></script>
-</body>
-</html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g. <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g. <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g. <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../";window.currentCrate = "sysctl";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script defer src="../../search-index.js"></script></body></html>
