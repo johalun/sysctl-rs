@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2019-01-07
+### Changed
+- Improve error handling.
+- Publish CtlInfo struct.
+- Add Cirrus CI script.
+
 ## [0.2.0] - 2018-05-28
 ### Changed
 - Add iterator support (thanks to Fabian Freyer!).

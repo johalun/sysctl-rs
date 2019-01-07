@@ -1,6 +1,6 @@
 [package]
 name = "sysctl"
-version = "0.2.0"
+version = "0.3.0"
 authors = [
    "Johannes Lundberg <johalun0@gmail.com>",
    "Ivan Temchenko <ivan.temchenko@yandex.ua>",
