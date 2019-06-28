@@ -1266,6 +1266,11 @@ pub fn description(name: &str) -> Result<String, SysctlError> {
     oid2description(&oid)
 }
 
+#[cfg(target_os = "macos")]
+pub fn description(name: &str) -> Result<String, SysctlError> {
+    Ok("<Description not available on macOS>".to_string())
+}
+
 #[cfg(not(target_os = "macos"))]
 fn oid2description(oid: &Vec<c_int>) -> Result<String, SysctlError> {
     // Request command for description
@@ -1567,6 +1572,11 @@ impl Ctl {
     #[cfg(not(target_os = "macos"))]
     pub fn description(self: &Self) -> Result<String, SysctlError> {
         oid2description(&self.oid)
+    }
+
+    #[cfg(target_os = "macos")]
+    pub fn description(self: &Self) -> Result<String, SysctlError> {
+        Ok("<Description not available on macOS>".to_string())
     }
 
     /// Returns a result containing the sysctl value on success, or a
