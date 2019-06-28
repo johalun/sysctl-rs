@@ -408,8 +408,7 @@ pub enum SysctlError {
 
     #[fail(
         display = "sysctl returned a short read: read {} bytes, while a size of {} was reported",
-        read,
-        reported
+        read, reported
     )]
     ShortRead { read: usize, reported: usize },
 
