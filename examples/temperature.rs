@@ -1,5 +1,6 @@
 extern crate sysctl;
-#[cfg(not(target_os = "macos"))]
+
+#[cfg(target_os = "freebsd")]
 fn main() {
     let ctl = match sysctl::Ctl::new("dev.cpu.0.temperature") {
         Ok(c) => c,
@@ -28,5 +29,6 @@ fn main() {
         panic!("Error, not a temperature ctl!")
     }
 }
-#[cfg(target_os = "macos")]
+
+#[cfg(not(target_os = "freebsd"))]
 fn main() {}

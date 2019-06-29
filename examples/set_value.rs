@@ -1,42 +1,29 @@
-extern crate libc;
 extern crate sysctl;
 
+use std::io;
+
 fn main() {
-    assert_eq!(
-        unsafe { libc::geteuid() },
-        0,
-        "This example must be run as root"
-    );
+    #[cfg(any(target_os = "macos", target_os = "freebsd"))]
+    const KEY: &str = "net.inet.ip.forwarding";
+    #[cfg(any(target_os = "android", target_os = "linux"))]
+    const KEY: &str = "/proc/sys/net/ipv4/ip_forward";
 
-    let ctl = sysctl::Ctl::new("hw.usb.debug").expect("could not get sysctl: hw.usb.debug");
+    #[cfg(any(target_os = "macos", target_os = "freebsd"))]
+    let ret = sysctl::set_value(KEY, sysctl::CtlValue::Int(1))
+        .map(|v| v == sysctl::CtlValue::Int(1))
+        .map_err(|_| io::Error::last_os_error());
 
-    let name = ctl.name().expect("could not get sysctl name");
-    println!("\nFlipping value of sysctl {}", name);
+    #[cfg(any(target_os = "android", target_os = "linux"))]
+    let ret = sysctl::set_value(KEY, sysctl::CtlValue::String("1\n".to_string()))
+        .map(|v| v == sysctl::CtlValue::String("1\n".to_string()))
+        .map_err(|_| io::Error::last_os_error());
 
-    let old_val_enum = ctl.value().expect("could not set sysctl value");
-
-    if let sysctl::CtlValue::Int(old_val) = old_val_enum {
-        println!("Old value: {}", old_val);
-
-        let target_val = match old_val {
-            0 => 1,
-            _ => 0,
-        };
-
-        let target_val_enum = sysctl::CtlValue::Int(target_val);
-
-        let new_val_enum = ctl.set_value(target_val_enum).expect("could not set value");
-
-        if let sysctl::CtlValue::Int(new_val) = new_val_enum {
-            if new_val == target_val {
-                println!("New value succcesfully set to: {}", new_val);
-            } else {
-                println!("Error: Could not set new value");
-            }
-            println!("Restore old value");
-
-            ctl.set_value(old_val_enum)
-                .expect("could not restore old value");
+    match ret {
+        Ok(new_val) => {
+            println!("The `{}` succcesfully set to: {}", KEY, new_val);
+        }
+        Err(e) => {
+            println!("ERROR: {:?}", e);
         }
     }
 }

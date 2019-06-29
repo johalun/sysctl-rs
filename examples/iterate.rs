@@ -1,6 +1,6 @@
 extern crate sysctl;
-use std::env;
 
+#[cfg(any(target_os = "macos", target_os = "freebsd"))]
 fn format_value(value: sysctl::CtlValue) -> String {
     match value {
         sysctl::CtlValue::None => "(none)".to_owned(),
@@ -24,16 +24,17 @@ fn format_value(value: sysctl::CtlValue) -> String {
     }
 }
 
+#[cfg(any(target_os = "macos", target_os = "freebsd"))]
 fn print_ctl(ctl: &sysctl::Ctl) {
     let name = ctl.name().expect("Could not get name of control");
-
     if let Ok(value) = ctl.value() {
         println!("{}: {}", name, format_value(value));
     }
 }
 
+#[cfg(any(target_os = "macos", target_os = "freebsd"))]
 fn main() {
-    let args: Vec<_> = env::args().collect();
+    let args: Vec<_> = std::env::args().collect();
 
     let ctls = match args.len() {
         1 => sysctl::CtlIter::root().filter_map(Result::ok),
@@ -64,3 +65,4 @@ fn main() {
         }
     }
 }
+
