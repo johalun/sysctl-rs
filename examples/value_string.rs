@@ -4,18 +4,19 @@ extern crate sysctl;
 use sysctl::Sysctl;
 
 #[cfg(any(target_os = "macos", target_os = "freebsd"))]
-const CTLNAMES: &[&str] = &["kern.ostype"];
+const CTLNAMES: &[&str] = &["kern.osrevision"];
 
+// On Linux all sysctl are String so doesn't really make sense here...
 #[cfg(any(target_os = "linux", target_os = "android"))]
-const CTLNAMES: &[&str] = &["kernel.ostype", "kernel/ostype", "/proc/sys/kernel/ostype"];
+const CTLNAMES: &[&str] = &["kernel.overflowuid"];
 
 fn print_ctl(ctlname: &str) -> Result<(), sysctl::SysctlError> {
     println!("Reading '{}'", ctlname);
     let ctl = try!(sysctl::Ctl::new(ctlname));
     let description = try!(ctl.description());
     println!("Description: {}", description);
-    let val_enum = try!(ctl.value());
-    println!("Value: {}", val_enum);
+    let val_string = try!(ctl.value_string());
+    println!("Value: {}", val_string);
     Ok(())
 }
 
