@@ -1,7 +1,6 @@
 // linux/ctl_iter.rs
 
 use super::ctl::Ctl;
-use super::funcs::next_ctl;
 use consts::*;
 use ctl_error::SysctlError;
 use ctl_info::CtlInfo;
@@ -12,9 +11,6 @@ use traits::Sysctl;
 
 /// An iterator over Sysctl entries.
 pub struct CtlIter {
-    // if we are iterating over a Node, only include OIDs
-    // starting with this base. Set to None if iterating over all
-    // OIDs.
     direntries: Vec<walkdir::DirEntry>,
     base: String,
     cur_idx: usize,
@@ -37,7 +33,7 @@ impl CtlIter {
 
     /// Return an iterator over all sysctl entries below the given node.
     pub fn below(node: Ctl) -> Self {
-        let root = node.name().unwrap_or("/proc/sys".to_owned());
+        let root = node.path();
         let entries: Vec<walkdir::DirEntry> = walkdir::WalkDir::new(&root)
             .follow_links(false)
             .into_iter()

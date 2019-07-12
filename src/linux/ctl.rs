@@ -1,6 +1,6 @@
 // linux/ctl.rs
 
-use super::funcs::{fix_path, next_ctl, set_value, value};
+use super::funcs::{set_value, string_to_name, value};
 use consts::*;
 use ctl_error::SysctlError;
 use ctl_info::CtlInfo;
@@ -20,8 +20,14 @@ impl FromStr for Ctl {
 
     fn from_str(name: &str) -> Result<Self, Self::Err> {
         Ok(Ctl {
-            name: fix_path(name),
+            name: string_to_name(name),
         })
+    }
+}
+
+impl Ctl {
+    pub fn path(&self) -> String {
+        format!("/proc/sys/{}", self.name.replace(".", "/").replace("..", "."))
     }
 }
 
@@ -88,7 +94,7 @@ impl Sysctl for Ctl {
     /// assert_eq!(value_type, CtlType::String);
     /// ```
     fn value_type(&self) -> Result<CtlType, SysctlError> {
-        let md = std::fs::metadata(&self.name).map_err(SysctlError::IoError)?;
+        let md = std::fs::metadata(&self.path()).map_err(SysctlError::IoError)?;
         if md.is_dir() {
             Ok(CtlType::Node)
         } else {
@@ -129,7 +135,7 @@ impl Sysctl for Ctl {
     /// }
     /// ```
     fn value(&self) -> Result<CtlValue, SysctlError> {
-        value(&self.name)
+        value(&self.path())
     }
 
     /// Returns a result containing the sysctl value as String on
@@ -204,7 +210,7 @@ impl Sysctl for Ctl {
     /// # } // getuid() == 0
     /// }
     fn set_value(&self, value: CtlValue) -> Result<CtlValue, SysctlError> {
-        set_value(&self.name, value)
+        set_value(&self.path(), value)
     }
 
     /// Sets the value of a sysctl with input as string.
@@ -276,7 +282,7 @@ impl Sysctl for Ctl {
     /// }
     /// ```
     fn info(&self) -> Result<CtlInfo, SysctlError> {
-        let md = std::fs::metadata(&self.name).map_err(SysctlError::IoError)?;
+        let md = std::fs::metadata(&self.path()).map_err(SysctlError::IoError)?;
         let mut flags = 0;
         if md.permissions().readonly() {
             flags |= CTLFLAG_RD;

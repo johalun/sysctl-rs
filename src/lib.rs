@@ -1,3 +1,5 @@
+// lib.rs
+
 //! A simplified interface to the `sysctl` system call.
 //!
 //! # Example: Get description and value

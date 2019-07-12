@@ -11,14 +11,8 @@ use traits::Sysctl;
 
 use std::io::{Read, Write};
 
-pub fn fix_path(name: &str) -> String {
-    if name.starts_with("/proc/sys") {
-        name.to_owned()
-    } else if name.contains("/") {
-        format!("/proc/sys/{}", name)
-    } else {
-        format!("/proc/sys/{}", name.replace(".", "/"))
-    }
+pub fn string_to_name(name: &str) -> String {
+    name.to_owned().replace("/proc/sys/", "").replace("/", ".")
 }
 
 /// Takes the name of the OID as argument and returns
@@ -38,7 +32,6 @@ pub fn fix_path(name: &str) -> String {
 /// }
 /// ```
 pub fn value(name: &str) -> Result<CtlValue, SysctlError> {
-    let name = fix_path(name);
     let file_res = std::fs::OpenOptions::new()
         .read(true)
         .write(false)
@@ -74,7 +67,6 @@ pub fn value(name: &str) -> Result<CtlValue, SysctlError> {
 /// }
 /// ```
 pub fn set_value(name: &str, v: CtlValue) -> Result<CtlValue, SysctlError> {
-    let name = fix_path(name);
     let file_res = std::fs::OpenOptions::new()
         .read(false)
         .write(true)
@@ -95,8 +87,4 @@ pub fn set_value(name: &str, v: CtlValue) -> Result<CtlValue, SysctlError> {
                 e.into()
             }
         })?
-}
-
-pub fn next_ctl(ctl: &Ctl) -> Result<Ctl, SysctlError> {
-    Ctl::new("")
 }

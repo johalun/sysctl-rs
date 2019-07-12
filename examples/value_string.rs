@@ -6,7 +6,7 @@ use sysctl::Sysctl;
 #[cfg(any(target_os = "macos", target_os = "freebsd"))]
 const CTLNAMES: &[&str] = &["kern.osrevision"];
 
-// On Linux all sysctl are String so doesn't really make sense here...
+// On Linux all sysctl are String so it doesn't really make any sense to read an integer value here...
 #[cfg(any(target_os = "linux", target_os = "android"))]
 const CTLNAMES: &[&str] = &["kernel.overflowuid"];
 

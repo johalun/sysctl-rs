@@ -1,6 +1,6 @@
 [package]
 name = "sysctl"
-version = "0.3.0"
+version = "0.4.0"
 authors = [
    "Johannes Lundberg <johalun0@gmail.com>",
    "Ivan Temchenko <ivan.temchenko@yandex.ua>",
@@ -18,4 +18,6 @@ libc = "^0.2.34"
 byteorder = "^1.0.0"
 failure = "^0.1.1"
 bitflags = "^1.0"
+
+[target.'cfg(any(target_os = "android", target_os = "linux"))'.dependencies]
 walkdir = "^2.2.8"
