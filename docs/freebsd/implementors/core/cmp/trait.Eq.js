@@ -1,5 +1,5 @@
 (function() {var implementors = {};
-implementors["sysctl"] = [{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html\" title=\"trait core::cmp::Eq\">Eq</a> for <a class=\"struct\" href=\"sysctl/struct.CtlFlags.html\" title=\"struct sysctl::CtlFlags\">CtlFlags</a>",synthetic:false,types:["sysctl::CtlFlags"]},];
+implementors["sysctl"] = [{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html\" title=\"trait core::cmp::Eq\">Eq</a> for <a class=\"struct\" href=\"sysctl/struct.CtlFlags.html\" title=\"struct sysctl::CtlFlags\">CtlFlags</a>",synthetic:false,types:["sysctl::ctl_flags::CtlFlags"]},];
 
             if (window.register_implementors) {
                 window.register_implementors(implementors);
