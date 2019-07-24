@@ -62,7 +62,7 @@ use sysctl::Sysctl;
 fn main() {
     let ctl = sysctl::Ctl::new("kern.osrevision").unwrap();
     println!("Description: {}", ctl.description().unwrap());
-	println!("Value: {}", ctl.value_string().unwrap());
+    println!("Value: {}", ctl.value_string().unwrap());
 }
 ```
 
