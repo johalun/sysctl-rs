@@ -172,22 +172,6 @@ pub fn oidfmt(oid: &[libc::c_int]) -> Result<CtlInfo, SysctlError> {
 }
 
 #[cfg(not(target_os = "macos"))]
-pub fn value(name: &str) -> Result<CtlValue, SysctlError> {
-    match name2oid(name) {
-        Ok(v) => value_oid(&v),
-        Err(e) => Err(e),
-    }
-}
-
-#[cfg(target_os = "macos")]
-pub fn value(name: &str) -> Result<CtlValue, SysctlError> {
-    match name2oid(name) {
-        Ok(mut v) => value_oid(&mut v),
-        Err(e) => Err(e),
-    }
-}
-
-#[cfg(not(target_os = "macos"))]
 pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = try!(oidfmt(&oid));
 
@@ -445,18 +429,6 @@ pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
     } else {
         Err(SysctlError::ExtractionError)
     }
-}
-
-#[cfg(not(target_os = "macos"))]
-pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
-    let oid = try!(name2oid(name));
-    set_oid_value(&oid, value)
-}
-
-#[cfg(target_os = "macos")]
-pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
-    let mut oid = try!(name2oid(name));
-    set_oid_value(&mut oid, value)
 }
 
 fn value_to_bytes(value: CtlValue) -> Result<Vec<u8>, SysctlError> {

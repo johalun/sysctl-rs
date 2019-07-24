@@ -7,7 +7,7 @@ authors = [
    "Fabian Freyer <fabian.freyer@physik.tu-berlin.de>"
    ]
 description = "Simplified interface to libc::sysctl"
-keywords = ["sysctl", "freebsd", "macos"]
+keywords = ["sysctl", "sysfs", "freebsd", "macos", "linux"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/johalun/sysctl-rs"

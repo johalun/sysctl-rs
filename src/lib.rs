@@ -79,15 +79,6 @@ pub use ctl_type::*;
 pub use ctl_value::*;
 pub use sys::ctl::*;
 pub use sys::ctl_iter::*;
-pub use sys::funcs::set_value;
-pub use sys::funcs::value;
 #[cfg(target_os = "freebsd")]
 pub use temperature::Temperature;
 pub use traits::Sysctl;
-
-// #[allow(unused_imports)]
-// use sys::funcs::*;
-
-// #[allow(unused_imports)]
-// #[cfg(target_os = "freebsd")]
-// use temperature::temperature;

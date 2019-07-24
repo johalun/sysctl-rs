@@ -1,11 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.4.0] - 2019-07-08
+## [0.4.0] - 2019-07-24
 ### Changed
 - Add Linux support.
-- Improve BSD code to provide a cross platform compatible API.
 - Huge refactor.
+- Improve BSD code to provide a cross platform compatible API.
+- [BREAKING] Make static functions private, all calls now go through the Ctl object.
 
 ## [0.3.0] - 2019-01-07
 ### Changed

@@ -104,7 +104,8 @@ mod tests_unix {
             .output()
             .expect("failed to execute process");
         let ver = String::from_utf8_lossy(&output.stdout);
-        let s = match sys::funcs::value("kern.version") {
+        let ctl = crate::Ctl::new("kern.version").expect("Ctl::new");
+        let s = match ctl.value() {
             Ok(crate::CtlValue::String(s)) => s,
             _ => "...".into(),
         };
@@ -127,12 +128,6 @@ mod tests_unix {
             .expect("failed to execute process");
         let rev_str = String::from_utf8_lossy(&output.stdout);
         let rev = rev_str.trim().parse::<i32>().unwrap();
-        let n = match sys::funcs::value("kern.osrevision") {
-            Ok(crate::CtlValue::Int(n)) => n,
-            Ok(_) => 0,
-            Err(_) => 0,
-        };
-        assert_eq!(n, rev);
 
         let ctl =
             crate::Ctl::new("kern.osrevision").expect("Could not get kern.osrevision sysctl.");
