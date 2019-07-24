@@ -1,6 +1,6 @@
 // ctl_info.rs
 
-use consts::*;
+use ctl_flags::*;
 use ctl_type::*;
 
 #[derive(Debug, PartialEq)]

@@ -1,36 +1,17 @@
 // linux/funcs.rs
 
-use super::ctl::Ctl;
-use byteorder::{ByteOrder, LittleEndian, WriteBytesExt};
-use consts::*;
 use ctl_error::*;
-use ctl_info::*;
-use ctl_type::*;
 use ctl_value::*;
-use traits::Sysctl;
 
 use std::io::{Read, Write};
 
-pub fn string_to_name(name: &str) -> String {
-    name.to_owned().replace("/proc/sys/", "").replace("/", ".")
+pub fn path_to_name(name: &str) -> String {
+    name.to_owned()
+        .replace("/proc/sys/", "")
+        .replace("..", ".")
+        .replace("/", ".")
 }
 
-/// Takes the name of the OID as argument and returns
-/// a result containing the sysctl value if success,
-/// or a SysctlError on failure
-///
-/// # Example
-/// ```
-/// extern crate sysctl;
-///
-/// fn main() {
-///     let val = sysctl::value("/proc/sys/net/ipv4/ip_forward")
-///                  .map(|v| v == sysctl::CtlValue::String("1\n".to_string()))
-///                  .map_err(|_| std::io::Error::last_os_error())
-///                  .unwrap();
-///     println!("Value: {}", val);
-/// }
-/// ```
 pub fn value(name: &str) -> Result<CtlValue, SysctlError> {
     let file_res = std::fs::OpenOptions::new()
         .read(true)
@@ -52,20 +33,6 @@ pub fn value(name: &str) -> Result<CtlValue, SysctlError> {
         })?
 }
 
-/// Sets the value of a sysctl.
-/// Fetches and returns the new value if successful, or a SysctlError
-/// on failure
-///
-/// # Example
-/// ```
-/// extern crate sysctl;
-///
-/// fn main() {
-///     let val = sysctl::CtlValue::String("1\n".to_string());
-///     let ret = sysctl::set_value("/proc/sys/net/ipv4/ip_forward", val);
-///     println!("set value ret: {:?}", ret);
-/// }
-/// ```
 pub fn set_value(name: &str, v: CtlValue) -> Result<CtlValue, SysctlError> {
     let file_res = std::fs::OpenOptions::new()
         .read(false)

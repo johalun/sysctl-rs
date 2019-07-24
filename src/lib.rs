@@ -2,62 +2,45 @@
 
 //! A simplified interface to the `sysctl` system call.
 //!
-//! # Example: Get description and value
+//! # Example: Get value
 //! ```
-//! extern crate sysctl;
-//! #[cfg(not(target_os = "macos"))]
-//! fn main() {
-//!     let ctl = sysctl::Ctl::new("kern.osrevision")
-//!         .expect("could not get sysctl");
+//! # extern crate sysctl;
+//! # use sysctl::Sysctl;
+//! #[cfg(any(target_os = "macos", target_os = "freebsd"))]
+//! const CTLNAME: &str = "kern.ostype";
+//! #[cfg(any(target_os = "linux", target_os = "android"))]
+//! const CTLNAME: &str = "kernel.ostype";
 //!
-//!     let d = ctl.description()
-//!         .expect("could not get description");
-//!
-//!     println!("Description: {:?}", d);
-//!
-//!     let val_enum = ctl.value()
-//!         .expect("could not get value");
-//!
-//!     if let sysctl::CtlValue::Int(val) = val_enum {
-//!         println!("Value: {}", val);
-//!     }
-//! }
-//!
-//! #[cfg(target_os = "macos")]
-//! fn main() {
-//!     let mut ctl = sysctl::Ctl::new("kern.osrevision")
-//!         .expect("could not get sysctl");
-//!
-//!     // description is not available on macos
-//!
-//!     let val_enum = ctl.value()
-//!         .expect("could not get value");
-//!
-//!     if let sysctl::CtlValue::Int(val) = val_enum {
-//!         println!("Value: {}", val);
-//!     }
-//! }
+//! let ctl = sysctl::Ctl::new(CTLNAME).unwrap();
+//! let desc = ctl.description().unwrap();
+//! println!("Description: {}", desc);
+//! let val = ctl.value().unwrap();
+//! println!("Value: {}", val);
+//! // On Linux all sysctls are String type. Use the following for
+//! // cross-platform compatibility:
+//! let str_val = ctl.value_string().unwrap();
+//! println!("String value: {}", val);
 //! ```
+//!
 //! # Example: Get value as struct
 //! ```
-//! extern crate sysctl;
-//! extern crate libc;
-//!
-//! use libc::c_int;
-//!
-//! #[derive(Debug)]
+//! // Not available on Linux
+//! # extern crate sysctl;
+//! # extern crate libc;
+//! # use sysctl::Sysctl;
+//! #[derive(Debug, Default)]
 //! #[repr(C)]
 //! struct ClockInfo {
-//!     hz: c_int, /* clock frequency */
-//!     tick: c_int, /* micro-seconds per hz tick */
-//!     spare: c_int,
-//!     stathz: c_int, /* statistics clock frequency */
-//!     profhz: c_int, /* profiling clock frequency */
+//!     hz: libc::c_int, /* clock frequency */
+//!     tick: libc::c_int, /* micro-seconds per hz tick */
+//!     spare: libc::c_int,
+//!     stathz: libc::c_int, /* statistics clock frequency */
+//!     profhz: libc::c_int, /* profiling clock frequency */
 //! }
-//!
-//! fn main() {
-//!     println!("{:?}", sysctl::value_as::<ClockInfo>("kern.clockrate"));
-//! }
+//! # #[cfg(any(target_os = "macos", target_os = "freebsd"))]
+//! let val: Box<ClockInfo> = sysctl::Ctl::new("kern.clockrate").unwrap().value_as().unwrap();
+//! # #[cfg(any(target_os = "macos", target_os = "freebsd"))]
+//! println!("{:?}", val);
 //! ```
 
 #[macro_use]
@@ -80,6 +63,7 @@ mod sys;
 
 mod consts;
 mod ctl_error;
+mod ctl_flags;
 mod ctl_info;
 mod ctl_type;
 mod ctl_value;
@@ -89,12 +73,21 @@ mod traits;
 
 pub use consts::*;
 pub use ctl_error::*;
+pub use ctl_flags::*;
 pub use ctl_info::*;
 pub use ctl_type::*;
 pub use ctl_value::*;
 pub use sys::ctl::*;
 pub use sys::ctl_iter::*;
-pub use sys::funcs::*;
+pub use sys::funcs::set_value;
+pub use sys::funcs::value;
 #[cfg(target_os = "freebsd")]
-pub use temperature::*;
+pub use temperature::Temperature;
 pub use traits::Sysctl;
+
+// #[allow(unused_imports)]
+// use sys::funcs::*;
+
+// #[allow(unused_imports)]
+// #[cfg(target_os = "freebsd")]
+// use temperature::temperature;

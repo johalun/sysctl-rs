@@ -6,14 +6,11 @@ use ctl_value::*;
 ///
 /// # Example
 ///
-/// ```
-/// extern crate sysctl;
-///
-/// let val_enum = &sysctl::value("kern.osrevision")
-///     .expect("could not get kern.osrevision sysctl");
-///
+/// ```ignore
+/// # extern crate sysctl;
+/// #
+/// let val_enum = &sysctl::value("kern.osrevision").unwrap();
 /// let val_type: sysctl::CtlType = val_enum.into();
-///
 /// assert_eq!(val_type, sysctl::CtlType::Int);
 /// ```
 #[derive(Debug, Copy, Clone, PartialEq)]

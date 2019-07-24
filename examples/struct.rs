@@ -1,3 +1,6 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
+
 extern crate libc;
 extern crate sysctl;
 
@@ -15,7 +18,7 @@ struct ClockInfo {
     profhz: libc::c_int, /* profiling clock frequency */
 }
 
-#[cfg(target_os = "freebsd")]
+#[cfg(any(target_os = "freebsd", target_os = "macos"))]
 fn main() {
     let ctl = sysctl::Ctl::new("kern.clockrate").expect("could not get sysctl: kern.clockrate");
 
@@ -38,7 +41,7 @@ fn main() {
     }
 }
 
-#[cfg(not(target_os = "freebsd"))]
+#[cfg(not(any(target_os = "freebsd", target_os = "macos")))]
 fn main() {
-    println!("This operation is only supported on FreeBSD.");
+    println!("This operation is only supported on FreeBSD and macOS.");
 }

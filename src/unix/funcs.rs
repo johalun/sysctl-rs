@@ -68,7 +68,11 @@ pub fn name2oid(name: &str) -> Result<Vec<libc::c_int>, SysctlError> {
         )
     };
     if ret < 0 {
-        return Err(SysctlError::IoError(std::io::Error::last_os_error()));
+        let e = std::io::Error::last_os_error();
+        return Err(match e.kind() {
+            std::io::ErrorKind::NotFound => SysctlError::NotFound(name.into()),
+            _ => SysctlError::IoError(e),
+        });
     }
 
     // len is in bytes, convert to number of libc::c_ints
@@ -167,18 +171,6 @@ pub fn oidfmt(oid: &[libc::c_int]) -> Result<CtlInfo, SysctlError> {
     Ok(s)
 }
 
-/// Takes the name of the OID as argument and returns
-/// a result containing the sysctl value if success,
-/// or a SysctlError on failure
-///
-/// # Example
-/// ```
-/// extern crate sysctl;
-///
-/// fn main() {
-///     println!("Value: {:?}", sysctl::value("kern.osrevision"));
-/// }
-/// ```
 #[cfg(not(target_os = "macos"))]
 pub fn value(name: &str) -> Result<CtlValue, SysctlError> {
     match name2oid(name) {
@@ -187,18 +179,6 @@ pub fn value(name: &str) -> Result<CtlValue, SysctlError> {
     }
 }
 
-/// Takes the name of the OID as argument and returns
-/// a result containing the sysctl value if success,
-/// or a SysctlError on failure
-///
-/// # Example
-/// ```
-/// extern crate sysctl;
-///
-/// fn main() {
-///     println!("Value: {:?}", sysctl::value("kern.osrevision"));
-/// }
-/// ```
 #[cfg(target_os = "macos")]
 pub fn value(name: &str) -> Result<CtlValue, SysctlError> {
     match name2oid(name) {
@@ -207,20 +187,6 @@ pub fn value(name: &str) -> Result<CtlValue, SysctlError> {
     }
 }
 
-/// Takes an OID as argument and returns a result
-/// containing the sysctl value if success, or a SysctlError
-/// on failure
-///
-/// # Example
-/// ```
-/// extern crate sysctl;
-/// extern crate libc;
-///
-/// fn main() {
-///     let mut oid = vec![libc::CTL_KERN, libc::KERN_OSREV];
-///     println!("Value: {:?}", sysctl::value_oid(&oid));
-/// }
-/// ```
 #[cfg(not(target_os = "macos"))]
 pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = try!(oidfmt(&oid));
@@ -310,20 +276,6 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
     }
 }
 
-/// Takes an OID as argument and returns a result
-/// containing the sysctl value if success, or a SysctlError
-/// on failure
-///
-/// # Example
-/// ```
-/// extern crate sysctl;
-/// extern crate libc;
-///
-/// fn main() {
-///     let mut oid = vec![libc::CTL_KERN, libc::KERN_OSREV];
-///     println!("Value: {:?}", sysctl::value_oid(&mut oid));
-/// }
-/// ```
 #[cfg(target_os = "macos")]
 pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = try!(oidfmt(&oid));
@@ -352,7 +304,7 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
     // If the length reported is shorter than the type we will convert it into,
     // byteorder::LittleEndian::read_* will panic. Therefore, expand the value length to at
     // Least the size of the value.
-    let val_minsize = cmp::max(val_len, info.ctl_type.min_type_size());
+    let val_minsize = std::cmp::max(val_len, info.ctl_type.min_type_size());
 
     // Then get value
     let mut val: Vec<libc::c_uchar> = vec![0; val_minsize];
@@ -407,110 +359,6 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
     }
 }
 
-/// A generic function that takes a string as argument and
-/// returns a result containing the sysctl value if success,
-/// or a SysctlError on failure.
-///
-/// Can only be called for sysctls of type Opaque or Struct.
-///
-/// # Example
-/// ```
-/// extern crate sysctl;
-/// extern crate libc;
-///
-/// use libc::c_int;
-///
-/// #[derive(Debug)]
-/// #[repr(C)]
-/// struct ClockInfo {
-///     hz: libc::c_int, /* clock frequency */
-///     tick: libc::c_int, /* micro-seconds per hz tick */
-///     spare: libc::c_int,
-///     stathz: libc::c_int, /* statistics clock frequency */
-///     profhz: libc::c_int, /* profiling clock frequency */
-/// }
-///
-/// fn main() {
-///     println!("{:?}", sysctl::value_as::<ClockInfo>("kern.clockrate"));
-/// }
-/// ```
-#[cfg(not(target_os = "macos"))]
-pub fn value_as<T>(name: &str) -> Result<Box<T>, SysctlError> {
-    match name2oid(name) {
-        Ok(v) => value_oid_as::<T>(&v),
-        Err(e) => Err(e),
-    }
-}
-
-/// A generic function that takes a string as argument and
-/// returns a result containing the sysctl value if success,
-/// or a SysctlError on failure.
-///
-/// Can only be called for sysctls of type Opaque or Struct.
-///
-/// # Example
-/// ```
-/// extern crate sysctl;
-/// extern crate libc;
-///
-/// use libc::c_int;
-///
-/// #[derive(Debug)]
-/// #[repr(C)]
-/// struct ClockInfo {
-///     hz: libc::c_int, /* clock frequency */
-///     tick: libc::c_int, /* micro-seconds per hz tick */
-///     spare: libc::c_int,
-///     stathz: libc::c_int, /* statistics clock frequency */
-///     profhz: libc::c_int, /* profiling clock frequency */
-/// }
-///
-/// fn main() {
-///     println!("{:?}", sysctl::value_as::<ClockInfo>("kern.clockrate"));
-/// }
-/// ```
-#[cfg(target_os = "macos")]
-pub fn value_as<T>(name: &str) -> Result<Box<T>, SysctlError> {
-    match name2oid(name) {
-        Ok(mut v) => value_oid_as::<T>(&mut v),
-        Err(e) => Err(e),
-    }
-}
-
-/// A generic function that takes an OID as argument and
-/// returns a result containing the sysctl value if success,
-/// or a SysctlError on failure
-///
-/// Can only be called for sysctls of type Opaque or Struct.
-///
-/// # Example
-/// ```
-/// extern crate sysctl;
-/// extern crate libc;
-///
-/// use libc::c_int;
-///
-/// #[derive(Debug)]
-/// #[repr(C)]
-/// struct ClockInfo {
-///     hz: libc::c_int, /* clock frequency */
-///     tick: libc::c_int, /* micro-seconds per hz tick */
-///     spare: libc::c_int,
-///     stathz: libc::c_int, /* statistics clock frequency */
-///     profhz: libc::c_int, /* profiling clock frequency */
-/// }
-///
-/// #[cfg(not(target_os = "macos"))]
-/// fn main() {
-///     let oid = vec![libc::CTL_KERN, libc::KERN_CLOCKRATE];
-///     println!("{:?}", sysctl::value_oid_as::<ClockInfo>(&oid));
-/// }
-/// #[cfg(target_os = "macos")]
-/// fn main() {
-///     let mut oid = vec![libc::CTL_KERN, libc::KERN_CLOCKRATE];
-///     println!("{:?}", sysctl::value_oid_as::<ClockInfo>(&mut oid));
-/// }
-/// ```
 #[cfg(not(target_os = "macos"))]
 pub fn value_oid_as<T>(oid: &Vec<i32>) -> Result<Box<T>, SysctlError> {
     let val_enum = try!(value_oid(oid));
@@ -555,40 +403,6 @@ pub fn value_oid_as<T>(oid: &Vec<i32>) -> Result<Box<T>, SysctlError> {
     }
 }
 
-/// A generic function that takes an OID as argument and
-/// returns a result containing the sysctl value if success,
-/// or a SysctlError on failure
-///
-/// Can only be called for sysctls of type Opaque or Struct.
-///
-/// # Example
-/// ```
-/// extern crate sysctl;
-/// extern crate libc;
-///
-/// use libc::c_int;
-///
-/// #[derive(Debug)]
-/// #[repr(C)]
-/// struct ClockInfo {
-///     hz: libc::c_int, /* clock frequency */
-///     tick: libc::c_int, /* micro-seconds per hz tick */
-///     spare: libc::c_int,
-///     stathz: libc::c_int, /* statistics clock frequency */
-///     profhz: libc::c_int, /* profiling clock frequency */
-/// }
-///
-/// #[cfg(not(target_os = "macos"))]
-/// fn main() {
-///     let oid = vec![libc::CTL_KERN, libc::KERN_CLOCKRATE];
-///     println!("{:?}", sysctl::value_oid_as::<ClockInfo>(&oid));
-/// }
-/// #[cfg(target_os = "macos")]
-/// fn main() {
-///     let mut oid = vec![libc::CTL_KERN, libc::KERN_CLOCKRATE];
-///     println!("{:?}", sysctl::value_oid_as::<ClockInfo>(&mut oid));
-/// }
-/// ```
 #[cfg(target_os = "macos")]
 pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
     let val_enum = try!(value_oid(oid));
@@ -633,48 +447,44 @@ pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
     }
 }
 
-/// Sets the value of a sysctl.
-/// Fetches and returns the new value if successful, or a SysctlError
-/// on failure
-///
-/// # Example
-/// ```
-/// extern crate sysctl;
-/// # extern crate libc;
-///
-/// fn main() {
-/// #   if unsafe { libc::getuid() } == 0 {
-/// #   let old_value = sysctl::value("hw.usb.debug").unwrap();
-///     let new_value = sysctl::set_value("hw.usb.debug", sysctl::CtlValue::Int(1))
-///         .expect("could not set sysctl value");
-///     assert_eq!(new_value, sysctl::CtlValue::Int(1));
-/// #   // restore old value
-/// #   sysctl::set_value("hw.usb.debug", old_value);
-/// #   } // getuid() == 0
-/// }
-/// ```
 #[cfg(not(target_os = "macos"))]
 pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
     let oid = try!(name2oid(name));
     set_oid_value(&oid, value)
 }
 
-/// Sets the value of a sysctl.
-/// Fetches and returns the new value if successful, or a SysctlError
-/// on failure
-///
-/// # Example
-/// ```ignore
-/// extern crate sysctl;
-///
-/// fn main() {
-///     println!("{:?}", sysctl::set_value("hw.usb.debug", sysctl::CtlValue::Int(1)));
-/// }
-/// ```
 #[cfg(target_os = "macos")]
 pub fn set_value(name: &str, value: CtlValue) -> Result<CtlValue, SysctlError> {
     let mut oid = try!(name2oid(name));
     set_oid_value(&mut oid, value)
+}
+
+fn value_to_bytes(value: CtlValue) -> Result<Vec<u8>, SysctlError> {
+    // TODO rest of the types
+    match value {
+        CtlValue::String(v) => Ok(v.as_bytes().to_owned()),
+        CtlValue::Ulong(v) => {
+            let mut bytes = vec![];
+            bytes.write_u64::<byteorder::LittleEndian>(v)?;
+            Ok(bytes)
+        }
+        CtlValue::Uint(v) => {
+            let mut bytes = vec![];
+            bytes.write_u32::<byteorder::LittleEndian>(v)?;
+            Ok(bytes)
+        }
+        CtlValue::Int(v) => {
+            let mut bytes = vec![];
+            bytes.write_i32::<byteorder::LittleEndian>(v)?;
+            Ok(bytes)
+        }
+        CtlValue::U8(v) => {
+            let mut bytes = vec![];
+            bytes.write_u8(v)?;
+            Ok(bytes)
+        }
+        _ => Err(SysctlError::MissingImplementation),
+    }
 }
 
 #[cfg(not(target_os = "macos"))]
@@ -693,16 +503,7 @@ pub fn set_oid_value(oid: &Vec<libc::c_int>, value: CtlValue) -> Result<CtlValue
         ctl_type, info.ctl_type
     );
 
-    // TODO rest of the types
-    let bytes: Vec<u8> = match value {
-        CtlValue::Int(v) => {
-            let mut bytes = vec![];
-            bytes.write_i32::<byteorder::LittleEndian>(v)?;
-            Ok(bytes)
-        }
-        CtlValue::String(v) => Ok(v.as_bytes().to_owned()),
-        _ => Err(SysctlError::MissingImplementation),
-    }?;
+    let bytes = value_to_bytes(value)?;
 
     let ret = unsafe {
         libc::sysctl(
@@ -738,54 +539,25 @@ pub fn set_oid_value(oid: &mut Vec<libc::c_int>, value: CtlValue) -> Result<CtlV
         ctl_type, info.ctl_type
     );
 
-    // TODO rest of the types
+    let bytes = value_to_bytes(value)?;
 
-    if let CtlValue::Int(v) = value {
-        let mut bytes = vec![];
-        bytes
-            .write_i32::<byteorder::LittleEndian>(v)
-            .expect("Error parsing value to byte array");
-
-        // Set value
-        let ret = unsafe {
-            libc::sysctl(
-                oid.as_mut_ptr(),
-                oid.len() as u32,
-                std::ptr::null_mut(),
-                std::ptr::null_mut(),
-                bytes.as_ptr() as *mut libc::c_void,
-                bytes.len(),
-            )
-        };
-        if ret < 0 {
-            return Err(SysctlError::IoError(std::io::Error::last_os_error()));
-        }
+    // Set value
+    let ret = unsafe {
+        libc::sysctl(
+            oid.as_mut_ptr(),
+            oid.len() as u32,
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+            bytes.as_ptr() as *mut libc::c_void,
+            bytes.len(),
+        )
+    };
+    if ret < 0 {
+        return Err(SysctlError::IoError(std::io::Error::last_os_error()));
     }
 
     // Get the new value and return for confirmation
     self::value_oid(oid)
-}
-
-/// Returns a result containing the sysctl description if success,
-/// or a SysctlError on failure.
-///
-/// # Example
-/// ```
-/// extern crate sysctl;
-///
-/// fn main() {
-///     println!("Description: {:?}", sysctl::description("kern.osrevision"));
-/// }
-/// ```
-#[cfg(not(target_os = "macos"))]
-pub fn description(name: &str) -> Result<String, SysctlError> {
-    let oid: Vec<libc::c_int> = try!(name2oid(name));
-    oid2description(&oid)
-}
-
-#[cfg(target_os = "macos")]
-pub fn description(name: &str) -> Result<String, SysctlError> {
-    Ok("<Description not available on macOS>".to_string())
 }
 
 #[cfg(not(target_os = "macos"))]
@@ -817,37 +589,6 @@ pub fn oid2description(oid: &Vec<libc::c_int>) -> Result<String, SysctlError> {
         Err(e) => Err(SysctlError::Utf8Error(e)),
     }
 }
-//NOT WORKING ON MacOS
-// #[cfg(target_os = "macos")]
-// pub fn description(name: &str) -> Result<String, String> {
-
-//     let oid: Vec<libc::c_int> = try!(name2oid(name));
-
-//     // Request command for description
-//     let mut qoid: Vec<libc::c_int> = vec![0, 5];
-//     qoid.extend(oid);
-
-//     // Store results in u8 array
-//     let mut buf: [libc::c_uchar; libc::BUFSIZ as usize] = [0; libc::BUFSIZ as usize];
-//     let mut buf_len = std::mem::size_of_val(&buf);
-//     let ret = unsafe {
-//         libc::sysctl(qoid.as_mut_ptr(),
-//                qoid.len() as u32,
-//                buf.as_mut_ptr() as *mut libc::c_void,
-//                &mut buf_len,
-//                std::ptr::null_mut(),
-//                0)
-//     };
-//     if ret != 0 {
-//         return Err(errno_string());
-//     }
-
-//     // Use buf_len - 1 so that we remove the trailing NULL
-//     match std::str::from_utf8(&buf[..buf_len - 1]) {
-//         Ok(s) => Ok(s.to_owned()),
-//         Err(e) => Err(format!("{}", e)),
-//     }
-// }
 
 #[cfg(not(target_os = "macos"))]
 pub fn oid2name(oid: &Vec<libc::c_int>) -> Result<String, SysctlError> {
@@ -909,7 +650,6 @@ pub fn oid2name(oid: &Vec<libc::c_int>) -> Result<String, SysctlError> {
     }
 }
 
-/// Get the next OID.
 #[cfg(not(target_os = "macos"))]
 pub fn next_oid(oid: &Vec<libc::c_int>) -> Result<Option<Vec<libc::c_int>>, SysctlError> {
     // Request command for next oid
@@ -949,7 +689,6 @@ pub fn next_oid(oid: &Vec<libc::c_int>) -> Result<Option<Vec<libc::c_int>>, Sysc
     Ok(Some(res))
 }
 
-/// Get the next OID.
 #[cfg(target_os = "macos")]
 pub fn next_oid(oid: &Vec<libc::c_int>) -> Result<Option<Vec<libc::c_int>>, SysctlError> {
     // Request command for next oid
@@ -987,4 +726,78 @@ pub fn next_oid(oid: &Vec<libc::c_int>) -> Result<Option<Vec<libc::c_int>>, Sysc
     res.truncate(len);
 
     Ok(Some(res))
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::Sysctl;
+
+    #[test]
+    fn ctl_name() {
+        let oid = vec![libc::CTL_KERN, libc::KERN_OSREV];
+        let name = super::oid2name(&oid).expect("Could not get name of kern.osrevision sysctl.");
+
+        assert_eq!(name, "kern.osrevision");
+
+        let ctl = crate::Ctl { oid };
+        let name = ctl
+            .name()
+            .expect("Could not get name of kern.osrevision sysctl.");
+        assert_eq!(name, "kern.osrevision");
+    }
+
+    #[test]
+    fn ctl_type() {
+        let oid = super::name2oid("kern").unwrap();
+        let fmt = super::oidfmt(&oid).unwrap();
+        assert_eq!(fmt.ctl_type, crate::CtlType::Node);
+        let kern = crate::Ctl::new("kern").expect("Could not get kern node");
+        let value_type = kern.value_type().expect("Could not get kern value type");
+        assert_eq!(value_type, crate::CtlType::Node);
+
+        let oid = super::name2oid("kern.osrelease").unwrap();
+        let fmt = super::oidfmt(&oid).unwrap();
+        assert_eq!(fmt.ctl_type, crate::CtlType::String);
+        let osrelease =
+            crate::Ctl::new("kern.osrelease").expect("Could not get kern.osrelease sysctl");
+        let value_type = osrelease
+            .value_type()
+            .expect("Could not get kern.osrelease value type");
+        assert_eq!(value_type, crate::CtlType::String);
+
+        let oid = super::name2oid("kern.osrevision").unwrap();
+        let fmt = super::oidfmt(&oid).unwrap();
+        assert_eq!(fmt.ctl_type, crate::CtlType::Int);
+        let osrevision =
+            crate::Ctl::new("kern.osrevision").expect("Could not get kern.osrevision sysctl");
+        let value_type = osrevision
+            .value_type()
+            .expect("Could notget kern.osrevision value type");
+        assert_eq!(value_type, crate::CtlType::Int);
+    }
+
+}
+
+#[cfg(all(test, target_os = "freebsd"))]
+mod tests_freebsd {
+    #[test]
+    fn ctl_mib() {
+        let oid = super::name2oid("kern.proc.pid").unwrap();
+        assert_eq!(oid.len(), 3);
+        assert_eq!(oid[0], libc::CTL_KERN);
+        assert_eq!(oid[1], libc::KERN_PROC);
+        assert_eq!(oid[2], libc::KERN_PROC_PID);
+    }
+}
+
+#[cfg(all(test, target_os = "macos"))]
+mod tests_macos {
+    #[test]
+    fn ctl_mib() {
+        let oid = super::name2oid("kern.proc.pid").unwrap();
+        assert_eq!(oid.len(), 3);
+        assert_eq!(oid[0], libc::CTL_KERN);
+        assert_eq!(oid[1], libc::KERN_PROC);
+        assert_eq!(oid[2], libc::KERN_PROC_PID);
+    }
 }

@@ -1,12 +1,7 @@
 // linux/ctl_iter.rs
 
 use super::ctl::Ctl;
-use consts::*;
 use ctl_error::SysctlError;
-use ctl_info::CtlInfo;
-use ctl_type::CtlType;
-use ctl_value::CtlValue;
-use std::str::FromStr;
 use traits::Sysctl;
 
 /// An iterator over Sysctl entries.
@@ -20,9 +15,11 @@ impl CtlIter {
     /// Return an iterator over the complete sysctl tree.
     pub fn root() -> Self {
         let entries: Vec<walkdir::DirEntry> = walkdir::WalkDir::new("/proc/sys")
+            .sort_by(|a, b| a.path().cmp(b.path()))
             .follow_links(false)
             .into_iter()
             .filter_map(|e| e.ok())
+            .filter(|e| e.file_type().is_file())
             .collect();
         CtlIter {
             direntries: entries,
@@ -35,9 +32,11 @@ impl CtlIter {
     pub fn below(node: Ctl) -> Self {
         let root = node.path();
         let entries: Vec<walkdir::DirEntry> = walkdir::WalkDir::new(&root)
+            .sort_by(|a, b| a.path().cmp(b.path()))
             .follow_links(false)
             .into_iter()
             .filter_map(|e| e.ok())
+            .filter(|e| e.file_type().is_file())
             .collect();
         CtlIter {
             direntries: entries,
@@ -51,12 +50,12 @@ impl Iterator for CtlIter {
     type Item = Result<Ctl, SysctlError>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.cur_idx += 1;
         if self.cur_idx >= self.direntries.len() {
             return None;
         }
 
         let e: &walkdir::DirEntry = &self.direntries[self.cur_idx];
+        self.cur_idx += 1;
 
         // We continue iterating as long as the oid starts with the base
         if let Some(path) = e.path().to_str() {
@@ -77,13 +76,12 @@ impl Iterator for CtlIter {
 /// # Example
 ///
 /// ```
-/// extern crate sysctl;
-/// use sysctl::Ctl;
-///
-/// let kern = Ctl::new("kern");
+/// # extern crate sysctl;
+/// # use sysctl::Sysctl;
+/// #
+/// let kern = sysctl::Ctl::new("kernel");
 /// for ctl in kern {
-///     let name = ctl.name().expect("could not get name");
-///     println!("{}", name);
+///     println!("{}", ctl.name().unwrap());
 /// }
 /// ```
 impl IntoIterator for Ctl {
@@ -92,5 +90,58 @@ impl IntoIterator for Ctl {
 
     fn into_iter(self: Self) -> Self::IntoIter {
         CtlIter::below(self)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::Sysctl;
+
+    #[test]
+    fn ctl_iter_iterate_all() {
+        let root = crate::CtlIter::root();
+        let all_ctls: Vec<super::Ctl> = root.into_iter().filter_map(Result::ok).collect();
+        assert_ne!(all_ctls.len(), 0);
+        for ctl in &all_ctls {
+            println!("{:?}", ctl.name());
+        }
+    }
+
+    #[test]
+    fn ctl_iter_below_compare_outputs() {
+        let output = std::process::Command::new("sysctl")
+            .arg("user")
+            .output()
+            .expect("failed to execute process");
+        let expected = String::from_utf8_lossy(&output.stdout);
+
+        let node = crate::Ctl::new("user").expect("could not get node");
+        let ctls = crate::CtlIter::below(node);
+        let mut actual: Vec<String> = vec![];
+
+        for ctl in ctls {
+            let ctl = match ctl {
+                Err(_) => panic!("ctl error"),
+                Ok(s) => s,
+            };
+
+            let name = match ctl.name() {
+                Ok(s) => s,
+                Err(_) => panic!("get ctl name"),
+            };
+
+            match ctl.value_type().expect("could not get value type") {
+                crate::CtlType::String => {
+                    actual.push(format!(
+                        "{} = {}",
+                        name,
+                        ctl.value_string()
+                            .expect(&format!("could not get value as string for {}", name))
+                    ));
+                }
+                _ => panic!("sysctl not string type"),
+            };
+        }
+        assert_eq!(actual.join("\n").trim(), expected.trim());
     }
 }

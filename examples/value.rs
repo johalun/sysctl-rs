@@ -1,3 +1,6 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
+
 extern crate sysctl;
 
 // Import the trait
@@ -12,10 +15,10 @@ const CTLNAMES: &[&str] = &["kernel.ostype", "kernel/ostype", "/proc/sys/kernel/
 fn print_ctl(ctlname: &str) -> Result<(), sysctl::SysctlError> {
     println!("Reading '{}'", ctlname);
     let ctl = try!(sysctl::Ctl::new(ctlname));
-    let description = try!(ctl.description());
-    println!("Description: {}", description);
-    let val_enum = try!(ctl.value());
-    println!("Value: {}", val_enum);
+    let desc = try!(ctl.description());
+    println!("Description: {}", desc);
+    let val = try!(ctl.value());
+    println!("Value: {}", val);
     Ok(())
 }
 

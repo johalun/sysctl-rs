@@ -62,3 +62,121 @@ impl std::fmt::Display for CtlValue {
         write!(f, "{}", s)
     }
 }
+
+#[cfg(all(test, any(target_os = "linux", target_os = "android")))]
+mod tests_linux {
+    use crate::sys;
+    use crate::Sysctl;
+
+    #[test]
+    fn ctl_value_string() {
+        let output = std::process::Command::new("sysctl")
+            .arg("-n")
+            .arg("kernel.version")
+            .output()
+            .expect("failed to execute process");
+        let ver = String::from_utf8_lossy(&output.stdout);
+        let s = match sys::funcs::value("/proc/sys/kernel/version") {
+            Ok(crate::CtlValue::String(s)) => s,
+            _ => panic!("crate::value() returned Error"),
+        };
+        assert_eq!(s.trim(), ver.trim());
+
+        let kernversion = crate::Ctl::new("kernel.version").unwrap();
+        let s = match kernversion.value() {
+            Ok(crate::CtlValue::String(s)) => s,
+            _ => "...".into(),
+        };
+        assert_eq!(s.trim(), ver.trim());
+    }
+}
+
+#[cfg(all(test, any(target_os = "freebsd", target_os = "macos")))]
+mod tests_unix {
+    use crate::sys;
+    use crate::Sysctl;
+
+    #[test]
+    fn ctl_value_string() {
+        let output = std::process::Command::new("sysctl")
+            .arg("-n")
+            .arg("kern.version")
+            .output()
+            .expect("failed to execute process");
+        let ver = String::from_utf8_lossy(&output.stdout);
+        let s = match sys::funcs::value("kern.version") {
+            Ok(crate::CtlValue::String(s)) => s,
+            _ => "...".into(),
+        };
+        assert_eq!(s.trim(), ver.trim());
+
+        let kernversion = crate::Ctl::new("kern.version").unwrap();
+        let s = match kernversion.value() {
+            Ok(crate::CtlValue::String(s)) => s,
+            _ => "...".into(),
+        };
+        assert_eq!(s.trim(), ver.trim());
+    }
+
+    #[test]
+    fn ctl_value_int() {
+        let output = std::process::Command::new("sysctl")
+            .arg("-n")
+            .arg("kern.osrevision")
+            .output()
+            .expect("failed to execute process");
+        let rev_str = String::from_utf8_lossy(&output.stdout);
+        let rev = rev_str.trim().parse::<i32>().unwrap();
+        let n = match sys::funcs::value("kern.osrevision") {
+            Ok(crate::CtlValue::Int(n)) => n,
+            Ok(_) => 0,
+            Err(_) => 0,
+        };
+        assert_eq!(n, rev);
+
+        let ctl =
+            crate::Ctl::new("kern.osrevision").expect("Could not get kern.osrevision sysctl.");
+        let n = match ctl.value() {
+            Ok(crate::CtlValue::Int(n)) => n,
+            Ok(_) => 0,
+            Err(_) => 0,
+        };
+        assert_eq!(n, rev);
+    }
+
+    #[test]
+    fn ctl_value_oid_int() {
+        let output = std::process::Command::new("sysctl")
+            .arg("-n")
+            .arg("kern.osrevision")
+            .output()
+            .expect("failed to execute process");
+        let rev_str = String::from_utf8_lossy(&output.stdout);
+        let rev = rev_str.trim().parse::<i32>().unwrap();
+        let n = match sys::funcs::value_oid(&mut vec![libc::CTL_KERN, libc::KERN_OSREV]) {
+            Ok(crate::CtlValue::Int(n)) => n,
+            Ok(_) => 0,
+            Err(_) => 0,
+        };
+        assert_eq!(n, rev);
+    }
+
+    #[test]
+    fn ctl_struct_type() {
+        let info = crate::CtlInfo {
+            ctl_type: crate::CtlType::Int,
+            fmt: "S,TYPE".into(),
+            flags: 0,
+        };
+
+        assert_eq!(info.struct_type(), Some("TYPE".into()));
+
+        let info = crate::CtlInfo {
+            ctl_type: crate::CtlType::Int,
+            fmt: "I".into(),
+            flags: 0,
+        };
+        assert_eq!(info.struct_type(), None);
+    }
+
+}

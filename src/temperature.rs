@@ -12,24 +12,16 @@ use std::f32;
 ///
 /// # Example
 /// ```
-/// extern crate sysctl;
-/// #[cfg(not(target_os = "macos"))]
-/// fn main() {
-/// #   let ctl = match sysctl::Ctl::new("dev.cpu.0.temperature") {
-/// #       Ok(c) => c,
-/// #       Err(e) => {
-/// #           println!("Couldn't get dev.cpu.0.temperature: {}", e);
-/// #           return;
-/// #       }
-/// #   };
-///     if let Ok(sysctl::CtlValue::Temperature(val)) = ctl.value() {
-///         println!("Temperature: {:.2}K, {:.2}F, {:.2}C",
-///                  val.kelvin(),
-///                  val.fahrenheit(),
-///                  val.celsius());
-///     } else {
-///         panic!("Error, not a temperature ctl!")
-///     }
+/// # extern crate sysctl;
+/// # use sysctl::Sysctl;
+/// let ctl = sysctl::Ctl::new("dev.cpu.0.temperature").unwrap();
+/// if let Ok(sysctl::CtlValue::Temperature(val)) = ctl.value() {
+///     println!("Temperature: {:.2}K, {:.2}F, {:.2}C",
+///               val.kelvin(),
+///               val.fahrenheit(),
+///               val.celsius());
+/// } else {
+///     panic!("Error, not a temperature ctl!")
 /// }
 /// ```
 /// Not available on MacOS
@@ -81,4 +73,52 @@ pub fn temperature(info: &CtlInfo, val: &Vec<u8>) -> Result<CtlValue, SysctlErro
         CtlType::U32 => make_temp(byteorder::LittleEndian::read_u32(&val) as f32),
         _ => Err(SysctlError::UnknownType),
     }
+}
+
+#[cfg(all(test, target_os = "freebsd"))]
+mod tests_freebsd {
+    use byteorder::WriteBytesExt;
+
+    #[test]
+    fn ctl_temperature_ik() {
+        let info = crate::CtlInfo {
+            ctl_type: crate::CtlType::Int,
+            fmt: "IK".into(),
+            flags: 0,
+        };
+        let mut val = vec![];
+        // Default value (IK) in deciKelvin integer
+        val.write_i32::<byteorder::LittleEndian>(3330)
+            .expect("Error parsing value to byte array");
+
+        let t = super::temperature(&info, &val).unwrap();
+        if let crate::CtlValue::Temperature(tt) = t {
+            assert!(tt.kelvin() - 333.0 < 0.1);
+            assert!(tt.celsius() - 59.85 < 0.1);
+            assert!(tt.fahrenheit() - 139.73 < 0.1);
+        } else {
+            assert!(false);
+        }
+    }
+
+    #[test]
+    fn ctl_temperature_ik3() {
+        let info = crate::CtlInfo {
+            ctl_type: crate::CtlType::Int,
+            fmt: "IK3".into(),
+            flags: 0,
+        };
+        let mut val = vec![];
+        // Set value in milliKelvin
+        val.write_i32::<byteorder::LittleEndian>(333000)
+            .expect("Error parsing value to byte array");
+
+        let t = super::temperature(&info, &val).unwrap();
+        if let crate::CtlValue::Temperature(tt) = t {
+            assert!(tt.kelvin() - 333.0 < 0.1);
+        } else {
+            assert!(false);
+        }
+    }
+
 }
