@@ -109,6 +109,8 @@ mod tests {
 
     #[test]
     fn ctl_iter_below_compare_outputs() {
+        // NOTE: Some linux distributions require Root permissions
+        //        e.g Debian.
         let output = std::process::Command::new("sysctl")
             .arg("user")
             .output()
