@@ -12,9 +12,9 @@ Documentation is available here: https://johalun.github.io/sysctl-rs/
 
 or, to generate documentation locally do:
 ```sh
-$ git clone https://github.com/johalun/sysctl-rs && cd sysctl-rs
-$ cargo doc --no-deps
-$ firefox target/doc/sysctl/index.html
+git clone https://github.com/johalun/sysctl-rs && cd sysctl-rs
+cargo doc --no-deps
+firefox target/doc/sysctl/index.html
 ```
 
 ### Usage
