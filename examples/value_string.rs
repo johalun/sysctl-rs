@@ -15,10 +15,10 @@ const CTLNAMES: &[&str] = &["kernel.overflowuid"];
 
 fn print_ctl(ctlname: &str) -> Result<(), sysctl::SysctlError> {
     println!("Reading '{}'", ctlname);
-    let ctl = try!(sysctl::Ctl::new(ctlname));
-    let description = try!(ctl.description());
+    let ctl = sysctl::Ctl::new(ctlname)?;
+    let description = ctl.description()?;
     println!("Description: {}", description);
-    let val_string = try!(ctl.value_string());
+    let val_string = ctl.value_string()?;
     println!("Value: {}", val_string);
     Ok(())
 }

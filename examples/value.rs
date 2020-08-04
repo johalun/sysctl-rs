@@ -14,10 +14,10 @@ const CTLNAMES: &[&str] = &["kernel.ostype", "kernel/ostype", "/proc/sys/kernel/
 
 fn print_ctl(ctlname: &str) -> Result<(), sysctl::SysctlError> {
     println!("Reading '{}'", ctlname);
-    let ctl = try!(sysctl::Ctl::new(ctlname));
-    let desc = try!(ctl.description());
+    let ctl = sysctl::Ctl::new(ctlname)?;
+    let desc = ctl.description()?;
     println!("Description: {}", desc);
-    let val = try!(ctl.value());
+    let val = ctl.value()?;
     println!("Value: {}", val);
     Ok(())
 }

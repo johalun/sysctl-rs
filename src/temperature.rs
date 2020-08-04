@@ -120,5 +120,4 @@ mod tests_freebsd {
             assert!(false);
         }
     }
-
 }
