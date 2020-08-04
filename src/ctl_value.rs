@@ -21,7 +21,7 @@ pub enum CtlValue {
     Node(Vec<u8>),
     Int(i32),
     String(String),
-    S64(u64),
+    S64(i64),
     Struct(Vec<u8>),
     Uint(u32),
     Long(i64),
