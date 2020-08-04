@@ -88,7 +88,7 @@ impl Sysctl for Ctl {
 
     #[cfg(not(target_os = "macos"))]
     fn set_value_string(&self, value: &str) -> Result<String, SysctlError> {
-        let ctl_type = try!(self.value_type());
+        let ctl_type = self.value_type()?;
         println!("type {:?}", ctl_type);
         let _ = match ctl_type {
             CtlType::String => set_oid_value(&self.oid, CtlValue::String(value.to_owned())),
@@ -115,7 +115,7 @@ impl Sysctl for Ctl {
 
     #[cfg(target_os = "macos")]
     fn set_value_string(&self, value: &str) -> Result<String, SysctlError> {
-        let ctl_type = try!(self.value_type());
+        let ctl_type = self.value_type()?;
         let mut oid = self.oid.clone();
         let _ = match ctl_type {
             CtlType::String => set_oid_value(&mut oid, CtlValue::String(value.to_owned())),

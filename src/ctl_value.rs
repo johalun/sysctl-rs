@@ -173,5 +173,4 @@ mod tests_unix {
         };
         assert_eq!(info.struct_type(), None);
     }
-
 }

@@ -173,7 +173,7 @@ pub fn oidfmt(oid: &[libc::c_int]) -> Result<CtlInfo, SysctlError> {
 
 #[cfg(not(target_os = "macos"))]
 pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
-    let info: CtlInfo = try!(oidfmt(&oid));
+    let info: CtlInfo = oidfmt(&oid)?;
 
     // Check if the value is readable
     if !(info.flags & CTLFLAG_RD == CTLFLAG_RD) {
@@ -262,7 +262,7 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
 
 #[cfg(target_os = "macos")]
 pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
-    let info: CtlInfo = try!(oidfmt(&oid));
+    let info: CtlInfo = oidfmt(&oid)?;
 
     // Check if the value is readable
     if !(info.flags & CTLFLAG_RD == CTLFLAG_RD) {
@@ -345,7 +345,7 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
 
 #[cfg(not(target_os = "macos"))]
 pub fn value_oid_as<T>(oid: &Vec<i32>) -> Result<Box<T>, SysctlError> {
-    let val_enum = try!(value_oid(oid));
+    let val_enum = value_oid(oid)?;
 
     // Some structs are apparently reported as Node so this check is invalid..
     // let ctl_type = CtlType::from(&val_enum);
@@ -389,7 +389,7 @@ pub fn value_oid_as<T>(oid: &Vec<i32>) -> Result<Box<T>, SysctlError> {
 
 #[cfg(target_os = "macos")]
 pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
-    let val_enum = try!(value_oid(oid));
+    let val_enum = value_oid(oid)?;
 
     // Some structs are apparently reported as Node so this check is invalid..
     // let ctl_type = CtlType::from(&val_enum);
@@ -461,7 +461,7 @@ fn value_to_bytes(value: CtlValue) -> Result<Vec<u8>, SysctlError> {
 
 #[cfg(not(target_os = "macos"))]
 pub fn set_oid_value(oid: &Vec<libc::c_int>, value: CtlValue) -> Result<CtlValue, SysctlError> {
-    let info: CtlInfo = try!(oidfmt(&oid));
+    let info: CtlInfo = oidfmt(&oid)?;
 
     // Check if the value is writeable
     if !(info.flags & CTLFLAG_WR == CTLFLAG_WR) {
@@ -497,7 +497,7 @@ pub fn set_oid_value(oid: &Vec<libc::c_int>, value: CtlValue) -> Result<CtlValue
 
 #[cfg(target_os = "macos")]
 pub fn set_oid_value(oid: &mut Vec<libc::c_int>, value: CtlValue) -> Result<CtlValue, SysctlError> {
-    let info: CtlInfo = try!(oidfmt(&oid));
+    let info: CtlInfo = oidfmt(&oid)?;
 
     // Check if the value is writeable
     if !(info.flags & CTLFLAG_WR == CTLFLAG_WR) {
@@ -747,7 +747,6 @@ mod tests {
             .expect("Could notget kern.osrevision value type");
         assert_eq!(value_type, crate::CtlType::Int);
     }
-
 }
 
 #[cfg(all(test, target_os = "freebsd"))]
