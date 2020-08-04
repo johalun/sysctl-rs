@@ -244,7 +244,7 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
                 .map_err(|e| SysctlError::Utf8Error(e))
                 .map(|s| CtlValue::String(s.into())),
         },
-        CtlType::S64 => Ok(CtlValue::S64(byteorder::LittleEndian::read_u64(&val))),
+        CtlType::S64 => Ok(CtlValue::S64(byteorder::LittleEndian::read_i64(&val))),
         CtlType::Struct => Ok(CtlValue::Struct(val)),
         CtlType::Uint => Ok(CtlValue::Uint(byteorder::LittleEndian::read_u32(&val))),
         CtlType::Long => Ok(CtlValue::Long(byteorder::LittleEndian::read_i64(&val))),
@@ -326,7 +326,7 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
             Ok(s) => Ok(CtlValue::String(s.into())),
             Err(e) => Err(SysctlError::Utf8Error(e)),
         },
-        CtlType::S64 => Ok(CtlValue::S64(byteorder::LittleEndian::read_u64(&val))),
+        CtlType::S64 => Ok(CtlValue::S64(byteorder::LittleEndian::read_i64(&val))),
         CtlType::Struct => Ok(CtlValue::Struct(val)),
         CtlType::Uint => Ok(CtlValue::Uint(byteorder::LittleEndian::read_u32(&val))),
         CtlType::Long => Ok(CtlValue::Long(byteorder::LittleEndian::read_i64(&val))),

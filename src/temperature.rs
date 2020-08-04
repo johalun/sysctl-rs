@@ -60,7 +60,7 @@ pub fn temperature(info: &CtlInfo, val: &Vec<u8>) -> Result<CtlValue, SysctlErro
 
     match info.ctl_type {
         CtlType::Int => make_temp(byteorder::LittleEndian::read_i32(&val) as f32),
-        CtlType::S64 => make_temp(byteorder::LittleEndian::read_u64(&val) as f32),
+        CtlType::S64 => make_temp(byteorder::LittleEndian::read_i64(&val) as f32),
         CtlType::Uint => make_temp(byteorder::LittleEndian::read_u32(&val) as f32),
         CtlType::Long => make_temp(byteorder::LittleEndian::read_i64(&val) as f32),
         CtlType::Ulong => make_temp(byteorder::LittleEndian::read_u64(&val) as f32),
