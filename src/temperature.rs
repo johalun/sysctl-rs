@@ -12,16 +12,16 @@ use std::f32;
 ///
 /// # Example
 /// ```
-/// # extern crate sysctl;
 /// # use sysctl::Sysctl;
-/// let ctl = sysctl::Ctl::new("dev.cpu.0.temperature").unwrap();
-/// if let Ok(sysctl::CtlValue::Temperature(val)) = ctl.value() {
-///     println!("Temperature: {:.2}K, {:.2}F, {:.2}C",
-///               val.kelvin(),
-///               val.fahrenheit(),
-///               val.celsius());
-/// } else {
-///     panic!("Error, not a temperature ctl!")
+/// if let Ok(ctl) = sysctl::Ctl::new("dev.cpu.0.temperature") {
+///     if let Ok(sysctl::CtlValue::Temperature(val)) = ctl.value() {
+///         println!("Temperature: {:.2}K, {:.2}F, {:.2}C",
+///                   val.kelvin(),
+///                   val.fahrenheit(),
+///                   val.celsius());
+///     } else {
+///         panic!("Error, not a temperature ctl!")
+///     }
 /// }
 /// ```
 /// Not available on MacOS

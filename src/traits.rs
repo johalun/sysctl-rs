@@ -14,7 +14,6 @@ pub trait Sysctl {
     ///
     /// # Example
     /// ```
-    /// # extern crate sysctl;
     /// # use sysctl::Sysctl;
     /// #
     /// let ctl = sysctl::Ctl::new("kern.ostype");
@@ -22,7 +21,6 @@ pub trait Sysctl {
     ///
     /// If the sysctl does not exist, `Err(SysctlError::NotFound)` is returned.
     /// ```
-    /// # extern crate sysctl;
     /// # use sysctl::Sysctl;
     /// #
     /// let ctl = sysctl::Ctl::new("this.sysctl.does.not.exist");
@@ -40,12 +38,11 @@ pub trait Sysctl {
     /// SysctlError on failure.
     ///
     /// # Example
-    /// ```ignore
-    /// # extern crate sysctl;
+    /// ```
     /// # use sysctl::Sysctl;
-    /// #
-    /// let ctl = sysctl::Ctl::new("kern.ostype").unwrap();
-    /// assert_eq!(ctl.name().unwrap(), "kern.ostype");
+    /// if let Ok(ctl) = sysctl::Ctl::new("kern.ostype") {
+    ///     assert_eq!(ctl.name().unwrap(), "kern.ostype");
+    /// }
     /// ```
     fn name(&self) -> Result<String, SysctlError>;
 
@@ -54,13 +51,12 @@ pub trait Sysctl {
     ///
     /// # Example
     ///
-    /// ```ignore
-    /// # extern crate sysctl;
+    /// ```
     /// # use sysctl::Sysctl;
-    /// #
-    /// let ctl = sysctl::Ctl::new("kern.ostype").unwrap();
-    /// let value_type = ctl.value_type().unwrap();
-    /// assert_eq!(value_type, sysctl::CtlType::String);
+    /// if let Ok(ctl) = sysctl::Ctl::new("kern.ostype") {
+    ///     let value_type = ctl.value_type().unwrap();
+    ///     assert_eq!(value_type, sysctl::CtlType::String);
+    /// }
     /// ```
     fn value_type(&self) -> Result<CtlType, SysctlError>;
 
@@ -68,12 +64,11 @@ pub trait Sysctl {
     /// Error on failure.
     ///
     /// # Example
-    /// ```ignore
-    /// # extern crate sysctl;
+    /// ```
     /// # use sysctl::Sysctl;
-    /// #
-    /// let ctl = sysctl::Ctl::new("kern.ostype").unwrap();
-    /// println!("Description: {:?}", ctl.description())
+    /// if let Ok(ctl) = sysctl::Ctl::new("kern.ostype") {
+    ///     println!("Description: {:?}", ctl.description())
+    /// }
     /// ```
     fn description(&self) -> Result<String, SysctlError>;
 
@@ -81,12 +76,11 @@ pub trait Sysctl {
     /// SysctlError on failure.
     ///
     /// # Example
-    /// ```ignore
-    /// # extern crate sysctl;
-    /// # extern crate libc;
-    /// #
-    /// let ctl = sysctl::Ctl::new("kern.ostype").unwrap();
-    /// println!("Value: {:?}", ctl.value());
+    /// ```
+    /// # use sysctl::Sysctl;
+    /// if let Ok(ctl) = sysctl::Ctl::new("kern.ostype") {
+    ///     println!("Value: {:?}", ctl.value());
+    /// }
     /// ```
     fn value(&self) -> Result<CtlValue, SysctlError>;
 
@@ -95,11 +89,8 @@ pub trait Sysctl {
     ///
     /// May only be called for sysctls of type Opaque or Struct.
     /// # Example
-    /// ```ignore
-    /// # extern crate sysctl;
-    /// # extern crate libc;
+    /// ```
     /// # use sysctl::Sysctl;
-    /// #
     /// #[derive(Debug)]
     /// #[repr(C)]
     /// struct ClockInfo {
@@ -110,8 +101,9 @@ pub trait Sysctl {
     ///     profhz: libc::c_int, /* profiling clock frequency */
     /// }
     ///
-    /// let ctl = sysctl::Ctl::new("kern.clockrate").unwrap();
-    /// println!("{:?}", ctl.value_as::<ClockInfo>());
+    /// if let Ok(ctl) = sysctl::Ctl::new("kern.clockrate") {
+    ///     println!("{:?}", ctl.value_as::<ClockInfo>());
+    /// }
     /// ```
     fn value_as<T>(&self) -> Result<Box<T>, SysctlError>;
 
@@ -119,12 +111,11 @@ pub trait Sysctl {
     /// success, or a SysctlError on failure.
     ///
     /// # Example
-    /// ```ignore
-    /// # extern crate sysctl;
-    /// # extern crate libc;
-    /// #
-    /// let ctl = sysctl::Ctl::new("kern.osrevision").unwrap();
-    /// println!("Value: {}", ctl.value_string());
+    /// ```
+    /// # use sysctl::Sysctl;
+    /// if let Ok(ctl) = sysctl::Ctl::new("kern.osrevision") {
+    ///     println!("Value: {:?}", ctl.value_string());
+    /// }
     /// ```
     fn value_string(&self) -> Result<String, SysctlError>;
 
@@ -132,18 +123,17 @@ pub trait Sysctl {
     /// Fetches and returns the new value if successful, or returns a
     /// SysctlError on failure.
     /// # Example
-    /// ```ignore
-    /// extern crate sysctl;
-    /// extern crate libc;
+    /// ```
     /// use sysctl::Sysctl;
     ///
     /// fn main() {
     ///     if unsafe { libc::getuid() } == 0 {
-    ///         let ctl = sysctl::Ctl::new("hw.usb.debug").unwrap();
-    ///         let org = ctl.value().unwrap();
-    ///         let set = ctl.set_value(sysctl::CtlValue::Int(1)).unwrap();
-    ///         assert_eq!(set, sysctl::CtlValue::Int(1));
-    ///         ctl.set_value(original).unwrap();
+    ///         if let Ok(ctl) = sysctl::Ctl::new("hw.usb.debug") {
+    ///             let org = ctl.value().unwrap();
+    ///             let set = ctl.set_value(sysctl::CtlValue::Int(1)).unwrap();
+    ///             assert_eq!(set, sysctl::CtlValue::Int(1));
+    ///             ctl.set_value(org).unwrap();
+    ///         }
     ///     }
     /// }
     fn set_value(&self, value: CtlValue) -> Result<CtlValue, SysctlError>;
@@ -152,16 +142,18 @@ pub trait Sysctl {
     /// Fetches and returns the new value if successful, or returns a
     /// SysctlError on failure.
     /// # Example
-    /// ```ignore
-    /// extern crate sysctl;
+    /// ```
     /// use sysctl::Sysctl;
     ///
     /// fn main() {
-    ///     let ctl = sysctl::Ctl::new("hw.usb.debug").unwrap();
-    ///     let org = ctl.value_string().unwrap();
-    ///     let set = ctl.set_value_string("1");
-    ///     println!("hw.usb.debug: -> {:?}", set);
-    ///     ctl.set_value_string(&org).unwrap();
+    ///     if unsafe { libc::getuid() } == 0 {
+    ///         if let Ok(ctl) = sysctl::Ctl::new("hw.usb.debug") {
+    ///             let org = ctl.value_string().unwrap();
+    ///             let set = ctl.set_value_string("1");
+    ///             println!("hw.usb.debug: -> {:?}", set);
+    ///             ctl.set_value_string(&org).unwrap();
+    ///         }
+    ///     }
     /// }
     fn set_value_string(&self, value: &str) -> Result<String, SysctlError>;
 
@@ -171,13 +163,12 @@ pub trait Sysctl {
     /// or a SysctlError on failure.
     ///
     /// # Example
-    /// ```ignore
-    /// # extern crate sysctl;
+    /// ```
     /// # use sysctl::Sysctl;
-    /// #
-    /// let ctl = sysctl::Ctl::new("kern.ostype").unwrap();
-    /// let readable = ctl.flags().unwrap().contains(sysctl::CtlFlags::RD);
-    /// assert!(readable);
+    /// if let Ok(ctl) = sysctl::Ctl::new("kern.ostype") {
+    ///     let readable = ctl.flags().unwrap().contains(sysctl::CtlFlags::RD);
+    ///     assert!(readable);
+    /// }
     /// ```
     fn flags(&self) -> Result<CtlFlags, SysctlError>;
 
@@ -187,16 +178,16 @@ pub trait Sysctl {
     /// or a SysctlError on failure.
     ///
     /// # Example
-    /// ```ignore
-    /// extern crate sysctl;
+    /// ```
     /// use sysctl::Sysctl;
     ///
     /// fn main() {
-    ///     let ctl = Ctl::new("kern.osrevision").unwrap();
-    ///     let info = ctl.info().unwrap();
+    ///     if let Ok(ctl) = sysctl::Ctl::new("kern.osrevision") {
+    ///         let info = ctl.info().unwrap();
     ///
-    ///     // kern.osrevision is not a structure.
-    ///     assert_eq!(info.struct_type(), None);
+    ///         // kern.osrevision is not a structure.
+    ///         assert_eq!(info.struct_type(), None);
+    ///     }
     /// }
     /// ```
     fn info(&self) -> Result<CtlInfo, SysctlError>;

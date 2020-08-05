@@ -4,7 +4,6 @@
 //!
 //! # Example: Get value
 //! ```
-//! # extern crate sysctl;
 //! # use sysctl::Sysctl;
 //! #[cfg(any(target_os = "macos", target_os = "freebsd"))]
 //! const CTLNAME: &str = "kern.ostype";
@@ -25,8 +24,6 @@
 //! # Example: Get value as struct
 //! ```
 //! // Not available on Linux
-//! # extern crate sysctl;
-//! # extern crate libc;
 //! # use sysctl::Sysctl;
 //! #[derive(Debug, Default)]
 //! #[repr(C)]
