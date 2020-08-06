@@ -8,11 +8,12 @@ use temperature::Temperature;
 ///
 /// # Example
 ///
-/// ```ignore
-/// let val_enum = sysctl::value("kern.osrevision");
-///
-/// if let sysctl::CtlValue::Int(val) = val_enum {
-///     println!("Value: {}", val);
+/// ```
+/// # use sysctl::Sysctl;
+/// if let Ok(ctl) = sysctl::Ctl::new("kern.osrevision") {
+///     if let Ok(sysctl::CtlValue::Int(val)) = ctl.value() {
+///         println!("Value: {}", val);
+///     }
 /// }
 /// ```
 #[derive(Debug, PartialEq, PartialOrd)]

@@ -76,7 +76,6 @@ impl Iterator for CtlIter {
 /// # Example
 ///
 /// ```
-/// # extern crate sysctl;
 /// # use sysctl::Sysctl;
 /// #
 /// let kern = sysctl::Ctl::new("kernel");

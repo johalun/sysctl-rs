@@ -6,12 +6,14 @@ use ctl_value::*;
 ///
 /// # Example
 ///
-/// ```ignore
-/// # extern crate sysctl;
-/// #
-/// let val_enum = &sysctl::value("kern.osrevision").unwrap();
-/// let val_type: sysctl::CtlType = val_enum.into();
-/// assert_eq!(val_type, sysctl::CtlType::Int);
+/// ```
+/// # use sysctl::Sysctl;
+/// if let Ok(ctl) = sysctl::Ctl::new("kern.osrevision") {
+///     if let Ok(value) = ctl.value() {
+///         let val_type: sysctl::CtlType = value.into();
+///         assert_eq!(val_type, sysctl::CtlType::Int);
+///     }
+/// }
 /// ```
 #[derive(Debug, Copy, Clone, PartialEq)]
 #[repr(u32)]
@@ -42,8 +44,8 @@ impl std::convert::From<u32> for CtlType {
         unsafe { std::mem::transmute(t) }
     }
 }
-impl<'a> std::convert::From<&'a CtlValue> for CtlType {
-    fn from(t: &'a CtlValue) -> Self {
+impl std::convert::From<&CtlValue> for CtlType {
+    fn from(t: &CtlValue) -> Self {
         match t {
             &CtlValue::None => CtlType::None,
             &CtlValue::Node(_) => CtlType::Node,
@@ -64,6 +66,12 @@ impl<'a> std::convert::From<&'a CtlValue> for CtlType {
             #[cfg(target_os = "freebsd")]
             &CtlValue::Temperature(_) => CtlType::Temperature,
         }
+    }
+}
+
+impl std::convert::From<CtlValue> for CtlType {
+    fn from(t: CtlValue) -> Self {
+        Self::from(&t)
     }
 }
 
