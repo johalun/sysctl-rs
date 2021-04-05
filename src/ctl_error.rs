@@ -1,62 +1,44 @@
 // ctl_error.rs
+use thiserror::Error;
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum SysctlError {
-    #[fail(display = "no such sysctl: {}", _0)]
+    #[error("no such sysctl: {0}")]
     NotFound(String),
 
-    #[fail(display = "no matching type for value")]
+    #[error("no matching type for value")]
     #[cfg(not(target_os = "macos"))]
     UnknownType,
 
-    #[fail(display = "Error extracting value")]
+    #[error("Error extracting value")]
     ExtractionError,
 
-    #[fail(display = "Error parsing value")]
+    #[error("Error parsing value")]
     ParseError,
 
-    #[fail(display = "Support for type not implemented")]
+    #[error("Support for type not implemented")]
     MissingImplementation,
 
-    #[fail(display = "IO Error: {}", _0)]
-    IoError(#[cause] std::io::Error),
+    #[error("IO Error: {0}")]
+    IoError(#[from] std::io::Error),
 
-    #[fail(display = "Error parsing UTF-8 data: {}", _0)]
-    Utf8Error(#[cause] std::str::Utf8Error),
+    #[error("Error parsing UTF-8 data: {0}")]
+    Utf8Error(#[from] std::str::Utf8Error),
 
-    #[fail(display = "Value is not readable")]
+    #[error("Value is not readable")]
     NoReadAccess,
 
-    #[fail(display = "Value is not writeable")]
+    #[error("Value is not writeable")]
     NoWriteAccess,
 
-    #[fail(display = "Not supported by this platform")]
+    #[error("Not supported by this platform")]
     NotSupported,
 
-    #[fail(
-        display = "sysctl returned a short read: read {} bytes, while a size of {} was reported",
-        read, reported
+    #[error(
+        "sysctl returned a short read: read {read} bytes, while a size of {reported} was reported"
     )]
     ShortRead { read: usize, reported: usize },
 
-    #[fail(display = "Error reading C String: String was not NUL-terminated.")]
-    InvalidCStr(#[cause] std::ffi::FromBytesWithNulError),
-}
-
-impl From<std::io::Error> for SysctlError {
-    fn from(error: std::io::Error) -> Self {
-        SysctlError::IoError(error)
-    }
-}
-
-impl From<std::str::Utf8Error> for SysctlError {
-    fn from(error: std::str::Utf8Error) -> Self {
-        SysctlError::Utf8Error(error)
-    }
-}
-
-impl From<std::ffi::FromBytesWithNulError> for SysctlError {
-    fn from(error: std::ffi::FromBytesWithNulError) -> Self {
-        SysctlError::InvalidCStr(error)
-    }
+    #[error("Error reading C String: String was not NUL-terminated.")]
+    InvalidCStr(#[from] std::ffi::FromBytesWithNulError),
 }
