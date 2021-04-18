@@ -70,7 +70,7 @@ impl IntoIterator for Ctl {
     type Item = Result<Ctl, SysctlError>;
     type IntoIter = CtlIter;
 
-    fn into_iter(self: Self) -> Self::IntoIter {
+    fn into_iter(self) -> Self::IntoIter {
         CtlIter::below(self)
     }
 }

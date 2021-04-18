@@ -119,6 +119,7 @@ pub trait Sysctl {
     /// ```
     fn value_string(&self) -> Result<String, SysctlError>;
 
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::needless_doctest_main))]
     /// Sets the value of a sysctl.
     /// Fetches and returns the new value if successful, or returns a
     /// SysctlError on failure.
@@ -138,6 +139,7 @@ pub trait Sysctl {
     /// }
     fn set_value(&self, value: CtlValue) -> Result<CtlValue, SysctlError>;
 
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::needless_doctest_main))]
     /// Sets the value of a sysctl with input as string.
     /// Fetches and returns the new value if successful, or returns a
     /// SysctlError on failure.
@@ -172,6 +174,7 @@ pub trait Sysctl {
     /// ```
     fn flags(&self) -> Result<CtlFlags, SysctlError>;
 
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::needless_doctest_main))]
     /// Returns a Result containing the control metadata for a sysctl.
     ///
     /// Returns a Result containing the CtlInfo struct on success,

@@ -18,6 +18,7 @@ pub struct Ctl {
 impl std::str::FromStr for Ctl {
     type Err = SysctlError;
 
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::redundant_field_names))]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let oid = name2oid(s)?;
 
@@ -145,7 +146,7 @@ impl Sysctl for Ctl {
     }
 
     fn info(&self) -> Result<CtlInfo, SysctlError> {
-        Ok(oidfmt(&self.oid)?)
+        oidfmt(&self.oid)
     }
 }
 

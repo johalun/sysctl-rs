@@ -120,6 +120,7 @@ pub fn oidfmt(oid: &[libc::c_int]) -> Result<CtlInfo, SysctlError> {
             Err(e) => return Err(SysctlError::InvalidCStr(e)),
         };
 
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::redundant_field_names))]
     let s = CtlInfo {
         ctl_type: CtlType::from(ctltype_val),
         fmt: fmt,
@@ -172,11 +173,11 @@ pub fn oidfmt(oid: &[libc::c_int]) -> Result<CtlInfo, SysctlError> {
 }
 
 #[cfg(not(target_os = "macos"))]
-pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
+pub fn value_oid(oid: &[i32]) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = oidfmt(&oid)?;
 
     // Check if the value is readable
-    if !(info.flags & CTLFLAG_RD == CTLFLAG_RD) {
+    if info.flags & CTLFLAG_RD != CTLFLAG_RD {
         return Err(SysctlError::NoReadAccess);
     }
 
@@ -241,7 +242,7 @@ pub fn value_oid(oid: &Vec<i32>) -> Result<CtlValue, SysctlError> {
         CtlType::String => match val.len() {
             0 => Ok(CtlValue::String("".to_string())),
             l => std::str::from_utf8(&val[..l - 1])
-                .map_err(|e| SysctlError::Utf8Error(e))
+                .map_err(SysctlError::Utf8Error)
                 .map(|s| CtlValue::String(s.into())),
         },
         CtlType::S64 => Ok(CtlValue::S64(byteorder::LittleEndian::read_i64(&val))),
@@ -344,7 +345,7 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
 }
 
 #[cfg(not(target_os = "macos"))]
-pub fn value_oid_as<T>(oid: &Vec<i32>) -> Result<Box<T>, SysctlError> {
+pub fn value_oid_as<T>(oid: &[i32]) -> Result<Box<T>, SysctlError> {
     let val_enum = value_oid(oid)?;
 
     // Some structs are apparently reported as Node so this check is invalid..
@@ -460,11 +461,11 @@ fn value_to_bytes(value: CtlValue) -> Result<Vec<u8>, SysctlError> {
 }
 
 #[cfg(not(target_os = "macos"))]
-pub fn set_oid_value(oid: &Vec<libc::c_int>, value: CtlValue) -> Result<CtlValue, SysctlError> {
+pub fn set_oid_value(oid: &[libc::c_int], value: CtlValue) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = oidfmt(&oid)?;
 
     // Check if the value is writeable
-    if !(info.flags & CTLFLAG_WR == CTLFLAG_WR) {
+    if info.flags & CTLFLAG_WR != CTLFLAG_WR {
         return Err(SysctlError::NoWriteAccess);
     }
 
@@ -533,7 +534,7 @@ pub fn set_oid_value(oid: &mut Vec<libc::c_int>, value: CtlValue) -> Result<CtlV
 }
 
 #[cfg(not(target_os = "macos"))]
-pub fn oid2description(oid: &Vec<libc::c_int>) -> Result<String, SysctlError> {
+pub fn oid2description(oid: &[libc::c_int]) -> Result<String, SysctlError> {
     // Request command for description
     let mut qoid: Vec<libc::c_int> = vec![0, 5];
     qoid.extend(oid);
@@ -563,7 +564,7 @@ pub fn oid2description(oid: &Vec<libc::c_int>) -> Result<String, SysctlError> {
 }
 
 #[cfg(not(target_os = "macos"))]
-pub fn oid2name(oid: &Vec<libc::c_int>) -> Result<String, SysctlError> {
+pub fn oid2name(oid: &[libc::c_int]) -> Result<String, SysctlError> {
     // Request command for name
     let mut qoid: Vec<libc::c_int> = vec![0, 1];
     qoid.extend(oid);
@@ -623,7 +624,7 @@ pub fn oid2name(oid: &Vec<libc::c_int>) -> Result<String, SysctlError> {
 }
 
 #[cfg(not(target_os = "macos"))]
-pub fn next_oid(oid: &Vec<libc::c_int>) -> Result<Option<Vec<libc::c_int>>, SysctlError> {
+pub fn next_oid(oid: &[libc::c_int]) -> Result<Option<Vec<libc::c_int>>, SysctlError> {
     // Request command for next oid
     let mut qoid: Vec<libc::c_int> = vec![0, 2];
     qoid.extend(oid);
