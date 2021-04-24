@@ -71,6 +71,8 @@ mod tests_linux {
 
     #[test]
     fn ctl_value_string() {
+        // NOTE: Some linux distributions require Root permissions
+        //        e.g Debian.
         let output = std::process::Command::new("sysctl")
             .arg("-n")
             .arg("kernel.version")

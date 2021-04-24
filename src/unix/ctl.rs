@@ -162,11 +162,17 @@ mod tests {
     #[test]
     fn ctl_description() {
         let ctl = super::Ctl::new("kern.ostype").expect("Ctl::new");
-        let s: String = match ctl.description() {
-            Ok(s) => s,
-            _ => "...".into(),
-        };
-        assert_eq!(s, "Operating system type");
+
+        let descp = ctl.description();
+        assert!(descp.is_ok());
+
+        let descp = descp.unwrap();
+
+        #[cfg(target_os = "freebsd")]
+        assert_eq!(descp, "Operating system type");
+
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        assert_eq!(descp, "[N/A]");
     }
 }
 
