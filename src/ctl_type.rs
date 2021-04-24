@@ -47,24 +47,24 @@ impl std::convert::From<u32> for CtlType {
 impl std::convert::From<&CtlValue> for CtlType {
     fn from(t: &CtlValue) -> Self {
         match t {
-            &CtlValue::None => CtlType::None,
-            &CtlValue::Node(_) => CtlType::Node,
-            &CtlValue::Int(_) => CtlType::Int,
-            &CtlValue::String(_) => CtlType::String,
-            &CtlValue::S64(_) => CtlType::S64,
-            &CtlValue::Struct(_) => CtlType::Struct,
-            &CtlValue::Uint(_) => CtlType::Uint,
-            &CtlValue::Long(_) => CtlType::Long,
-            &CtlValue::Ulong(_) => CtlType::Ulong,
-            &CtlValue::U64(_) => CtlType::U64,
-            &CtlValue::U8(_) => CtlType::U8,
-            &CtlValue::U16(_) => CtlType::U16,
-            &CtlValue::S8(_) => CtlType::S8,
-            &CtlValue::S16(_) => CtlType::S16,
-            &CtlValue::S32(_) => CtlType::S32,
-            &CtlValue::U32(_) => CtlType::U32,
+            CtlValue::None => CtlType::None,
+            CtlValue::Node(_) => CtlType::Node,
+            CtlValue::Int(_) => CtlType::Int,
+            CtlValue::String(_) => CtlType::String,
+            CtlValue::S64(_) => CtlType::S64,
+            CtlValue::Struct(_) => CtlType::Struct,
+            CtlValue::Uint(_) => CtlType::Uint,
+            CtlValue::Long(_) => CtlType::Long,
+            CtlValue::Ulong(_) => CtlType::Ulong,
+            CtlValue::U64(_) => CtlType::U64,
+            CtlValue::U8(_) => CtlType::U8,
+            CtlValue::U16(_) => CtlType::U16,
+            CtlValue::S8(_) => CtlType::S8,
+            CtlValue::S16(_) => CtlType::S16,
+            CtlValue::S32(_) => CtlType::S32,
+            CtlValue::U32(_) => CtlType::U32,
             #[cfg(target_os = "freebsd")]
-            &CtlValue::Temperature(_) => CtlType::Temperature,
+            CtlValue::Temperature(_) => CtlType::Temperature,
         }
     }
 }
@@ -76,27 +76,27 @@ impl std::convert::From<CtlValue> for CtlType {
 }
 
 impl CtlType {
-    pub fn min_type_size(self: &Self) -> usize {
+    pub fn min_type_size(&self) -> usize {
         match self {
-            &CtlType::None => 0,
-            &CtlType::Node => 0,
-            &CtlType::Int => std::mem::size_of::<libc::c_int>(),
-            &CtlType::String => 0,
-            &CtlType::S64 => std::mem::size_of::<i64>(),
-            &CtlType::Struct => 0,
-            &CtlType::Uint => std::mem::size_of::<libc::c_uint>(),
-            &CtlType::Long => std::mem::size_of::<libc::c_long>(),
-            &CtlType::Ulong => std::mem::size_of::<libc::c_ulong>(),
-            &CtlType::U64 => std::mem::size_of::<u64>(),
-            &CtlType::U8 => std::mem::size_of::<u8>(),
-            &CtlType::U16 => std::mem::size_of::<u16>(),
-            &CtlType::S8 => std::mem::size_of::<i8>(),
-            &CtlType::S16 => std::mem::size_of::<i16>(),
-            &CtlType::S32 => std::mem::size_of::<i32>(),
-            &CtlType::U32 => std::mem::size_of::<u32>(),
+            CtlType::None => 0,
+            CtlType::Node => 0,
+            CtlType::Int => std::mem::size_of::<libc::c_int>(),
+            CtlType::String => 0,
+            CtlType::S64 => std::mem::size_of::<i64>(),
+            CtlType::Struct => 0,
+            CtlType::Uint => std::mem::size_of::<libc::c_uint>(),
+            CtlType::Long => std::mem::size_of::<libc::c_long>(),
+            CtlType::Ulong => std::mem::size_of::<libc::c_ulong>(),
+            CtlType::U64 => std::mem::size_of::<u64>(),
+            CtlType::U8 => std::mem::size_of::<u8>(),
+            CtlType::U16 => std::mem::size_of::<u16>(),
+            CtlType::S8 => std::mem::size_of::<i8>(),
+            CtlType::S16 => std::mem::size_of::<i16>(),
+            CtlType::S32 => std::mem::size_of::<i32>(),
+            CtlType::U32 => std::mem::size_of::<u32>(),
             // Added custom types below
             #[cfg(target_os = "freebsd")]
-            &CtlType::Temperature => 0,
+            CtlType::Temperature => 0,
         }
     }
 }

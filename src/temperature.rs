@@ -41,7 +41,7 @@ impl Temperature {
     }
 }
 
-pub fn temperature(info: &CtlInfo, val: &Vec<u8>) -> Result<CtlValue, SysctlError> {
+pub fn temperature(info: &CtlInfo, val: &[u8]) -> Result<CtlValue, SysctlError> {
     let prec: u32 = {
         match info.fmt.len() {
             l if l > 2 => match info.fmt[2..3].parse::<u32>() {
