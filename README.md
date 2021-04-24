@@ -23,7 +23,7 @@ Add to `Cargo.toml`
 
 ```toml
 [dependencies]
-sysctl = "0.4.0"
+sysctl = "0.4.1"
 ```
 
 ### macOS

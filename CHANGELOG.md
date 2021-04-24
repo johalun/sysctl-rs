@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] - 2021-04-23
+### Changed
+- Replace deprecated failure crate with thiserror.
+- Fix clippy lints.
+
 ## [0.4.0] - 2019-07-24
 ### Changed
 - Add Linux support.
