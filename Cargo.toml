@@ -16,7 +16,7 @@ documentation = "https://johalun.github.io/sysctl-rs/index.html"
 [dependencies]
 libc = "^0.2.34"
 byteorder = "^1.0.0"
-failure = "^0.1.1"
+thiserror = "1"
 bitflags = "^1.0"
 
 [target.'cfg(any(target_os = "android", target_os = "linux"))'.dependencies]

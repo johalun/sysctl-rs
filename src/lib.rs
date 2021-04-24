@@ -42,10 +42,9 @@
 
 #[macro_use]
 extern crate bitflags;
-#[macro_use]
-extern crate failure;
 extern crate byteorder;
 extern crate libc;
+extern crate thiserror;
 
 #[cfg(any(target_os = "android", target_os = "linux"))]
 extern crate walkdir;
