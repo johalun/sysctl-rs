@@ -12,22 +12,20 @@ use temperature::*;
 
 #[cfg(not(target_os = "macos"))]
 pub fn name2oid(name: &str) -> Result<Vec<libc::c_int>, SysctlError> {
-    // Request command for OID
-    let oid: [libc::c_int; 2] = [0, 3];
-
-    let mut len: usize = CTL_MAXNAME as usize * std::mem::size_of::<libc::c_int>();
-
     // We get results in this vector
-    let mut res: Vec<libc::c_int> = vec![0; CTL_MAXNAME as usize];
+    let mut len: usize = CTL_MAXNAME as usize;
+    let mut res = Vec::<libc::c_int>::with_capacity(len);
+    let rcname = std::ffi::CString::new(name);
+    if rcname.is_err() {
+        return Err(SysctlError::NotFound(name.to_owned()));
+    }
+    let cname = rcname.unwrap();
 
     let ret = unsafe {
-        libc::sysctl(
-            oid.as_ptr(),
-            2,
-            res.as_mut_ptr() as *mut libc::c_void,
-            &mut len,
-            name.as_ptr() as *const libc::c_void,
-            name.len(),
+        libc::sysctlnametomib(
+            cname.as_ptr() as *const libc::c_char,
+            res.as_mut_ptr(),
+            &mut len
         )
     };
     if ret < 0 {
@@ -36,13 +34,9 @@ pub fn name2oid(name: &str) -> Result<Vec<libc::c_int>, SysctlError> {
             std::io::ErrorKind::NotFound => SysctlError::NotFound(name.into()),
             _ => SysctlError::IoError(e),
         });
+    } else {
+        unsafe { res.set_len(len); }
     }
-
-    // len is in bytes, convert to number of libc::c_ints
-    len /= std::mem::size_of::<libc::c_int>();
-
-    // Trim result vector
-    res.truncate(len);
 
     Ok(res)
 }
@@ -747,6 +741,13 @@ mod tests {
             .value_type()
             .expect("Could notget kern.osrevision value type");
         assert_eq!(value_type, crate::CtlType::Int);
+    }
+
+    /// The name must be respresentable as a C String
+    #[test]
+    fn name2oid_invalid_name() {
+        let r = super::name2oid("kern.\0.invalid.utf-8");
+        assert!(matches!(r, Err(super::SysctlError::NotFound(_))));
     }
 }
 
