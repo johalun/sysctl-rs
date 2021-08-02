@@ -1,5 +1,7 @@
 This crate provides a safe interface for reading and writing information to the kernel using the sysctl interface.
 
+[![Build Status](https://api.cirrus-ci.com/github/johalun/sysctl-rs.svg)](https://github.com/github/johalun/sysctl-rs)
+
 [![Current Version](https://img.shields.io/crates/v/sysctl.svg)](https://crates.io/crates/sysctl)
 
 
@@ -8,14 +10,7 @@ This crate provides a safe interface for reading and writing information to the 
 
 ### Documentation
 
-Documentation is available here: https://johalun.github.io/sysctl-rs/
-
-or, to generate documentation locally do:
-```sh
-git clone https://github.com/johalun/sysctl-rs; cd sysctl-rs
-cargo doc --no-deps
-firefox target/doc/sysctl/index.html
-```
+Documentation is available on [docs.rs](https://docs.rs/sysctl)
 
 ### Usage
 
