@@ -13,6 +13,15 @@ readme = "README.md"
 repository = "https://github.com/johalun/sysctl-rs"
 documentation = "https://johalun.github.io/sysctl-rs/index.html"
 
+[package.metadata.docs.rs]
+targets = [
+  "i686-unknown-freebsd",
+  "i686-unknown-linux-gnu",
+  "x86_64-apple-darwin",
+  "x86_64-unknown-freebsd",
+  "x86_64-unknown-linux-gnu",
+]
+
 [dependencies]
 libc = "^0.2.34"
 byteorder = "^1.0.0"
