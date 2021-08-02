@@ -36,7 +36,6 @@ task:
         image: rustlang/rust:nightly
   cargo_cache:
     folder: $CARGO_HOME/registry
-    fingerprint_script: cat Cargo.lock
   build_script: cargo build --all && cargo build --examples
   test_script: cargo test --all
   minver_test_script:
