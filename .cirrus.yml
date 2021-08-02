@@ -35,12 +35,30 @@ task:
   matrix:
     - container:
         image: rust:latest
+  build_script: 
+    - cargo build --all
+    - cargo build --examples
+  test_script: cargo test --all
+  registry_cache:
+    folder: $CARGO_HOME/registry
+  target_cache:
+    folder: target
+    fingerprint_script:
+      - rustc --version
+  before_cache_script: rm -rf $CARGO_HOME/registry/index
+
+test_task:
+  matrix:
     - allow_failures: true
       container:
         image: rustlang/rust:nightly
-  cargo_cache:
+  registry_cache:
     folder: $CARGO_HOME/registry
-  build_script: cargo build --all && cargo build --examples
+  target_cache:
+    folder: target
+    fingerprint_script:
+      - rustc --version
+  build_script: cargo build --all
   test_script: cargo test --all
   minver_test_script:
     - cargo update -Zminimal-versions
