@@ -39,4 +39,7 @@ task:
     fingerprint_script: cat Cargo.lock
   build_script: cargo build --all && cargo build --examples
   test_script: cargo test --all
+  minver_test_script:
+    - cargo update -Zminimal-versions
+    - cargo check --all-targets
   before_cache_script: rm -rf $CARGO_HOME/registry/index
