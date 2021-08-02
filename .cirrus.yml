@@ -14,7 +14,7 @@ task:
   before_cache_script: rm -rf $CARGO_HOME/registry/index
 
 task:
-  osx_instance:
+  macos_instance:
     matrix:
       image: mojave-base
       image: high-sierra-base
