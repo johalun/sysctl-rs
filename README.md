@@ -1,6 +1,6 @@
 This crate provides a safe interface for reading and writing information to the kernel using the sysctl interface.
 
-[![Build Status](https://api.cirrus-ci.com/github/johalun/sysctl-rs.svg)](https://github.com/johalun/sysctl-rs)
+[![Build Status](https://api.cirrus-ci.com/github/johalun/sysctl-rs.svg)](https://cirrus-ci.com/github/johalun/sysctl-rs/master)
 
 [![Current Version](https://img.shields.io/crates/v/sysctl.svg)](https://crates.io/crates/sysctl)
 
