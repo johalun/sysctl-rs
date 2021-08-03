@@ -1,65 +1,67 @@
-task:
-  freebsd_instance:
-    matrix:
-      image: freebsd-12-2-release-amd64
-      image: freebsd-11-4-release-amd64
-  install_script: |
-    pkg install -y curl
-    curl https://sh.rustup.rs -sSf | sh -s -- -y
-    . $HOME/.cargo/env
+test: &TEST
   cargo_cache:
     folder: $CARGO_HOME/registry
   build_script:
-    - . $HOME/.cargo/env
+    - . $HOME/.cargo/env || true
     - cargo build --all --all-targets
   test_script:
-    - . $HOME/.cargo/env
+    - . $HOME/.cargo/env || true
     - cargo test --all
   before_cache_script: rm -rf $CARGO_HOME/registry/index
 
 task:
-  macos_instance:
-    matrix:
-      image: mojave-base
-      image: high-sierra-base
+  matrix:
+    - name: FreeBSD 12
+      freebsd_instance:
+        image: freebsd-12-2-release-amd64
+    - name: FreeBSD 11
+      freebsd_instance:
+        image: freebsd-11-4-release-amd64
   install_script: |
+    pkg install -y curl
     curl https://sh.rustup.rs -sSf | sh -s -- -y
-    . $HOME/.cargo/env
-  cargo_cache:
-    folder: $CARGO_HOME/registry
-  build_script: env PATH="$HOME/.cargo/bin:$PATH" cargo build --all && cargo build --examples
-  test_script: env PATH="$HOME/.cargo/bin:$PATH" cargo test --all
-  before_cache_script: rm -rf $CARGO_HOME/registry/index
+  << : *TEST
 
 task:
   matrix:
-    - container:
-        image: rust:latest
-  build_script: 
-    - cargo build --all
-    - cargo build --examples
-  test_script: cargo test --all
-  registry_cache:
-    folder: $CARGO_HOME/registry
+    - name: OSX Mojave
+      macos_instance:
+        image: mojave-base
+    - name: OSX High Sierra
+      macos_instance:
+        image: high-sierra-base
+  install_script: |
+    curl https://sh.rustup.rs -sSf | sh -s -- -y
+  << : *TEST
+
+task:
+  name: Linux
+  container:
+    image: rust:latest
+  << : *TEST
   target_cache:
     folder: target
     fingerprint_script:
       - rustc --version
-  before_cache_script: rm -rf $CARGO_HOME/registry/index
 
 test_task:
-  matrix:
-    - allow_failures: true
-      container:
-        image: rustlang/rust:nightly
-  registry_cache:
+  name: nightly
+  depends_on:
+    - FreeBSD 11
+    - FreeBSD 12
+    - OSX Mojave
+    - OSX High Sierra
+    - Linux
+  container:
+    image: rustlang/rust:nightly
+  cargo_cache:
     folder: $CARGO_HOME/registry
+  build_script: cargo build --all
+  test_script: cargo test --all
   target_cache:
     folder: target
     fingerprint_script:
       - rustc --version
-  build_script: cargo build --all
-  test_script: cargo test --all
   minver_test_script:
     - cargo update -Zminimal-versions
     - cargo check --all-targets
