@@ -23,13 +23,9 @@ task:
   << : *TEST
 
 task:
-  matrix:
-    - name: OSX Mojave
-      macos_instance:
-        image: mojave-base
-    - name: OSX High Sierra
-      macos_instance:
-        image: high-sierra-base
+  name: OSX
+  macos_instance:
+    image: catalina-base
   install_script: |
     curl https://sh.rustup.rs -sSf | sh -s -- -y
   << : *TEST
@@ -49,8 +45,7 @@ test_task:
   depends_on:
     - FreeBSD 11
     - FreeBSD 12
-    - OSX Mojave
-    - OSX High Sierra
+    - OSX
     - Linux
   container:
     image: rustlang/rust:nightly
