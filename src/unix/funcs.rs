@@ -10,7 +10,6 @@ use ctl_value::*;
 #[cfg(target_os = "freebsd")]
 use temperature::*;
 
-#[cfg(not(target_os = "macos"))]
 pub fn name2oid(name: &str) -> Result<Vec<libc::c_int>, SysctlError> {
     // We get results in this vector
     let mut len: usize = CTL_MAXNAME as usize;
@@ -37,43 +36,6 @@ pub fn name2oid(name: &str) -> Result<Vec<libc::c_int>, SysctlError> {
     } else {
         unsafe { res.set_len(len); }
     }
-
-    Ok(res)
-}
-
-#[cfg(target_os = "macos")]
-pub fn name2oid(name: &str) -> Result<Vec<libc::c_int>, SysctlError> {
-    // Request command for OID
-    let mut oid: [libc::c_int; 2] = [0, 3];
-
-    let mut len: usize = CTL_MAXNAME as usize * std::mem::size_of::<libc::c_int>();
-
-    // We get results in this vector
-    let mut res: Vec<libc::c_int> = vec![0; CTL_MAXNAME as usize];
-
-    let ret = unsafe {
-        libc::sysctl(
-            oid.as_mut_ptr(),
-            2,
-            res.as_mut_ptr() as *mut libc::c_void,
-            &mut len,
-            name.as_ptr() as *mut libc::c_void,
-            name.len(),
-        )
-    };
-    if ret < 0 {
-        let e = std::io::Error::last_os_error();
-        return Err(match e.kind() {
-            std::io::ErrorKind::NotFound => SysctlError::NotFound(name.into()),
-            _ => SysctlError::IoError(e),
-        });
-    }
-
-    // len is in bytes, convert to number of libc::c_ints
-    len /= std::mem::size_of::<libc::c_int>();
-
-    // Trim result vector
-    res.truncate(len);
 
     Ok(res)
 }
