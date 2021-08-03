@@ -1,6 +1,6 @@
 [package]
 name = "sysctl"
-version = "0.4.1"
+version = "0.4.2"
 authors = [
    "Johannes Lundberg <johalun0@gmail.com>",
    "Ivan Temchenko <ivan.temchenko@yandex.ua>",
@@ -11,7 +11,7 @@ keywords = ["sysctl", "sysfs", "freebsd", "macos", "linux"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/johalun/sysctl-rs"
-documentation = "https://johalun.github.io/sysctl-rs/index.html"
+documentation = "https://docs.rs/sysctl"
 include = ["src/**/*", "LICENSE-MIT", "README.md", "CHANGELOG.md"]
 
 [package.metadata.docs.rs]

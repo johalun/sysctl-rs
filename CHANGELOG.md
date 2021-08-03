@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.2] - 2021-08-03
+### Changed
+- Add Cirrus CI for FreeBSD, macOS and Linux.
+- Bump thiserror crate.
+- Use sysctlnametomib(3) where available.
+- Use sysctlbyname(3) on FreeBSD.
+- Tell docs.rs to build docs for FreeBSD too.
+- Don't include docs in package to reduce size.
+
 ## [0.4.1] - 2021-04-23
 ### Changed
 - Replace deprecated failure crate with thiserror.
@@ -25,8 +34,6 @@ All notable changes to this project will be documented in this file.
 - Add struct interface for control.
 - Add documentation for macOS.
 - Use failure create for error handling.
-
-NOTE: Includes API breaking changes.
 
 ## [0.1.4] - 2018-01-04
 ### Changed
