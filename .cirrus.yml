@@ -43,8 +43,8 @@ task:
 test_task:
   name: nightly
   depends_on:
-    - FreeBSD 11
     - FreeBSD 12
+    - FreeBSD 13
     - OSX
     - Linux
   container:
