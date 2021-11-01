@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.3] - 2021-11-01
+### Changed
+- Remove a leftover debug println.
+
 ## [0.4.2] - 2021-08-03
 ### Changed
 - Add Cirrus CI for FreeBSD, macOS and Linux.
