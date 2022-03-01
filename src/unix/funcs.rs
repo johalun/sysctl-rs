@@ -115,7 +115,15 @@ pub fn oidfmt(oid: &[libc::c_int]) -> Result<CtlInfo, SysctlError> {
     let ctltype_val = kind & CTLTYPE as u32;
 
     // 'fmt' is after 'Kind' in result buffer
-    let fmt: String = match std::str::from_utf8(&buf[std::mem::size_of::<u32>()..buf_len]) {
+    let bytes = &buf[std::mem::size_of::<u32>()..buf_len];
+
+    // Ensure we drop the '\0' byte if there are any.
+    let len = match bytes.iter().position(|c| *c == 0) {
+        Some(index) => index,
+        _ => bytes.len(),
+    };
+
+    let fmt: String = match std::str::from_utf8(&bytes[..len]) {
         Ok(x) => x.to_owned(),
         Err(e) => return Err(SysctlError::Utf8Error(e)),
     };
@@ -278,10 +286,18 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
     match info.ctl_type {
         CtlType::None => Ok(CtlValue::None),
         CtlType::Node => Ok(CtlValue::Node(val)),
-        CtlType::Int => Ok(CtlValue::Int(byteorder::LittleEndian::read_i32(&val))),
-        CtlType::String => match std::str::from_utf8(&val[..val.len() - 1]) {
-            Ok(s) => Ok(CtlValue::String(s.into())),
-            Err(e) => Err(SysctlError::Utf8Error(e)),
+        CtlType::Int => match info.fmt.as_str() {
+            "I" => Ok(CtlValue::Int(byteorder::LittleEndian::read_i32(&val))),
+            "IU" => Ok(CtlValue::Uint(byteorder::LittleEndian::read_u32(&val))),
+            "L" => Ok(CtlValue::Long(byteorder::LittleEndian::read_i64(&val))),
+            "LU" => Ok(CtlValue::Ulong(byteorder::LittleEndian::read_u64(&val))),
+            _ => Ok(CtlValue::None),
+        }
+        CtlType::String => match val.len() {
+            0 => Ok(CtlValue::String("".to_string())),
+            l => std::str::from_utf8(&val[..l - 1])
+                .map_err(SysctlError::Utf8Error)
+                .map(|s| CtlValue::String(s.into())),
         },
         CtlType::S64 => Ok(CtlValue::S64(byteorder::LittleEndian::read_i64(&val))),
         CtlType::Struct => Ok(CtlValue::Struct(val)),
@@ -295,8 +311,6 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
         CtlType::S16 => Ok(CtlValue::S16(byteorder::LittleEndian::read_i16(&val))),
         CtlType::S32 => Ok(CtlValue::S32(byteorder::LittleEndian::read_i32(&val))),
         CtlType::U32 => Ok(CtlValue::U32(byteorder::LittleEndian::read_u32(&val))),
-        #[cfg(not(target_os = "macos"))]
-        _ => Err(SysctlError::UnknownType),
     }
 }
 
@@ -462,10 +476,23 @@ pub fn set_oid_value(oid: &mut Vec<libc::c_int>, value: CtlValue) -> Result<CtlV
     }
 
     let ctl_type = CtlType::from(&value);
+
+    // Get the correct ctl type based on the format string
+    let info_ctl_type = match info.ctl_type {
+        CtlType::Int => match info.fmt.as_str() {
+            "I" => CtlType::Int,
+            "IU" => CtlType::Uint,
+            "L" => CtlType::Long,
+            "LU" => CtlType::Ulong,
+            _ => return Err(SysctlError::MissingImplementation),
+        }
+        ctl_type => ctl_type,
+    };
+
     assert_eq!(
-        info.ctl_type, ctl_type,
+        info_ctl_type, ctl_type,
         "Error type mismatch. Type given {:?}, sysctl type: {:?}",
-        ctl_type, info.ctl_type
+        ctl_type, info_ctl_type
     );
 
     let bytes = value_to_bytes(value)?;

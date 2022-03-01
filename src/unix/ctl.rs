@@ -35,9 +35,26 @@ impl Sysctl for Ctl {
         oid2name(&self.oid)
     }
 
+    #[cfg(not(target_os = "macos"))]
     fn value_type(&self) -> Result<CtlType, SysctlError> {
         let info = oidfmt(&self.oid)?;
         Ok(info.ctl_type)
+    }
+
+    #[cfg(target_os = "macos")]
+    fn value_type(&self) -> Result<CtlType, SysctlError> {
+        let info = oidfmt(&self.oid)?;
+
+        Ok(match info.ctl_type {
+            CtlType::Int => match info.fmt.as_str() {
+                "I" => CtlType::Int,
+                "IU" => CtlType::Uint,
+                "L" => CtlType::Long,
+                "LU" => CtlType::Ulong,
+                _ => return Err(SysctlError::MissingImplementation),
+            },
+            ctl_type => ctl_type,
+        })
     }
 
     #[cfg(not(target_os = "macos"))]
