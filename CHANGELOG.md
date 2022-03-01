@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.4] - 2022-03-01
+### Changed
+- Use fmt to determine the exact type for CtlType::Int on MacOS
+
 ## [0.4.3] - 2021-11-01
 ### Changed
 - Remove a leftover debug println.
