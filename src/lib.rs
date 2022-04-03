@@ -18,7 +18,7 @@
 //! // On Linux all sysctls are String type. Use the following for
 //! // cross-platform compatibility:
 //! let str_val = ctl.value_string().unwrap();
-//! println!("String value: {}", val);
+//! println!("String value: {}", str_val);
 //! ```
 //!
 //! # Example: Get value as struct
