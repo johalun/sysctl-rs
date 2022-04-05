@@ -274,12 +274,11 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
 
     // Confirm that we did not read out of bounds
     assert!(new_val_len <= val_len);
-    // Confirm that we got the bytes we requested
+    // The call can sometimes return bytes that are smaller than initially indicated, so it should
+    // be safe to truncate it.  See a similar approach in golang module:
+    // https://github.com/golang/sys/blob/43e60d72a8e2bd92ee98319ba9a384a0e9837c08/unix/syscall_bsd.go#L545-L548
     if new_val_len < val_len {
-        return Err(SysctlError::ShortRead {
-            read: new_val_len,
-            reported: val_len,
-        });
+        val.truncate(new_val_len);
     }
 
     // Wrap in Enum and return
