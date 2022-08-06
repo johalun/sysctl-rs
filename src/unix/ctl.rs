@@ -35,13 +35,13 @@ impl Sysctl for Ctl {
         oid2name(&self.oid)
     }
 
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
     fn value_type(&self) -> Result<CtlType, SysctlError> {
         let info = oidfmt(&self.oid)?;
         Ok(info.ctl_type)
     }
 
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "ios"))]
     fn value_type(&self) -> Result<CtlType, SysctlError> {
         let info = oidfmt(&self.oid)?;
 
@@ -57,28 +57,28 @@ impl Sysctl for Ctl {
         })
     }
 
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
     fn description(&self) -> Result<String, SysctlError> {
         oid2description(&self.oid)
     }
 
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "ios"))]
     fn description(&self) -> Result<String, SysctlError> {
         Ok("[N/A]".to_string())
     }
 
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
     fn value(&self) -> Result<CtlValue, SysctlError> {
         value_oid(&self.oid)
     }
 
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "ios"))]
     fn value(&self) -> Result<CtlValue, SysctlError> {
         let mut oid = self.oid.clone();
         value_oid(&mut oid)
     }
 
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
     fn value_as<T>(&self) -> Result<Box<T>, SysctlError> {
         value_oid_as::<T>(&self.oid)
     }
@@ -87,24 +87,24 @@ impl Sysctl for Ctl {
         self.value().map(|v| format!("{}", v))
     }
 
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "ios"))]
     fn value_as<T>(&self) -> Result<Box<T>, SysctlError> {
         let mut oid = self.oid.clone();
         value_oid_as::<T>(&mut oid)
     }
 
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
     fn set_value(&self, value: CtlValue) -> Result<CtlValue, SysctlError> {
         set_oid_value(&self.oid, value)
     }
 
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "ios"))]
     fn set_value(&self, value: CtlValue) -> Result<CtlValue, SysctlError> {
         let mut oid = self.oid.clone();
         set_oid_value(&mut oid, value)
     }
 
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
     fn set_value_string(&self, value: &str) -> Result<String, SysctlError> {
         let ctl_type = self.value_type()?;
         let _ = match ctl_type {
@@ -130,7 +130,7 @@ impl Sysctl for Ctl {
         self.value_string()
     }
 
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "ios"))]
     fn set_value_string(&self, value: &str) -> Result<String, SysctlError> {
         let ctl_type = self.value_type()?;
         let mut oid = self.oid.clone();
@@ -187,7 +187,7 @@ mod tests {
         #[cfg(target_os = "freebsd")]
         assert_eq!(descp, "Operating system type");
 
-        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        #[cfg(any(target_os = "macos", target_os = "ios", target_os = "linux"))]
         assert_eq!(descp, "[N/A]");
     }
 }
