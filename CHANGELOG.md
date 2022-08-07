@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.6] - 2022-08-07
+### Changed
+- Can't have more than 5 keywords in Cargo.toml. Remove the added iOS keyword.
+
 ## [0.4.5] - 2022-08-07
 ### Changed
 - Enable use on iOS
