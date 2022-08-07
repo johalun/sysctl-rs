@@ -5,7 +5,7 @@ This crate provides a safe interface for reading and writing information to the 
 [![Current Version](https://img.shields.io/crates/v/sysctl.svg)](https://crates.io/crates/sysctl)
 
 
-*FreeBSD, Linux and macOS are supported.*
+*FreeBSD, Linux, macOS and iOS are supported.*
 *Contributions for improvements and other platforms are welcome.*
 
 ### Documentation
@@ -21,11 +21,11 @@ Add to `Cargo.toml`
 sysctl = "0.4.4"
 ```
 
-### macOS
+### macOS/iOS
 
 * Due to limitations in the sysctl(3) API, many of the methods of
-  the `Ctl` take a mutable reference to `self` on macOS.
-* Sysctl descriptions are not available on macOS and Linux.
+  the `Ctl` take a mutable reference to `self` on macOS/iOS.
+* Sysctl descriptions are not available on macOS/iOS and Linux.
 * Some tests failures are ignored, as the respective sysctls do not
   exist on macos.
 

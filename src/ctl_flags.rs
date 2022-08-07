@@ -76,7 +76,7 @@ mod tests {
     #[test]
     fn ctl_flags() {
         // This sysctl should be read-only.
-        #[cfg(any(target_os = "freebsd", target_os = "macos"))]
+        #[cfg(any(target_os = "freebsd", target_os = "macos", target_os = "ios"))]
         let ctl: crate::Ctl = crate::Ctl::new("kern.ostype").unwrap();
         #[cfg(any(target_os = "android", target_os = "linux"))]
         let ctl: crate::Ctl = crate::Ctl::new("kernel.ostype").unwrap();
