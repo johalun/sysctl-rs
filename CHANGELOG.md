@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.5] - 2022-08-07
+### Changed
+- Enable use on iOS
+
 ## [0.4.4] - 2022-03-01
 ### Changed
 - Use fmt to determine the exact type for CtlType::Int on MacOS
