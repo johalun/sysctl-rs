@@ -48,6 +48,8 @@ impl Sysctl for Ctl {
 
     #[cfg(any(target_os = "macos", target_os = "ios"))]
     fn new_with_type(name: &str, ctl_type: CtlType, fmt: &str) -> Result<Self, SysctlError> {
+        let _ = name2oid(name)?;
+
         Ok(Ctl::Name(name.to_string(), ctl_type, fmt.to_string()))
     }
 

@@ -41,19 +41,19 @@ pub trait Sysctl {
     ///
     /// # Example
     /// ```
-    /// # use sysctl::Sysctl;
+    /// # use sysctl::{CtlType, Sysctl};
     /// #
     /// let ctl = sysctl::Ctl::new_with_type("kern.ostype", CtlType::String, "");
     /// ```
     ///
     /// If the sysctl does not exist, `Err(SysctlError::NotFound)` is returned.
     /// ```
-    /// # use sysctl::Sysctl;
+    /// # use sysctl::{CtlType, Sysctl};
     /// #
     /// let ctl = sysctl::Ctl::new_with_type("this.sysctl.does.not.exist", CtlType::String, "");
     /// match ctl {
     ///     Err(sysctl::SysctlError::NotFound(_)) => (),
-    ///     Err(e) => panic!(format!("Wrong error type returned: {:?}", e)),
+    ///     Err(e) => panic!("Wrong error type returned: {:?}", e),
     ///     Ok(_) => panic!("Nonexistent sysctl seems to exist"),
     /// }
     /// ```

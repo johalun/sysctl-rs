@@ -868,7 +868,7 @@ mod tests {
 
         assert_eq!(name, "kern.osrevision");
 
-        let ctl = crate::Ctl { oid };
+        let ctl = crate::Ctl::Oid(oid);
         let name = ctl
             .name()
             .expect("Could not get name of kern.osrevision sysctl.");
