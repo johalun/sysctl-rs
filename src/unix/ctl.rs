@@ -182,7 +182,7 @@ impl Sysctl for Ctl {
         let oid = self.oid().ok_or(SysctlError::MissingImplementation)?;
         let ctl_type = self.value_type()?;
         let _ = match ctl_type {
-            CtlType::String => set_oid_value(self.oid(), CtlValue::String(value.to_owned())),
+            CtlType::String => set_oid_value(oid, CtlValue::String(value.to_owned())),
             CtlType::Uint => set_oid_value(
                 oid,
                 CtlValue::Uint(value.parse::<u32>().map_err(|_| SysctlError::ParseError)?),
