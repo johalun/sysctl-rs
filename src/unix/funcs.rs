@@ -6,6 +6,7 @@ use ctl_error::*;
 use ctl_info::*;
 use ctl_type::*;
 use ctl_value::*;
+#[cfg(any(target_os = "macos", target_os = "ios"))]
 use std::ffi::CString;
 
 #[cfg(target_os = "freebsd")]
