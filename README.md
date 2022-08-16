@@ -18,7 +18,7 @@ Add to `Cargo.toml`
 
 ```toml
 [dependencies]
-sysctl = "0.4.4"
+sysctl = "*"
 ```
 
 ### macOS/iOS
