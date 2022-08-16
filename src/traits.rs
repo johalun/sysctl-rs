@@ -34,6 +34,33 @@ pub trait Sysctl {
     where
         Self: std::marker::Sized;
 
+    /// Construct a Ctl from the name, type and format.
+    ///
+    /// Returns a result containing the struct Ctl on success or a SysctlError
+    /// on failure.
+    ///
+    /// # Example
+    /// ```
+    /// # use sysctl::Sysctl;
+    /// #
+    /// let ctl = sysctl::Ctl::new_with_type("kern.ostype", CtlType::String, "");
+    /// ```
+    ///
+    /// If the sysctl does not exist, `Err(SysctlError::NotFound)` is returned.
+    /// ```
+    /// # use sysctl::Sysctl;
+    /// #
+    /// let ctl = sysctl::Ctl::new_with_type("this.sysctl.does.not.exist", CtlType::String, "");
+    /// match ctl {
+    ///     Err(sysctl::SysctlError::NotFound(_)) => (),
+    ///     Err(e) => panic!(format!("Wrong error type returned: {:?}", e)),
+    ///     Ok(_) => panic!("Nonexistent sysctl seems to exist"),
+    /// }
+    /// ```
+    fn new_with_type(name: &str, ctl_type: CtlType, fmt: &str) -> Result<Self, SysctlError>
+    where
+        Self: std::marker::Sized;
+
     /// Returns a result containing the sysctl name on success, or a
     /// SysctlError on failure.
     ///

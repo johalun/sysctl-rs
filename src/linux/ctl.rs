@@ -40,6 +40,10 @@ impl Sysctl for Ctl {
         Ctl::from_str(name)
     }
 
+    fn new_with_type(name: &str, _ctl_type: CtlType, _fmt: &str) -> Result<Self, SysctlError> {
+        Ctl::from_str(name)
+    }
+
     fn name(&self) -> Result<String, SysctlError> {
         Ok(self.name.clone())
     }

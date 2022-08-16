@@ -11,8 +11,18 @@ use traits::Sysctl;
 
 /// This struct represents a system control.
 #[derive(Debug, Clone, PartialEq)]
-pub struct Ctl {
-    pub oid: Vec<libc::c_int>,
+pub enum Ctl {
+    Oid(Vec<libc::c_int>),
+    Name(String, CtlType, String),
+}
+
+impl Ctl {
+    pub fn oid(&self) -> Option<&Vec<libc::c_int>> {
+        match self {
+            Ctl::Oid(oid) => Some(oid),
+            _ => None,
+        }
+    }
 }
 
 impl std::str::FromStr for Ctl {
@@ -22,7 +32,7 @@ impl std::str::FromStr for Ctl {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let oid = name2oid(s)?;
 
-        Ok(Ctl { oid: oid })
+        Ok(Ctl::Oid(oid))
     }
 }
 
@@ -31,35 +41,72 @@ impl Sysctl for Ctl {
         Ctl::from_str(name)
     }
 
+    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
+    fn new_with_type(name: &str, _ctl_type: CtlType, _fmt: &str) -> Result<Self, SysctlError> {
+        Ctl::from_str(name)
+    }
+
+    #[cfg(any(target_os = "macos", target_os = "ios"))]
+    fn new_with_type(name: &str, ctl_type: CtlType, fmt: &str) -> Result<Self, SysctlError> {
+        Ok(Ctl::Name(name.to_string(), ctl_type, fmt.to_string()))
+    }
+
     fn name(&self) -> Result<String, SysctlError> {
-        oid2name(&self.oid)
+        match self {
+            Ctl::Oid(oid) => oid2name(&oid),
+            Ctl::Name(name, ..) => Ok(name.clone()),
+        }
     }
 
     #[cfg(not(any(target_os = "macos", target_os = "ios")))]
     fn value_type(&self) -> Result<CtlType, SysctlError> {
-        let info = oidfmt(&self.oid)?;
-        Ok(info.ctl_type)
+        match self {
+            Ctl::Oid(oid) => {
+                let info = oidfmt(oid)?;
+                Ok(info.ctl_type)
+            }
+            Ctl::Name(_, ctl_type) => {
+                Ok(*ctl_type)
+            }
+        }
     }
 
     #[cfg(any(target_os = "macos", target_os = "ios"))]
     fn value_type(&self) -> Result<CtlType, SysctlError> {
-        let info = oidfmt(&self.oid)?;
+        match self {
+            Ctl::Oid(oid) => {
+                let info = oidfmt(oid)?;
 
-        Ok(match info.ctl_type {
-            CtlType::Int => match info.fmt.as_str() {
-                "I" => CtlType::Int,
-                "IU" => CtlType::Uint,
-                "L" => CtlType::Long,
-                "LU" => CtlType::Ulong,
-                _ => return Err(SysctlError::MissingImplementation),
-            },
-            ctl_type => ctl_type,
-        })
+                Ok(match info.ctl_type {
+                    CtlType::Int => match info.fmt.as_str() {
+                        "I" => CtlType::Int,
+                        "IU" => CtlType::Uint,
+                        "L" => CtlType::Long,
+                        "LU" => CtlType::Ulong,
+                        _ => return Err(SysctlError::MissingImplementation),
+                    },
+                    ctl_type => ctl_type,
+                })
+            }
+            Ctl::Name(_, ctl_type, fmt) => {
+                Ok(match ctl_type {
+                    CtlType::Int => match fmt.as_str() {
+                        "I" => CtlType::Int,
+                        "IU" => CtlType::Uint,
+                        "L" => CtlType::Long,
+                        "LU" => CtlType::Ulong,
+                        _ => return Err(SysctlError::MissingImplementation),
+                    },
+                    ctl_type => *ctl_type,
+                })
+            }
+        }
     }
 
     #[cfg(not(any(target_os = "macos", target_os = "ios")))]
     fn description(&self) -> Result<String, SysctlError> {
-        oid2description(&self.oid)
+        let oid = self.oid().ok_or(SysctlError::MissingImplementation)?;
+        oid2description(oid)
     }
 
     #[cfg(any(target_os = "macos", target_os = "ios"))]
@@ -69,18 +116,27 @@ impl Sysctl for Ctl {
 
     #[cfg(not(any(target_os = "macos", target_os = "ios")))]
     fn value(&self) -> Result<CtlValue, SysctlError> {
-        value_oid(&self.oid)
+        let oid = self.oid().ok_or(SysctlError::MissingImplementation)?;
+        value_oid(oid)
     }
 
     #[cfg(any(target_os = "macos", target_os = "ios"))]
     fn value(&self) -> Result<CtlValue, SysctlError> {
-        let mut oid = self.oid.clone();
-        value_oid(&mut oid)
+        match self {
+            Ctl::Oid(oid) => {
+                let mut oid = oid.clone();
+                value_oid(&mut oid)
+            }
+            Ctl::Name(name, ctl_type, fmt) => {
+                value_name(name.as_str(), *ctl_type, fmt.as_str())
+            }
+        }
     }
 
     #[cfg(not(any(target_os = "macos", target_os = "ios")))]
     fn value_as<T>(&self) -> Result<Box<T>, SysctlError> {
-        value_oid_as::<T>(&self.oid)
+        let oid = self.oid().ok_or(SysctlError::MissingImplementation)?;
+        value_oid_as::<T>(oid)
     }
 
     fn value_string(&self) -> Result<String, SysctlError> {
@@ -89,40 +145,56 @@ impl Sysctl for Ctl {
 
     #[cfg(any(target_os = "macos", target_os = "ios"))]
     fn value_as<T>(&self) -> Result<Box<T>, SysctlError> {
-        let mut oid = self.oid.clone();
-        value_oid_as::<T>(&mut oid)
+        match self {
+            Ctl::Oid(oid) => {
+                let mut oid = oid.clone();
+                value_oid_as::<T>(&mut oid)
+            }
+            Ctl::Name(name, ctl_type, fmt) => {
+                value_name_as::<T>(name.as_str(), *ctl_type, fmt.as_str())
+            }
+        }
     }
 
     #[cfg(not(any(target_os = "macos", target_os = "ios")))]
     fn set_value(&self, value: CtlValue) -> Result<CtlValue, SysctlError> {
-        set_oid_value(&self.oid, value)
+        let oid = self.oid().ok_or(SysctlError::MissingImplementation)?;
+        set_oid_value(&oid, value)
     }
 
     #[cfg(any(target_os = "macos", target_os = "ios"))]
     fn set_value(&self, value: CtlValue) -> Result<CtlValue, SysctlError> {
-        let mut oid = self.oid.clone();
-        set_oid_value(&mut oid, value)
+        match self {
+            Ctl::Oid(oid) => {
+                let mut oid = oid.clone();
+                set_oid_value(&mut oid, value)
+            }
+            Ctl::Name(name, ctl_type, fmt) => {
+                set_name_value(name.as_str(), *ctl_type, fmt.as_str(), value)
+            }
+        }
     }
 
     #[cfg(not(any(target_os = "macos", target_os = "ios")))]
     fn set_value_string(&self, value: &str) -> Result<String, SysctlError> {
+        let oid = self.oid().ok_or(SysctlError::MissingImplementation)?;
         let ctl_type = self.value_type()?;
         let _ = match ctl_type {
             CtlType::String => set_oid_value(&self.oid, CtlValue::String(value.to_owned())),
             CtlType::Uint => set_oid_value(
-                &self.oid,
+                oid,
                 CtlValue::Uint(value.parse::<u32>().map_err(|_| SysctlError::ParseError)?),
             ),
             CtlType::Int => set_oid_value(
-                &self.oid,
+                oid,
                 CtlValue::Int(value.parse::<i32>().map_err(|_| SysctlError::ParseError)?),
             ),
             CtlType::Ulong => set_oid_value(
-                &self.oid,
+                oid,
                 CtlValue::Ulong(value.parse::<u64>().map_err(|_| SysctlError::ParseError)?),
             ),
             CtlType::U8 => set_oid_value(
-                &self.oid,
+                oid,
                 CtlValue::U8(value.parse::<u8>().map_err(|_| SysctlError::ParseError)?),
             ),
             _ => Err(SysctlError::MissingImplementation),
@@ -133,27 +205,68 @@ impl Sysctl for Ctl {
     #[cfg(any(target_os = "macos", target_os = "ios"))]
     fn set_value_string(&self, value: &str) -> Result<String, SysctlError> {
         let ctl_type = self.value_type()?;
-        let mut oid = self.oid.clone();
-        let _ = match ctl_type {
-            CtlType::String => set_oid_value(&mut oid, CtlValue::String(value.to_owned())),
-            CtlType::Uint => set_oid_value(
-                &mut oid,
-                CtlValue::Uint(value.parse::<u32>().map_err(|_| SysctlError::ParseError)?),
-            ),
-            CtlType::Int => set_oid_value(
-                &mut oid,
-                CtlValue::Int(value.parse::<i32>().map_err(|_| SysctlError::ParseError)?),
-            ),
-            CtlType::Ulong => set_oid_value(
-                &mut oid,
-                CtlValue::Ulong(value.parse::<u64>().map_err(|_| SysctlError::ParseError)?),
-            ),
-            CtlType::U8 => set_oid_value(
-                &mut oid,
-                CtlValue::U8(value.parse::<u8>().map_err(|_| SysctlError::ParseError)?),
-            ),
-            _ => Err(SysctlError::MissingImplementation),
-        }?;
+
+        match self {
+            Ctl::Oid(oid) => {
+                let mut oid = oid.clone();
+                let _ = match ctl_type {
+                    CtlType::String => set_oid_value(&mut oid, CtlValue::String(value.to_owned())),
+                    CtlType::Uint => set_oid_value(
+                        &mut oid,
+                        CtlValue::Uint(value.parse::<u32>().map_err(|_| SysctlError::ParseError)?),
+                    ),
+                    CtlType::Int => set_oid_value(
+                        &mut oid,
+                        CtlValue::Int(value.parse::<i32>().map_err(|_| SysctlError::ParseError)?),
+                    ),
+                    CtlType::Ulong => set_oid_value(
+                        &mut oid,
+                        CtlValue::Ulong(value.parse::<u64>().map_err(|_| SysctlError::ParseError)?),
+                    ),
+                    CtlType::U8 => set_oid_value(
+                        &mut oid,
+                        CtlValue::U8(value.parse::<u8>().map_err(|_| SysctlError::ParseError)?),
+                    ),
+                    _ => Err(SysctlError::MissingImplementation),
+                }?;
+            }
+            Ctl::Name(name, ctl_type, fmt) => {
+                let _ = match ctl_type {
+                    CtlType::String => set_name_value(
+                        name.as_str(),
+                        *ctl_type,
+                        fmt.as_str(),
+                        CtlValue::String(value.to_owned()),
+                    ),
+                    CtlType::Uint => set_name_value(
+                        name.as_str(),
+                        *ctl_type,
+                        fmt.as_str(),
+                        CtlValue::Uint(value.parse::<u32>().map_err(|_| SysctlError::ParseError)?),
+                    ),
+                    CtlType::Int => set_name_value(
+                        name.as_str(),
+                        *ctl_type,
+                        fmt.as_str(),
+                        CtlValue::Int(value.parse::<i32>().map_err(|_| SysctlError::ParseError)?),
+                    ),
+                    CtlType::Ulong => set_name_value(
+                        name.as_str(),
+                        *ctl_type,
+                        fmt.as_str(),
+                        CtlValue::Ulong(value.parse::<u64>().map_err(|_| SysctlError::ParseError)?),
+                    ),
+                    CtlType::U8 => set_name_value(
+                        name.as_str(),
+                        *ctl_type,
+                        fmt.as_str(),
+                        CtlValue::U8(value.parse::<u8>().map_err(|_| SysctlError::ParseError)?),
+                    ),
+                    _ => Err(SysctlError::MissingImplementation),
+                }?;
+            }
+        }
+
         self.value_string()
     }
 
@@ -162,7 +275,8 @@ impl Sysctl for Ctl {
     }
 
     fn info(&self) -> Result<CtlInfo, SysctlError> {
-        oidfmt(&self.oid)
+        let oid = self.oid().ok_or(SysctlError::MissingImplementation)?;
+        oidfmt(oid)
     }
 }
 
