@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2022-08-16
+### Changed
+- Remove crate version from example in readme.
+
 ## [0.5.0] - 2022-08-16
 ### Changed
 - Improve iOS support with new Ctl variant.
