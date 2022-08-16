@@ -41,4 +41,7 @@ pub enum SysctlError {
 
     #[error("Error reading C String: String was not NUL-terminated.")]
     InvalidCStr(#[from] std::ffi::FromBytesWithNulError),
+
+    #[error("Error Rust string contains nul bytes")]
+    InvalidCString(#[from] std::ffi::NulError),
 }

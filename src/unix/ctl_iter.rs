@@ -17,8 +17,8 @@ impl CtlIter {
     /// Return an iterator over the complete sysctl tree.
     pub fn root() -> Self {
         CtlIter {
-            base: Ctl { oid: vec![] },
-            current: Ctl { oid: vec![1] },
+            base: Ctl::Oid(vec![]),
+            current: Ctl::Oid(vec![1]),
         }
     }
 
@@ -35,16 +35,16 @@ impl Iterator for CtlIter {
     type Item = Result<Ctl, SysctlError>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let oid = match next_oid(&self.current.oid) {
+        let oid = match next_oid(self.current.oid()?) {
             Ok(Some(o)) => o,
             Err(e) => return Some(Err(e)),
             Ok(None) => return None,
         };
 
         // We continue iterating as long as the oid starts with the base
-        let cont = oid.starts_with(&self.base.oid);
+        let cont = oid.starts_with(self.base.oid()?);
 
-        self.current = Ctl { oid };
+        self.current = Ctl::Oid(oid);
 
         match cont {
             true => Some(Ok(self.current.clone())),

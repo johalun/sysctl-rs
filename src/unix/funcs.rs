@@ -6,6 +6,8 @@ use ctl_error::*;
 use ctl_info::*;
 use ctl_type::*;
 use ctl_value::*;
+#[cfg(any(target_os = "macos", target_os = "ios"))]
+use std::ffi::CString;
 
 #[cfg(target_os = "freebsd")]
 use temperature::*;
@@ -401,6 +403,131 @@ pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
     }
 }
 
+#[cfg(any(target_os = "macos", target_os = "ios"))]
+pub fn value_name(name: &str, ctl_type: CtlType, fmt: &str) -> Result<CtlValue, SysctlError> {
+    let name = CString::new(name)?;
+
+    // First get size of value in bytes
+    let mut val_len = 0;
+    let ret = unsafe {
+        libc::sysctlbyname(
+            name.as_ptr(),
+            std::ptr::null_mut(),
+            &mut val_len,
+            std::ptr::null_mut(),
+            0,
+        )
+    };
+    if ret < 0 {
+        return Err(SysctlError::IoError(std::io::Error::last_os_error()));
+    }
+
+    // If the length reported is shorter than the type we will convert it into,
+    // byteorder::LittleEndian::read_* will panic. Therefore, expand the value length to at
+    // Least the size of the value.
+    let val_minsize = std::cmp::max(val_len, ctl_type.min_type_size());
+
+    // Then get value
+    let mut val: Vec<libc::c_uchar> = vec![0; val_minsize];
+    let mut new_val_len = val_len;
+    let ret = unsafe {
+        libc::sysctlbyname(
+            name.as_ptr(),
+            val.as_mut_ptr() as *mut libc::c_void,
+            &mut new_val_len,
+            std::ptr::null_mut(),
+            0,
+        )
+    };
+    if ret < 0 {
+        return Err(SysctlError::IoError(std::io::Error::last_os_error()));
+    }
+
+    // Confirm that we did not read out of bounds
+    assert!(new_val_len <= val_len);
+    // The call can sometimes return bytes that are smaller than initially indicated, so it should
+    // be safe to truncate it.  See a similar approach in golang module:
+    // https://github.com/golang/sys/blob/43e60d72a8e2bd92ee98319ba9a384a0e9837c08/unix/syscall_bsd.go#L545-L548
+    if new_val_len < val_len {
+        val.truncate(new_val_len);
+    }
+
+    // Wrap in Enum and return
+    match ctl_type {
+        CtlType::None => Ok(CtlValue::None),
+        CtlType::Node => Ok(CtlValue::Node(val)),
+        CtlType::Int => match fmt {
+            "I" => Ok(CtlValue::Int(byteorder::LittleEndian::read_i32(&val))),
+            "IU" => Ok(CtlValue::Uint(byteorder::LittleEndian::read_u32(&val))),
+            "L" => Ok(CtlValue::Long(byteorder::LittleEndian::read_i64(&val))),
+            "LU" => Ok(CtlValue::Ulong(byteorder::LittleEndian::read_u64(&val))),
+            _ => Ok(CtlValue::None),
+        }
+        CtlType::String => match val.len() {
+            0 => Ok(CtlValue::String("".to_string())),
+            l => std::str::from_utf8(&val[..l - 1])
+                .map_err(SysctlError::Utf8Error)
+                .map(|s| CtlValue::String(s.into())),
+        },
+        CtlType::S64 => Ok(CtlValue::S64(byteorder::LittleEndian::read_i64(&val))),
+        CtlType::Struct => Ok(CtlValue::Struct(val)),
+        CtlType::Uint => Ok(CtlValue::Uint(byteorder::LittleEndian::read_u32(&val))),
+        CtlType::Long => Ok(CtlValue::Long(byteorder::LittleEndian::read_i64(&val))),
+        CtlType::Ulong => Ok(CtlValue::Ulong(byteorder::LittleEndian::read_u64(&val))),
+        CtlType::U64 => Ok(CtlValue::U64(byteorder::LittleEndian::read_u64(&val))),
+        CtlType::U8 => Ok(CtlValue::U8(val[0])),
+        CtlType::U16 => Ok(CtlValue::U16(byteorder::LittleEndian::read_u16(&val))),
+        CtlType::S8 => Ok(CtlValue::S8(val[0] as i8)),
+        CtlType::S16 => Ok(CtlValue::S16(byteorder::LittleEndian::read_i16(&val))),
+        CtlType::S32 => Ok(CtlValue::S32(byteorder::LittleEndian::read_i32(&val))),
+        CtlType::U32 => Ok(CtlValue::U32(byteorder::LittleEndian::read_u32(&val))),
+    }
+}
+
+#[cfg(any(target_os = "macos", target_os = "ios"))]
+pub fn value_name_as<T>(name: &str, ctl_type: CtlType, fmt: &str) -> Result<Box<T>, SysctlError> {
+    let val_enum = value_name(name, ctl_type, fmt)?;
+
+    // Some structs are apparently reported as Node so this check is invalid..
+    // let ctl_type = CtlType::from(&val_enum);
+    // assert_eq!(CtlType::Struct, ctl_type, "Error type is not struct/opaque");
+
+    // TODO: refactor this when we have better clue to what's going on
+    if let CtlValue::Struct(val) = val_enum {
+        // Make sure we got correct data size
+        assert_eq!(
+            std::mem::size_of::<T>(),
+            val.len(),
+            "Error memory size mismatch. Size of struct {}, size of data retrieved {}.",
+            std::mem::size_of::<T>(),
+            val.len()
+        );
+
+        // val is Vec<u8>
+        let val_array: Box<[u8]> = val.into_boxed_slice();
+        let val_raw: *mut T = Box::into_raw(val_array) as *mut T;
+        let val_box: Box<T> = unsafe { Box::from_raw(val_raw) };
+        Ok(val_box)
+    } else if let CtlValue::Node(val) = val_enum {
+        // Make sure we got correct data size
+        assert_eq!(
+            std::mem::size_of::<T>(),
+            val.len(),
+            "Error memory size mismatch. Size of struct {}, size of data retrieved {}.",
+            std::mem::size_of::<T>(),
+            val.len()
+        );
+
+        // val is Vec<u8>
+        let val_array: Box<[u8]> = val.into_boxed_slice();
+        let val_raw: *mut T = Box::into_raw(val_array) as *mut T;
+        let val_box: Box<T> = unsafe { Box::from_raw(val_raw) };
+        Ok(val_box)
+    } else {
+        Err(SysctlError::ExtractionError)
+    }
+}
+
 fn value_to_bytes(value: CtlValue) -> Result<Vec<u8>, SysctlError> {
     // TODO rest of the types
     match value {
@@ -513,6 +640,54 @@ pub fn set_oid_value(oid: &mut Vec<libc::c_int>, value: CtlValue) -> Result<CtlV
 
     // Get the new value and return for confirmation
     self::value_oid(oid)
+}
+
+#[cfg(any(target_os = "macos", target_os = "ios"))]
+pub fn set_name_value(
+    name: &str,
+    info_ctl_type: CtlType,
+    fmt: &str,
+    value: CtlValue,
+) -> Result<CtlValue, SysctlError> {
+    let c_name = CString::new(name)?;
+    let ctl_type = CtlType::from(&value);
+
+    // Get the correct ctl type based on the format string
+    let info_ctl_type = match info_ctl_type {
+        CtlType::Int => match fmt {
+            "I" => CtlType::Int,
+            "IU" => CtlType::Uint,
+            "L" => CtlType::Long,
+            "LU" => CtlType::Ulong,
+            _ => return Err(SysctlError::MissingImplementation),
+        }
+        ctl_type => ctl_type,
+    };
+
+    assert_eq!(
+        info_ctl_type, ctl_type,
+        "Error type mismatch. Type given {:?}, sysctl type: {:?}",
+        ctl_type, info_ctl_type
+    );
+
+    let bytes = value_to_bytes(value)?;
+
+    // Set value
+    let ret = unsafe {
+        libc::sysctlbyname(
+            c_name.as_ptr(),
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+            bytes.as_ptr() as *mut libc::c_void,
+            bytes.len(),
+        )
+    };
+    if ret < 0 {
+        return Err(SysctlError::IoError(std::io::Error::last_os_error()));
+    }
+
+    // Get the new value and return for confirmation
+    self::value_name(name, ctl_type, fmt)
 }
 
 #[cfg(not(any(target_os = "macos", target_os = "ios")))]
@@ -694,7 +869,7 @@ mod tests {
 
         assert_eq!(name, "kern.osrevision");
 
-        let ctl = crate::Ctl { oid };
+        let ctl = crate::Ctl::Oid(oid);
         let name = ctl
             .name()
             .expect("Could not get name of kern.osrevision sysctl.");

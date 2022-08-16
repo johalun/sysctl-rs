@@ -21,7 +21,7 @@ struct ClockInfo {
 #[cfg(any(target_os = "macos", target_os = "freebsd"))]
 fn main() {
     let oid: Vec<i32> = vec![libc::CTL_KERN, libc::KERN_CLOCKRATE];
-    let val: Box<ClockInfo> = sysctl::Ctl { oid }.value_as().expect("could not get value");
+    let val: Box<ClockInfo> = sysctl::Ctl::Oid(oid).value_as().expect("could not get value");
     println!("{:?}", val);
 }
 
