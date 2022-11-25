@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [ Unreleased ] - ReleaseDate
+### Added
+
+- Added accessor methods to destructure `CtlValue`.
+
 ## [0.5.2] - 2022-08-16
 ### Changed
 - CI minimum version test failing. Adjust versions to fix.

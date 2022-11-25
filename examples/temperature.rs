@@ -24,16 +24,13 @@ fn main() {
 
     let val_enum = ctl.value().expect("could not get value");
 
-    if let sysctl::CtlValue::Temperature(val) = val_enum {
-        println!(
-            "Temperature: {:.2}K, {:.2}F, {:.2}C",
-            val.kelvin(),
-            val.fahrenheit(),
-            val.celsius()
-        );
-    } else {
-        panic!("Error, not a temperature ctl!")
-    }
+    let temp = val_enum.as_temperature().unwrap();
+    println!(
+        "Temperature: {:.2}K, {:.2}F, {:.2}C",
+        temp.kelvin(),
+        temp.fahrenheit(),
+        temp.celsius()
+    );
 }
 
 #[cfg(not(target_os = "freebsd"))]
