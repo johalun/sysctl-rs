@@ -43,6 +43,7 @@
 #[macro_use]
 extern crate bitflags;
 extern crate byteorder;
+extern crate enum_as_inner;
 extern crate libc;
 extern crate thiserror;
 

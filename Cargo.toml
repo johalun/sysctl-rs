@@ -24,6 +24,7 @@ targets = [
 ]
 
 [dependencies]
+enum-as-inner = "0.5.1"
 libc = "^0.2.34"
 byteorder = "^1.4"
 thiserror = "^1.0.32"

@@ -14,14 +14,12 @@ use std::f32;
 /// ```
 /// # use sysctl::Sysctl;
 /// if let Ok(ctl) = sysctl::Ctl::new("dev.cpu.0.temperature") {
-///     if let Ok(sysctl::CtlValue::Temperature(val)) = ctl.value() {
-///         println!("Temperature: {:.2}K, {:.2}F, {:.2}C",
-///                   val.kelvin(),
-///                   val.fahrenheit(),
-///                   val.celsius());
-///     } else {
-///         panic!("Error, not a temperature ctl!")
-///     }
+///     let val = ctl.value().unwrap();
+///     let temp = val.as_temperature().unwrap();
+///     println!("Temperature: {:.2}K, {:.2}F, {:.2}C",
+///               temp.kelvin(),
+///               temp.fahrenheit(),
+///               temp.celsius());
 /// }
 /// ```
 /// Not available on MacOS
@@ -92,13 +90,10 @@ mod tests_freebsd {
             .expect("Error parsing value to byte array");
 
         let t = super::temperature(&info, &val).unwrap();
-        if let crate::CtlValue::Temperature(tt) = t {
-            assert!(tt.kelvin() - 333.0 < 0.1);
-            assert!(tt.celsius() - 59.85 < 0.1);
-            assert!(tt.fahrenheit() - 139.73 < 0.1);
-        } else {
-            assert!(false);
-        }
+        let tt = t.as_temperature().unwrap();
+        assert!(tt.kelvin() - 333.0 < 0.1);
+        assert!(tt.celsius() - 59.85 < 0.1);
+        assert!(tt.fahrenheit() - 139.73 < 0.1);
     }
 
     #[test]
@@ -114,10 +109,7 @@ mod tests_freebsd {
             .expect("Error parsing value to byte array");
 
         let t = super::temperature(&info, &val).unwrap();
-        if let crate::CtlValue::Temperature(tt) = t {
-            assert!(tt.kelvin() - 333.0 < 0.1);
-        } else {
-            assert!(false);
-        }
+        let tt = t.as_temperature().unwrap();
+        assert!(tt.kelvin() - 333.0 < 0.1);
     }
 }

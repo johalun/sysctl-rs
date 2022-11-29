@@ -2,21 +2,24 @@
 
 #[cfg(target_os = "freebsd")]
 use temperature::Temperature;
+use enum_as_inner::EnumAsInner;
 
 /// An Enum that holds all values returned by sysctl calls.
-/// Extract inner value with `if let` or `match`.
+/// Extract inner value with accessors like `as_int()`.
 ///
 /// # Example
 ///
 /// ```
 /// # use sysctl::Sysctl;
 /// if let Ok(ctl) = sysctl::Ctl::new("kern.osrevision") {
-///     if let Ok(sysctl::CtlValue::Int(val)) = ctl.value() {
-///         println!("Value: {}", val);
+///     if let Ok(r) = ctl.value() {
+///         if let Some(val) = r.as_int() {
+///             println!("Value: {}", val);
+///         }
 ///     }
 /// }
 /// ```
-#[derive(Debug, PartialEq, PartialOrd)]
+#[derive(Debug, EnumAsInner, PartialEq, PartialOrd)]
 pub enum CtlValue {
     None,
     Node(Vec<u8>),
