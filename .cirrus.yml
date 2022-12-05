@@ -13,7 +13,7 @@ task:
   matrix:
     - name: FreeBSD 12
       freebsd_instance:
-        image: freebsd-12-3-release-amd64
+        image: freebsd-12-4-release-amd64
     - name: FreeBSD 13
       freebsd_instance:
         image: freebsd-13-1-release-amd64
