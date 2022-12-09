@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.5.4] - 2022-12-09
+### Changed
+- Bumped byteorder crate to 1.4.3 due to failing tests.
+
 ## [0.5.3] - 2022-12-09
 ### Added
 - Added accessor methods to destructure `CtlValue`.

@@ -1,6 +1,6 @@
 [package]
 name = "sysctl"
-version = "0.5.3"
+version = "0.5.4"
 authors = [
    "Johannes Lundberg <johalun0@gmail.com>",
    "Ivan Temchenko <ivan.temchenko@yandex.ua>",
@@ -26,7 +26,7 @@ targets = [
 [dependencies]
 enum-as-inner = "0.5.1"
 libc = "^0.2.34"
-byteorder = "^1.4"
+byteorder = "^1.4.3"
 thiserror = "^1.0.32"
 bitflags = "^1.3"
 
