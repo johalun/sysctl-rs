@@ -1,9 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [ Unreleased ] - ReleaseDate
+## [0.5.3] - 2022-12-09
 ### Added
-
 - Added accessor methods to destructure `CtlValue`.
 
 ## [0.5.2] - 2022-08-16
