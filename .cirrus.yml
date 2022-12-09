@@ -53,7 +53,8 @@ test_task:
   depends_on:
     - FreeBSD 12
     - FreeBSD 13
-    - OSX
+    - OSX/amd64
+    - OSX/arm64
     - Linux
   container:
     image: rustlang/rust:nightly
