@@ -23,9 +23,17 @@ task:
   << : *TEST
 
 task:
-  name: OSX
+  name: OSX/amd64
   macos_instance:
     image: catalina-base
+  install_script: |
+    curl https://sh.rustup.rs -sSf | sh -s -- -y
+  << : *TEST
+
+task:
+  name: OSX/arm64
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-ventura-base:latest
   install_script: |
     curl https://sh.rustup.rs -sSf | sh -s -- -y
   << : *TEST
