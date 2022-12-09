@@ -23,14 +23,6 @@ task:
   << : *TEST
 
 task:
-  name: OSX/amd64
-  macos_instance:
-    image: catalina-base
-  install_script: |
-    curl https://sh.rustup.rs -sSf | sh -s -- -y
-  << : *TEST
-
-task:
   name: OSX/arm64
   macos_instance:
     image: ghcr.io/cirruslabs/macos-ventura-base:latest
@@ -53,7 +45,6 @@ test_task:
   depends_on:
     - FreeBSD 12
     - FreeBSD 13
-    - OSX/amd64
     - OSX/arm64
     - Linux
   container:
