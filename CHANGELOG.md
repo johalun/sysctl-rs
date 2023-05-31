@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - ReleaseDate
+
+### Changed
+- Updated enum-as-inner to 0.6.0, to remove dependencies on both syn-1 and syn-2.
+
 ## [0.5.4] - 2022-12-09
 ### Changed
 - Bumped byteorder crate to 1.4.3 due to failing tests.
