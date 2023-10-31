@@ -11,7 +11,7 @@ bitflags! {
         /// Allow writes to the variable
         const WR = CTLFLAG_WR;
 
-        const RW = Self::RD.bits | Self::WR.bits;
+        const RW = Self::RD.bits() | Self::WR.bits();
 
         /// This sysctl is not active yet
         const DORMANT = CTLFLAG_DORMANT;
@@ -38,10 +38,10 @@ bitflags! {
         const TUN = CTLFLAG_TUN;
 
         /// Readable tunable
-        const RDTUN = Self::RD.bits | Self::TUN.bits;
+        const RDTUN = Self::RD.bits() | Self::TUN.bits();
 
         /// Readable and writeable tunable
-        const RWTUN = Self::RW.bits | Self::TUN.bits;
+        const RWTUN = Self::RW.bits() | Self::TUN.bits();
 
         /// Handler is MP safe
         const MPSAFE = CTLFLAG_MPSAFE;
@@ -65,7 +65,7 @@ bitflags! {
         const NOFETCH = CTLFLAG_NOFETCH;
 
         /// Can be read and written in capability mode
-        const CAPRW = Self::CAPRD.bits | Self::CAPWR.bits;
+        const CAPRW = Self::CAPRD.bits() | Self::CAPWR.bits();
     }
 }
 
