@@ -4,7 +4,11 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased] - ReleaseDate
 
 ### Changed
+
+## [0.5.5] - 2023-10-31
+### Changed
 - Updated enum-as-inner to 0.6.0, to remove dependencies on both syn-1 and syn-2.
+- Updated bitflags to minimum 2.0.
 
 ## [0.5.4] - 2022-12-09
 ### Changed
