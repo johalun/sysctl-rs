@@ -11,9 +11,9 @@ test: &TEST
 
 task:
   matrix:
-    - name: FreeBSD 12
+    - name: FreeBSD 14
       freebsd_instance:
-        image: freebsd-12-4-release-amd64
+        image: freebsd-14-0-release-amd64-ufs
     - name: FreeBSD 13
       freebsd_instance:
         image: freebsd-13-2-release-amd64
@@ -43,7 +43,7 @@ task:
 test_task:
   name: nightly
   depends_on:
-    - FreeBSD 12
+    - FreeBSD 14
     - FreeBSD 13
     - OSX/arm64
     - Linux
