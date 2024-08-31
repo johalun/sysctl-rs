@@ -6,7 +6,7 @@ use ctl_error::*;
 use ctl_info::*;
 use ctl_type::*;
 use ctl_value::*;
-#[cfg(any(target_os = "macos", target_os = "ios"))]
+#[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
 use std::ffi::CString;
 
 #[cfg(target_os = "freebsd")]
@@ -42,7 +42,7 @@ pub fn name2oid(name: &str) -> Result<Vec<libc::c_int>, SysctlError> {
     Ok(res)
 }
 
-#[cfg(not(any(target_os = "macos", target_os = "ios")))]
+#[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
 pub fn oidfmt(oid: &[libc::c_int]) -> Result<CtlInfo, SysctlError> {
     // Request command for type info
     let mut qoid: Vec<libc::c_int> = vec![0, 4];
@@ -87,7 +87,7 @@ pub fn oidfmt(oid: &[libc::c_int]) -> Result<CtlInfo, SysctlError> {
     Ok(s)
 }
 
-#[cfg(any(target_os = "macos", target_os = "ios"))]
+#[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
 pub fn oidfmt(oid: &[libc::c_int]) -> Result<CtlInfo, SysctlError> {
     // Request command for type info
     let mut qoid: Vec<libc::c_int> = vec![0, 4];
@@ -138,7 +138,7 @@ pub fn oidfmt(oid: &[libc::c_int]) -> Result<CtlInfo, SysctlError> {
     Ok(s)
 }
 
-#[cfg(not(any(target_os = "macos", target_os = "ios")))]
+#[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
 pub fn value_oid(oid: &[i32]) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = oidfmt(&oid)?;
 
@@ -227,7 +227,7 @@ pub fn value_oid(oid: &[i32]) -> Result<CtlValue, SysctlError> {
     }
 }
 
-#[cfg(any(target_os = "macos", target_os = "ios"))]
+#[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
 pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = oidfmt(&oid)?;
 
@@ -315,7 +315,7 @@ pub fn value_oid(oid: &mut Vec<i32>) -> Result<CtlValue, SysctlError> {
     }
 }
 
-#[cfg(not(any(target_os = "macos", target_os = "ios")))]
+#[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
 pub fn value_oid_as<T>(oid: &[i32]) -> Result<Box<T>, SysctlError> {
     let val_enum = value_oid(oid)?;
 
@@ -359,7 +359,7 @@ pub fn value_oid_as<T>(oid: &[i32]) -> Result<Box<T>, SysctlError> {
     }
 }
 
-#[cfg(any(target_os = "macos", target_os = "ios"))]
+#[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
 pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
     let val_enum = value_oid(oid)?;
 
@@ -403,7 +403,7 @@ pub fn value_oid_as<T>(oid: &mut Vec<i32>) -> Result<Box<T>, SysctlError> {
     }
 }
 
-#[cfg(any(target_os = "macos", target_os = "ios"))]
+#[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
 pub fn value_name(name: &str, ctl_type: CtlType, fmt: &str) -> Result<CtlValue, SysctlError> {
     let name = CString::new(name)?;
 
@@ -484,7 +484,7 @@ pub fn value_name(name: &str, ctl_type: CtlType, fmt: &str) -> Result<CtlValue, 
     }
 }
 
-#[cfg(any(target_os = "macos", target_os = "ios"))]
+#[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
 pub fn value_name_as<T>(name: &str, ctl_type: CtlType, fmt: &str) -> Result<Box<T>, SysctlError> {
     let val_enum = value_name(name, ctl_type, fmt)?;
 
@@ -556,7 +556,7 @@ fn value_to_bytes(value: CtlValue) -> Result<Vec<u8>, SysctlError> {
     }
 }
 
-#[cfg(not(any(target_os = "macos", target_os = "ios")))]
+#[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
 pub fn set_oid_value(oid: &[libc::c_int], value: CtlValue) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = oidfmt(&oid)?;
 
@@ -592,7 +592,7 @@ pub fn set_oid_value(oid: &[libc::c_int], value: CtlValue) -> Result<CtlValue, S
     self::value_oid(oid)
 }
 
-#[cfg(any(target_os = "macos", target_os = "ios"))]
+#[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
 pub fn set_oid_value(oid: &mut Vec<libc::c_int>, value: CtlValue) -> Result<CtlValue, SysctlError> {
     let info: CtlInfo = oidfmt(&oid)?;
 
@@ -642,7 +642,7 @@ pub fn set_oid_value(oid: &mut Vec<libc::c_int>, value: CtlValue) -> Result<CtlV
     self::value_oid(oid)
 }
 
-#[cfg(any(target_os = "macos", target_os = "ios"))]
+#[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
 pub fn set_name_value(
     name: &str,
     info_ctl_type: CtlType,
@@ -690,7 +690,7 @@ pub fn set_name_value(
     self::value_name(name, ctl_type, fmt)
 }
 
-#[cfg(not(any(target_os = "macos", target_os = "ios")))]
+#[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
 pub fn oid2description(oid: &[libc::c_int]) -> Result<String, SysctlError> {
     // Request command for description
     let mut qoid: Vec<libc::c_int> = vec![0, 5];
@@ -720,7 +720,7 @@ pub fn oid2description(oid: &[libc::c_int]) -> Result<String, SysctlError> {
     }
 }
 
-#[cfg(not(any(target_os = "macos", target_os = "ios")))]
+#[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
 pub fn oid2name(oid: &[libc::c_int]) -> Result<String, SysctlError> {
     // Request command for name
     let mut qoid: Vec<libc::c_int> = vec![0, 1];
@@ -750,7 +750,7 @@ pub fn oid2name(oid: &[libc::c_int]) -> Result<String, SysctlError> {
     }
 }
 
-#[cfg(any(target_os = "macos", target_os = "ios"))]
+#[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
 pub fn oid2name(oid: &Vec<libc::c_int>) -> Result<String, SysctlError> {
     // Request command for name
     let mut qoid: Vec<libc::c_int> = vec![0, 1];
@@ -780,7 +780,7 @@ pub fn oid2name(oid: &Vec<libc::c_int>) -> Result<String, SysctlError> {
     }
 }
 
-#[cfg(not(any(target_os = "macos", target_os = "ios")))]
+#[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
 pub fn next_oid(oid: &[libc::c_int]) -> Result<Option<Vec<libc::c_int>>, SysctlError> {
     // Request command for next oid
     let mut qoid: Vec<libc::c_int> = vec![0, 2];
@@ -819,7 +819,7 @@ pub fn next_oid(oid: &[libc::c_int]) -> Result<Option<Vec<libc::c_int>>, SysctlE
     Ok(Some(res))
 }
 
-#[cfg(any(target_os = "macos", target_os = "ios"))]
+#[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
 pub fn next_oid(oid: &Vec<libc::c_int>) -> Result<Option<Vec<libc::c_int>>, SysctlError> {
     // Request command for next oid
     let mut qoid: Vec<libc::c_int> = vec![0, 2];
@@ -926,7 +926,7 @@ mod tests_freebsd {
     }
 }
 
-#[cfg(all(test, any(target_os = "macos", target_os = "ios")))]
+#[cfg(all(test, any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
 mod tests_macos {
     #[test]
     fn ctl_mib() {

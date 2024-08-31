@@ -41,12 +41,12 @@ impl Sysctl for Ctl {
         Ctl::from_str(name)
     }
 
-    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
+    #[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
     fn new_with_type(name: &str, _ctl_type: CtlType, _fmt: &str) -> Result<Self, SysctlError> {
         Ctl::from_str(name)
     }
 
-    #[cfg(any(target_os = "macos", target_os = "ios"))]
+    #[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
     fn new_with_type(name: &str, ctl_type: CtlType, fmt: &str) -> Result<Self, SysctlError> {
         let _ = name2oid(name)?;
 
@@ -60,7 +60,7 @@ impl Sysctl for Ctl {
         }
     }
 
-    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
+    #[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
     fn value_type(&self) -> Result<CtlType, SysctlError> {
         match self {
             Ctl::Oid(oid) => {
@@ -73,7 +73,7 @@ impl Sysctl for Ctl {
         }
     }
 
-    #[cfg(any(target_os = "macos", target_os = "ios"))]
+    #[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
     fn value_type(&self) -> Result<CtlType, SysctlError> {
         match self {
             Ctl::Oid(oid) => {
@@ -105,24 +105,24 @@ impl Sysctl for Ctl {
         }
     }
 
-    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
+    #[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
     fn description(&self) -> Result<String, SysctlError> {
         let oid = self.oid().ok_or(SysctlError::MissingImplementation)?;
         oid2description(oid)
     }
 
-    #[cfg(any(target_os = "macos", target_os = "ios"))]
+    #[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
     fn description(&self) -> Result<String, SysctlError> {
         Ok("[N/A]".to_string())
     }
 
-    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
+    #[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
     fn value(&self) -> Result<CtlValue, SysctlError> {
         let oid = self.oid().ok_or(SysctlError::MissingImplementation)?;
         value_oid(oid)
     }
 
-    #[cfg(any(target_os = "macos", target_os = "ios"))]
+    #[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
     fn value(&self) -> Result<CtlValue, SysctlError> {
         match self {
             Ctl::Oid(oid) => {
@@ -135,7 +135,7 @@ impl Sysctl for Ctl {
         }
     }
 
-    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
+    #[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
     fn value_as<T>(&self) -> Result<Box<T>, SysctlError> {
         let oid = self.oid().ok_or(SysctlError::MissingImplementation)?;
         value_oid_as::<T>(oid)
@@ -145,7 +145,7 @@ impl Sysctl for Ctl {
         self.value().map(|v| format!("{}", v))
     }
 
-    #[cfg(any(target_os = "macos", target_os = "ios"))]
+    #[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
     fn value_as<T>(&self) -> Result<Box<T>, SysctlError> {
         match self {
             Ctl::Oid(oid) => {
@@ -158,13 +158,13 @@ impl Sysctl for Ctl {
         }
     }
 
-    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
+    #[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
     fn set_value(&self, value: CtlValue) -> Result<CtlValue, SysctlError> {
         let oid = self.oid().ok_or(SysctlError::MissingImplementation)?;
         set_oid_value(&oid, value)
     }
 
-    #[cfg(any(target_os = "macos", target_os = "ios"))]
+    #[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
     fn set_value(&self, value: CtlValue) -> Result<CtlValue, SysctlError> {
         match self {
             Ctl::Oid(oid) => {
@@ -177,7 +177,7 @@ impl Sysctl for Ctl {
         }
     }
 
-    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
+    #[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
     fn set_value_string(&self, value: &str) -> Result<String, SysctlError> {
         let oid = self.oid().ok_or(SysctlError::MissingImplementation)?;
         let ctl_type = self.value_type()?;
@@ -204,7 +204,7 @@ impl Sysctl for Ctl {
         self.value_string()
     }
 
-    #[cfg(any(target_os = "macos", target_os = "ios"))]
+    #[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
     fn set_value_string(&self, value: &str) -> Result<String, SysctlError> {
         let ctl_type = self.value_type()?;
 
@@ -303,7 +303,7 @@ mod tests {
         #[cfg(target_os = "freebsd")]
         assert_eq!(descp, "Operating system type");
 
-        #[cfg(any(target_os = "macos", target_os = "ios", target_os = "linux"))]
+        #[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos", target_os = "linux"))]
         assert_eq!(descp, "[N/A]");
     }
 }

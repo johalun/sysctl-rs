@@ -5,7 +5,7 @@
 //! # Example: Get value
 //! ```
 //! # use sysctl::Sysctl;
-//! #[cfg(any(target_os = "macos", target_os = "ios", target_os = "freebsd"))]
+//! #[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos", target_os = "freebsd"))]
 //! const CTLNAME: &str = "kern.ostype";
 //! #[cfg(any(target_os = "linux", target_os = "android"))]
 //! const CTLNAME: &str = "kernel.ostype";
@@ -34,9 +34,9 @@
 //!     stathz: libc::c_int, /* statistics clock frequency */
 //!     profhz: libc::c_int, /* profiling clock frequency */
 //! }
-//! # #[cfg(any(target_os = "macos", target_os = "ios", target_os = "freebsd"))]
+//! # #[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos", target_os = "freebsd"))]
 //! let val: Box<ClockInfo> = sysctl::Ctl::new("kern.clockrate").unwrap().value_as().unwrap();
-//! # #[cfg(any(target_os = "macos", target_os = "ios", target_os = "freebsd"))]
+//! # #[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos", target_os = "freebsd"))]
 //! println!("{:?}", val);
 //! ```
 
@@ -54,7 +54,7 @@ extern crate walkdir;
 #[path = "linux/mod.rs"]
 mod sys;
 
-#[cfg(any(target_os = "macos", target_os = "ios", target_os = "freebsd"))]
+#[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos", target_os = "freebsd"))]
 #[path = "unix/mod.rs"]
 mod sys;
 

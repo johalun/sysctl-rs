@@ -97,7 +97,7 @@ mod tests_linux {
     }
 }
 
-#[cfg(all(test, any(target_os = "freebsd", target_os = "macos", target_os = "ios")))]
+#[cfg(all(test, any(target_os = "freebsd", target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
 mod tests_unix {
     use crate::sys;
     use crate::Sysctl;

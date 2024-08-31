@@ -68,7 +68,6 @@ impl std::convert::From<&CtlValue> for CtlType {
         }
     }
 }
-
 impl std::convert::From<CtlValue> for CtlType {
     fn from(t: CtlValue) -> Self {
         Self::from(&t)
@@ -100,3 +99,4 @@ impl CtlType {
         }
     }
 }
+

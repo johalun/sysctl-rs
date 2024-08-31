@@ -7,7 +7,7 @@ pub enum SysctlError {
     NotFound(String),
 
     #[error("no matching type for value")]
-    #[cfg(not(any(target_os = "macos", target_os = "ios")))]
+    #[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos")))]
     UnknownType,
 
     #[error("Error extracting value")]
