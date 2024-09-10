@@ -5,7 +5,7 @@ This crate provides a safe interface for reading and writing information to the 
 [![Current Version](https://img.shields.io/crates/v/sysctl.svg)](https://crates.io/crates/sysctl)
 
 
-*FreeBSD, Linux, macOS and iOS are supported.*
+*FreeBSD, Linux, macOS, iOS, tvOS, and visionOS are supported.*
 *Contributions for improvements and other platforms are welcome.*
 
 ### Documentation

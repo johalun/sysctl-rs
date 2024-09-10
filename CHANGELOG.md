@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+## [0.6.0] - 2024-09-10
+### Changed
+- Added support for Apple tvOS and visionOS.
+
 ## [0.5.5] - 2023-10-31
 ### Changed
 - Updated enum-as-inner to 0.6.0, to remove dependencies on both syn-1 and syn-2.
