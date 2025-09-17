@@ -7,8 +7,9 @@ use crate::ctl_flags::CtlFlags;
 use crate::ctl_info::CtlInfo;
 use crate::ctl_type::CtlType;
 use crate::ctl_value::CtlValue;
-use crate::std::str::FromStr;
 use crate::traits::Sysctl;
+
+use std::str::FromStr;
 
 /// This struct represents a system control.
 #[derive(Debug, Clone, PartialEq)]
