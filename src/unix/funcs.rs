@@ -10,7 +10,7 @@ use crate::ctl_value::*;
 use std::ffi::CString;
 
 #[cfg(target_os = "freebsd")]
-use temperature::*;
+use crate::temperature::*;
 
 pub fn name2oid(name: &str) -> Result<Vec<libc::c_int>, SysctlError> {
     // We get results in this vector

@@ -1,7 +1,7 @@
 // ctl_value.rs
 
 #[cfg(target_os = "freebsd")]
-use temperature::Temperature;
+use crate::temperature::Temperature;
 use enum_as_inner::EnumAsInner;
 
 /// An Enum that holds all values returned by sysctl calls.
