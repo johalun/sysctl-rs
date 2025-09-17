@@ -5,10 +5,14 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+## [0.7.1] - 2025-09-17
+### Changed
+- FreeBSD-specific fixes for 2024 edition update.
+
 ## [0.7.0] - 2025-09-17
 ### Changed
-- Update Rust edition to 2024
-- Update thiserror to ^2.0
+- Update Rust edition to 2024.
+- Update thiserror to ^2.0.
 
 ## [0.6.0] - 2024-09-10
 ### Changed
