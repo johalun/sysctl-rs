@@ -1,7 +1,7 @@
 // ctl_info.rs
 
-use ctl_flags::*;
-use ctl_type::*;
+use crate::ctl_flags::*;
+use crate::ctl_type::*;
 
 #[derive(Debug, PartialEq)]
 /// A structure representing control metadata

@@ -1,10 +1,10 @@
 // traits.rs
 
-use ctl_error::SysctlError;
-use ctl_flags::CtlFlags;
-use ctl_info::CtlInfo;
-use ctl_type::CtlType;
-use ctl_value::CtlValue;
+use crate::ctl_error::SysctlError;
+use crate::ctl_flags::CtlFlags;
+use crate::ctl_info::CtlInfo;
+use crate::ctl_type::CtlType;
+use crate::ctl_value::CtlValue;
 
 pub trait Sysctl {
     /// Construct a Ctl from the name.
@@ -26,7 +26,7 @@ pub trait Sysctl {
     /// let ctl = sysctl::Ctl::new("this.sysctl.does.not.exist");
     /// match ctl {
     ///     Err(sysctl::SysctlError::NotFound(_)) => (),
-    ///     Err(e) => panic!(format!("Wrong error type returned: {:?}", e)),
+    ///     Err(e) => panic!("{}", format!("Wrong error type returned: {:?}", e)),
     ///     Ok(_) => panic!("Nonexistent sysctl seems to exist"),
     /// }
     /// ```
@@ -146,7 +146,7 @@ pub trait Sysctl {
     /// ```
     fn value_string(&self) -> Result<String, SysctlError>;
 
-    #[cfg_attr(feature = "cargo-clippy", allow(clippy::needless_doctest_main))]
+    #[allow(clippy::needless_doctest_main)]
     /// Sets the value of a sysctl.
     /// Fetches and returns the new value if successful, or returns a
     /// SysctlError on failure.
@@ -166,7 +166,7 @@ pub trait Sysctl {
     /// }
     fn set_value(&self, value: CtlValue) -> Result<CtlValue, SysctlError>;
 
-    #[cfg_attr(feature = "cargo-clippy", allow(clippy::needless_doctest_main))]
+    #[allow(clippy::needless_doctest_main)]
     /// Sets the value of a sysctl with input as string.
     /// Fetches and returns the new value if successful, or returns a
     /// SysctlError on failure.
@@ -201,7 +201,7 @@ pub trait Sysctl {
     /// ```
     fn flags(&self) -> Result<CtlFlags, SysctlError>;
 
-    #[cfg_attr(feature = "cargo-clippy", allow(clippy::needless_doctest_main))]
+    #[allow(clippy::needless_doctest_main)]
     /// Returns a Result containing the control metadata for a sysctl.
     ///
     /// Returns a Result containing the CtlInfo struct on success,

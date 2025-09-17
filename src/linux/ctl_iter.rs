@@ -1,8 +1,8 @@
 // linux/ctl_iter.rs
 
 use super::ctl::Ctl;
-use ctl_error::SysctlError;
-use traits::Sysctl;
+use crate::ctl_error::SysctlError;
+use crate::traits::Sysctl;
 
 /// An iterator over Sysctl entries.
 pub struct CtlIter {

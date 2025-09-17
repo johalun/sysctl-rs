@@ -1,11 +1,11 @@
 // unix/funcs.rs
 
 use byteorder::{ByteOrder, WriteBytesExt};
-use consts::*;
-use ctl_error::*;
-use ctl_info::*;
-use ctl_type::*;
-use ctl_value::*;
+use crate::consts::*;
+use crate::ctl_error::*;
+use crate::ctl_info::*;
+use crate::ctl_type::*;
+use crate::ctl_value::*;
 #[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos"))]
 use std::ffi::CString;
 
@@ -78,7 +78,7 @@ pub fn oidfmt(oid: &[libc::c_int]) -> Result<CtlInfo, SysctlError> {
             Err(e) => return Err(SysctlError::InvalidCStr(e)),
         };
 
-    #[cfg_attr(feature = "cargo-clippy", allow(clippy::redundant_field_names))]
+    #[allow(clippy::redundant_field_names)]
     let s = CtlInfo {
         ctl_type: CtlType::from(ctltype_val),
         fmt: fmt,

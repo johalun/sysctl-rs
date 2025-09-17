@@ -1,7 +1,7 @@
 // linux/funcs.rs
 
-use ctl_error::*;
-use ctl_value::*;
+use crate::ctl_error::*;
+use crate::ctl_value::*;
 
 use std::io::{Read, Write};
 

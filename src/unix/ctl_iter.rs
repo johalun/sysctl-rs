@@ -2,7 +2,7 @@
 
 use super::ctl::Ctl;
 use super::funcs::next_oid;
-use ctl_error::SysctlError;
+use crate::ctl_error::SysctlError;
 
 /// An iterator over Sysctl entries.
 pub struct CtlIter {

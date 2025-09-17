@@ -1,13 +1,13 @@
 // unix/ctl.rs
 
 use super::funcs::*;
-use ctl_error::SysctlError;
-use ctl_flags::CtlFlags;
-use ctl_info::CtlInfo;
-use ctl_type::CtlType;
-use ctl_value::CtlValue;
+use crate::ctl_error::SysctlError;
+use crate::ctl_flags::CtlFlags;
+use crate::ctl_info::CtlInfo;
+use crate::ctl_type::CtlType;
+use crate::ctl_value::CtlValue;
+use crate::traits::Sysctl;
 use std::str::FromStr;
-use traits::Sysctl;
 
 /// This struct represents a system control.
 #[derive(Debug, Clone, PartialEq)]
@@ -28,7 +28,7 @@ impl Ctl {
 impl std::str::FromStr for Ctl {
     type Err = SysctlError;
 
-    #[cfg_attr(feature = "cargo-clippy", allow(clippy::redundant_field_names))]
+    #[allow(clippy::redundant_field_names)]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let oid = name2oid(s)?;
 

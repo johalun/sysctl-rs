@@ -1,10 +1,10 @@
 // temperature.rs
 
 use byteorder::ByteOrder;
-use ctl_error::SysctlError;
-use ctl_info::CtlInfo;
-use ctl_type::CtlType;
-use ctl_value::CtlValue;
+use crate::ctl_error::SysctlError;
+use crate::ctl_info::CtlInfo;
+use crate::ctl_type::CtlType;
+use crate::ctl_value::CtlValue;
 
 use std::f32;
 

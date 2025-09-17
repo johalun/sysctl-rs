@@ -1,6 +1,6 @@
 // ctl_type.rs
 
-use ctl_value::*;
+use crate::ctl_value::*;
 
 /// An Enum that represents a sysctl's type information.
 ///
