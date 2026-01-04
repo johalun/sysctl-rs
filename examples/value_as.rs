@@ -37,7 +37,7 @@ impl std::fmt::Debug for LoadAvg {
     }
 }
 
-#[cfg(any(target_os = "macos", target_os = "freebsd"))]
+#[cfg(any(target_os = "macos", target_os = "freebsd", target_os = "openbsd"))]
 fn main() {
     // Generic type to pass to function will be inferred if not specified on RHS
     println!("Read sysctl kern.clockrate as struct directly");

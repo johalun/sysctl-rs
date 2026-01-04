@@ -6,7 +6,7 @@ extern crate sysctl;
 // Import the trait
 use sysctl::Sysctl;
 
-#[cfg(any(target_os = "macos", target_os = "freebsd"))]
+#[cfg(any(target_os = "macos", target_os = "freebsd", target_os = "openbsd"))]
 const CTLNAMES: &[&str] = &["kern.ostype"];
 
 #[cfg(any(target_os = "linux", target_os = "android"))]

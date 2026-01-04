@@ -18,7 +18,7 @@ struct ClockInfo {
     profhz: libc::c_int, /* profiling clock frequency */
 }
 
-#[cfg(any(target_os = "macos", target_os = "freebsd"))]
+#[cfg(any(target_os = "macos", target_os = "freebsd", target_os = "openbsd"))]
 fn main() {
     let oid: Vec<i32> = vec![libc::CTL_KERN, libc::KERN_CLOCKRATE];
     let val: Box<ClockInfo> = sysctl::Ctl::Oid(oid).value_as().expect("could not get value");

@@ -69,10 +69,12 @@ bitflags! {
     }
 }
 
+#[cfg(not(all(test, target_os = "openbsd")))]
 #[cfg(test)]
 mod tests {
     use crate::Sysctl;
 
+    #[cfg(not(all(test, target_os = "openbsd")))]
     #[test]
     fn ctl_flags() {
         // This sysctl should be read-only.
