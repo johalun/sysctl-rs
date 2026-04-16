@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: "ubuntu-latest"
+            name: "Linux"
+          - os: "macos-latest"
+            name: "MacOS"
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.name}} "stable"
+    steps:
+    - uses: actions/checkout@v6
+    - uses: dtolnay/rust-toolchain@stable
+    - name: Tests
+      run: cargo test
+
+  minver:
+    runs-on: "ubuntu-latest"
+    steps:
+    - uses: actions/checkout@v6
+    - uses: dtolnay/rust-toolchain@nightly
+    - name: Install minimal verions
+      run: cargo update -Zdirect-minimal-versions
+    - name: Check
+      run: cargo check --all-targets
+
+  nightly:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - uses: dtolnay/rust-toolchain@nightly
+    - name: Tests
+      run: cargo test --all-features
+
+  test-vmactions:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - freebsd_version: "14.4"
+            rust_version: "stable"
+          - freebsd_version: "14.4"
+            rust_version: "nightly"
+    name: FreeBSD ${{ matrix.freebsd_version }} ${{ matrix.rust_version }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Start VM
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: ${{ matrix.freebsd_version }}
+          usesh: true
+      - name: Install dependencies
+        shell: freebsd {0}
+        run: |
+          pkg install -y curl
+          fetch https://sh.rustup.rs -o rustup.sh
+          sh rustup.sh -y --profile=minimal --default-toolchain ${{ matrix.rust_version }}
+      - name: Test
+        shell: freebsd {0}
+        run: |
+          . $HOME/.cargo/env
+          cargo test
