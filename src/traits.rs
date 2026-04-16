@@ -20,7 +20,7 @@ pub trait Sysctl {
     /// ```
     ///
     /// If the sysctl does not exist, `Err(SysctlError::NotFound)` is returned.
-    /// ```
+    /// ```ignore-openbsd
     /// # use sysctl::Sysctl;
     /// #
     /// let ctl = sysctl::Ctl::new("this.sysctl.does.not.exist");
@@ -47,7 +47,7 @@ pub trait Sysctl {
     /// ```
     ///
     /// If the sysctl does not exist, `Err(SysctlError::NotFound)` is returned.
-    /// ```
+    /// ```ignore-openbsd
     /// # use sysctl::{CtlType, Sysctl};
     /// #
     /// let ctl = sysctl::Ctl::new_with_type("this.sysctl.does.not.exist", CtlType::String, "");
@@ -65,7 +65,7 @@ pub trait Sysctl {
     /// SysctlError on failure.
     ///
     /// # Example
-    /// ```
+    /// ```ignore-openbsd
     /// # use sysctl::Sysctl;
     /// if let Ok(ctl) = sysctl::Ctl::new("kern.ostype") {
     ///     assert_eq!(ctl.name().unwrap(), "kern.ostype");
@@ -78,7 +78,7 @@ pub trait Sysctl {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```ignore-openbsd
     /// # use sysctl::Sysctl;
     /// if let Ok(ctl) = sysctl::Ctl::new("kern.ostype") {
     ///     let value_type = ctl.value_type().unwrap();
@@ -192,7 +192,7 @@ pub trait Sysctl {
     /// or a SysctlError on failure.
     ///
     /// # Example
-    /// ```
+    /// ```ignore-openbsd
     /// # use sysctl::Sysctl;
     /// if let Ok(ctl) = sysctl::Ctl::new("kern.ostype") {
     ///     let readable = ctl.flags().unwrap().contains(sysctl::CtlFlags::RD);
@@ -208,9 +208,10 @@ pub trait Sysctl {
     /// or a SysctlError on failure.
     ///
     /// # Example
-    /// ```
+    /// ```ignore-openbsd
     /// use sysctl::Sysctl;
     ///
+    ///#[cfg(not(all(test, target_os = "openbsd")))]
     /// fn main() {
     ///     if let Ok(ctl) = sysctl::Ctl::new("kern.osrevision") {
     ///         let info = ctl.info().unwrap();

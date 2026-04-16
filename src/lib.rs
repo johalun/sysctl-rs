@@ -3,7 +3,7 @@
 //! A simplified interface to the `sysctl` system call.
 //!
 //! # Example: Get value
-//! ```
+//! ```ignore-openbsd
 //! # use sysctl::Sysctl;
 //! #[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos", target_os = "freebsd"))]
 //! const CTLNAME: &str = "kern.ostype";
@@ -23,7 +23,7 @@
 //!
 //! # Example: Get value as struct
 //! ```
-//! // Not available on Linux
+//! // Not available on Linux and OpenBSD
 //! # use sysctl::Sysctl;
 //! #[derive(Debug, Default)]
 //! #[repr(C)]
@@ -54,7 +54,7 @@ extern crate walkdir;
 #[path = "linux/mod.rs"]
 mod sys;
 
-#[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos", target_os = "freebsd"))]
+#[cfg(any(target_os = "macos", target_os = "ios", target_os = "tvos", target_os = "visionos", target_os = "freebsd", target_os = "openbsd"))]
 #[path = "unix/mod.rs"]
 mod sys;
 

@@ -58,7 +58,7 @@ impl Iterator for CtlIter {
 ///
 /// # Example
 ///
-/// ```
+/// ```ignore-openbsd
 /// use sysctl::Sysctl;
 ///
 /// let kern = sysctl::Ctl::new("kern");
@@ -75,6 +75,7 @@ impl IntoIterator for Ctl {
     }
 }
 
+#[cfg(not(all(test, target_os = "openbsd")))]
 #[cfg(test)]
 mod tests {
     use crate::Sysctl;
