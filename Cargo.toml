@@ -17,6 +17,7 @@ include = ["src/**/*", "LICENSE-MIT", "README.md", "CHANGELOG.md"]
 
 [package.metadata.docs.rs]
 targets = [
+  "aarch64-apple-watchos",
   "i686-unknown-freebsd",
   "i686-unknown-linux-gnu",
   "x86_64-apple-darwin",
